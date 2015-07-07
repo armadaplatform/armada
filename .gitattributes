@@ -1,0 +1,15 @@
+text=lf
+
+*.sh text eol=lf
+*.py text eol=lf
+Dockerfile text eol=lf
+.dockerignore text eol=lf
+armada text eol=lf
+initd_armada text eol=lf
+main-port-open text eol=lf
+http-ok text eol=lf
+health-check text eol=lf
+build-armada text eol=lf
+restart-armada text eol=lf
+
+*.png binary

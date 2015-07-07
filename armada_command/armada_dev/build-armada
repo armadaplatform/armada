@@ -1,0 +1,20 @@
+#!/bin/bash
+
+IMAGE_PATH="/opt/armada-src/"
+IMAGE_NAME="armada"
+DOCKERFILE_PATH="${IMAGE_PATH}/Dockerfile"
+DOCKYARD_ADDRESS="dockyard.armada.sh"
+
+if [ ! -f "${DOCKERFILE_PATH}" ]; then
+    echo "ERROR: Dockerfile not found in ${IMAGE_PATH}"
+    exit 1
+fi
+
+BASE_IMAGE_NAME=`cat ${DOCKERFILE_PATH} | grep "^FROM " | head -1 | awk '{print \$2}' | tr -d '\r'`
+
+echo "Pulling base image (${BASE_IMAGE_NAME}) from dockyard..."
+docker pull ${DOCKYARD_ADDRESS}/${BASE_IMAGE_NAME}
+docker tag -f ${DOCKYARD_ADDRESS}/${BASE_IMAGE_NAME} ${BASE_IMAGE_NAME}
+
+echo "Building image \"${IMAGE_NAME}\" from path ${IMAGE_PATH} ..."
+docker build -t ${IMAGE_NAME} ${IMAGE_PATH}

@@ -1,0 +1,10 @@
+#!/bin/bash
+port=80
+if [ -n "$1" ]; then
+    port="$1"
+fi
+nc -z localhost $port
+if [ $? -eq 0 ]; then
+    exit 0
+fi
+exit 2
