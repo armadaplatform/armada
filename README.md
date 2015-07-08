@@ -10,7 +10,7 @@ your platform more service oriented.
 
 * Main Armada website: [http://armada.sh](http://armada.sh)
 * Getting started: [http://armada.sh/intro](http://armada.sh/intro)
-* Various Armada guides: [http://armada.sh/doc](http://armada.sh/doc)
+* Various Armada guides: [http://armada.sh/docs](http://armada.sh/docs)
 
 
 # Repository overview
@@ -27,7 +27,3 @@ your platform more service oriented.
 
 * [microservice_templates/](microservice_templates/) - Templates that can serve as a base for creating new
     Armada microservices. This repository is used by `armada create` command.
-
-
-
-
