@@ -22,7 +22,7 @@ def save_magellan_config(magellan_config):
     if not os.path.exists(LOCAL_MAGELLAN_CONFIG_DIR_PATH):
         os.makedirs(LOCAL_MAGELLAN_CONFIG_DIR_PATH)
     port = list(magellan_config)[0]
-    config_file_name = '{}.json'.format(port)
+    config_file_name = '{0}.json'.format(port)
     config_file_path = os.path.join(LOCAL_MAGELLAN_CONFIG_DIR_PATH, config_file_name)
     with open(config_file_path, 'w') as f:
         f.write(json.dumps(magellan_config))

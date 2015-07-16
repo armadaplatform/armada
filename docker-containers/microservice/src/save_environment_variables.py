@@ -57,10 +57,10 @@ def create_armada_environment_variables_export_file(environment_keys_values, env
 def add_environment_variables_to_crontab(environment_keys_values):
     for env_key, env_val in environment_keys_values:
         safe_env_var = create_safe_env_var_definition(env_key, env_val)
-        command = '(echo \'{}\'; crontab -l) | crontab -'.format(safe_env_var)
+        command = '(echo \'{0}\'; crontab -l) | crontab -'.format(safe_env_var)
         if os.system(command) != 0:
             print('Following environment variable could not have been added to crontab, possibly because of '
-                  'hitting crontab\'s 1000 characters limit per line:\n{}'.format(safe_env_var), file=sys.stderr)
+                  'hitting crontab\'s 1000 characters limit per line:\n{0}'.format(safe_env_var), file=sys.stderr)
 
 
 def main():

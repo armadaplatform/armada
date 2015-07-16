@@ -1,5 +1,11 @@
 # Changelog
 
+## UNRELEASED
+
+#### Bug fixes
+- Fixed `armada run` command on systems running python 2.6.
+
+
 ## 0.6.3 (2015-07-01)
 
 #### Improvements
