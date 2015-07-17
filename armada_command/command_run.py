@@ -72,9 +72,9 @@ def add_arguments(parser):
 
 def warn_if_hit_crontab_environment_variable_length(env_variables_dict):
     for env_key, env_value in env_variables_dict.items():
-        env_declaration = '{}="{}"'.format(env_key, env_value)
+        env_declaration = '{0}="{1}"'.format(env_key, env_value)
         if len(env_declaration) >= 1000:
-            print('Warning: Environment variable {} may have not been added to container\'s crontab because of hitting '
+            print('Warning: Environment variable {0} may have not been added to container\'s crontab because of hitting '
                   '1000 characters crontab limit.'.format(env_key), file=sys.stderr)
 
 
