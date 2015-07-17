@@ -1,7 +1,7 @@
 FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
-ENV ARMADA_APT_GET_UPDATE_DATE 2015-06-19
+ENV ARMADA_APT_GET_UPDATE_DATE 2015-07-17
 
 RUN apt-get update
 RUN apt-get install -y python python-dev unzip rsync
@@ -17,7 +17,7 @@ RUN rm -f /etc/supervisor/conf.d/local_magellan.conf
 ADD ./armada_backend/health-checks/* /opt/armada-docker/health-checks/
 
 # armada
-ENV ARMADA_VERSION 0.6.3
+ENV ARMADA_VERSION 0.6.4
 
 ADD ./armada_command /opt/armada-docker/armada_command
 RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_command/_version.py

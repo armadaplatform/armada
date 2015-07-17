@@ -1,6 +1,6 @@
 # Changelog
 
-## UNRELEASED
+## 0.6.4 (2015-07-17)
 
 #### Bug fixes
 - Fixed `armada run` command on systems running python 2.6.
