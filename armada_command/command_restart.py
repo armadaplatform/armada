@@ -44,7 +44,9 @@ def command_restart(args):
                 'Provide more specific container_id or microservice name or use -a/--all flag.'.format(**locals()))
         print('Restarting {instances_count} services {microservice_name}...'.format(**locals()))
     else:
-        print('Restarting service {microservice_name}...'.format(**locals()))
+        microservice_name = instances[0]['ServiceName']
+        container_id = instances[0]["ServiceID"]
+        print('Restarting service {microservice_name} ({container_id})...'.format(**locals()))
 
     were_errors = False
     for i, instance in enumerate(instances):
