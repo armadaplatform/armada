@@ -17,7 +17,7 @@ def parse_args():
 
 
 def add_arguments(parser):
-    parser.add_argument('microservice_handler', nargs='?',
+    parser.add_argument('microservice_handle', nargs='?',
                         help='Name of the microservice or container_id to be restarted. '
                              'If not provided it will use MICROSERVICE_NAME env variable.')
     parser.add_argument('-a', '--all', action='store_true', default=False,
@@ -29,11 +29,11 @@ def command_restart(args):
     if args.verbose:
         global verbose
         verbose = True
-    microservice_handler = args.microservice_handler or os.environ['MICROSERVICE_NAME']
-    if not microservice_handler:
-        raise ValueError('No microservice name supplied.')
+    microservice_handle = args.microservice_handle or os.environ['MICROSERVICE_NAME']
+    if not microservice_handle:
+        raise ValueError('No microservice name or container id supplied.')
 
-    instances = armada_utils.get_matched_containers(microservice_handler)
+    instances = armada_utils.get_matched_containers(microservice_handle)
 
     instances_count = len(instances)
 
@@ -42,7 +42,7 @@ def command_restart(args):
             raise armada_utils.ArmadaCommandException(
                 'There are too many ({instances_count}) matching containers. '
                 'Provide more specific container_id or microservice name or use -a/--all flag.'.format(**locals()))
-        print('Restarting {instances_count} services {microservice_handler}...'.format(**locals()))
+        print('Restarting {instances_count} services {microservice_handle}...'.format(**locals()))
     else:
         microservice_name = instances[0]['ServiceName']
         container_id = instances[0]["ServiceID"].split(':')[0]
