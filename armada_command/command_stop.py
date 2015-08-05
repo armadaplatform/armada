@@ -16,7 +16,7 @@ def parse_args():
 
 
 def add_arguments(parser):
-    parser.add_argument('microservice_name', nargs='?',
+    parser.add_argument('microservice_handler', nargs='?',
                         help='Name of the microservice or container_id to be stopped. '
                              'If not provided it will use MICROSERVICE_NAME env variable.')
     parser.add_argument('-a', '--all', action='store_true', default=False,
@@ -24,11 +24,11 @@ def add_arguments(parser):
 
 
 def command_stop(args):
-    microservice_name = args.microservice_name or os.environ['MICROSERVICE_NAME']
-    if not microservice_name:
-        raise ValueError('No microservice name supplied.')
+    microservice_handler = args.microservice_handler or os.environ['MICROSERVICE_NAME']
+    if not microservice_handler:
+        raise ValueError('No microservice name or container id supplied.')
 
-    instances = armada_utils.get_matched_containers(microservice_name)
+    instances = armada_utils.get_matched_containers(microservice_handler)
     instances_count = len(instances)
 
     if instances_count > 1:
@@ -36,10 +36,10 @@ def command_stop(args):
             raise armada_utils.ArmadaCommandException(
                 'There are too many ({instances_count}) matching containers. '
                 'Provide more specific container_id or microservice name or use -a/--all flag.'.format(**locals()))
-        print('Stopping {instances_count} services {microservice_name}...'.format(**locals()))
+        print('Stopping {instances_count} services {microservice_handler}...'.format(**locals()))
     else:
         microservice_name = instances[0]['ServiceName']
-        container_id = instances[0]["ServiceID"]
+        container_id = instances[0]["ServiceID"].split(':')[0]
         print('Stopping service {microservice_name} ({container_id})...'.format(**locals()))
 
     were_errors = False
