@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.6.5 (2015-08-06)
 
 #### Improvements
 - `armada stop` and `armada restart` will now display microservice name and container id regardless of passed parameter.
