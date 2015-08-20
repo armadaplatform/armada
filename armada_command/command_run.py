@@ -36,6 +36,8 @@ def add_arguments(parser):
                         help='Run microservice on specific ship (name or IP).')
     parser.add_argument('-d', '--dockyard',
                         help='Run image from dockyard with this alias. Use \'local\' to force using local repository.')
+    parser.add_argument('-r', '--rename',
+                        help='Renames the microservice upon starting new container.')
 
     parser.add_argument('-e', nargs='*', metavar='ENV_VAR', action='append',
                         help='Set environment variable inside the container. Formatted: "key=value"')
@@ -121,8 +123,12 @@ def command_run(args):
     if dockyard_alias:
         dockyard_string += ' (alias: {dockyard_alias})'.format(**locals())
     ship_string = ' on remote ship: {ship}'.format(**locals()) if ship else ' locally'
-    print('Running microservice {image.microservice_name} from dockyard: {dockyard_string}{ship_string}...'.format(
-        **locals()))
+    if args.rename:
+        print('Running microservice {name} (renamed from {image.microservice_name}) from dockyard: {dockyard_string}{ship_string}...'.format(
+            name=args.rename, **locals()))
+    else:
+        print('Running microservice {image.microservice_name} from dockyard: {dockyard_string}{ship_string}...'.format(
+            **locals()))
 
     payload = {'image_path': image.image_path, 'environment': {}, 'ports': {}, 'volumes': {}}
     if dockyard_alias and dockyard_alias != 'local':
@@ -166,6 +172,9 @@ def command_run(args):
         if len(volume) == 1:
             volume *= 2
         payload['volumes'][volume[0]] = volume[1]
+
+    # --- name
+    payload['overwritten_name'] = args.rename
 
     # --- run_arguments
     run_command = 'armada ' + ' '.join(sys.argv[1:])

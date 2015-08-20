@@ -22,7 +22,7 @@ def print_err(*objs):
 
 class Run(api_base.ApiCommand):
     def run_container(self, image_path, dockyard_user, dockyard_password, dict_ports, dict_environment, dict_volumes,
-                      run_command):
+                      run_command, overwritten_name):
         exception_msg = ""
         try:
             restart_parameters = {'image_path': image_path,
@@ -31,7 +31,12 @@ class Run(api_base.ApiCommand):
                                   'ports': dict_ports,
                                   'environment': dict_environment,
                                   'volumes': dict_volumes,
-                                  'run_command': run_command}
+                                  'run_command': run_command,
+                                  'overwritten_name': overwritten_name}
+
+            if overwritten_name:
+                restart_parameters['environment']['MICROSERVICE_NAME'] = overwritten_name
+
             dict_environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(json.dumps(restart_parameters))
             dict_environment['ARMADA_RUN_COMMAND'] = base64.b64encode(run_command)
 
@@ -78,13 +83,17 @@ class Run(api_base.ApiCommand):
             if dockyard_address:
                 try:
                     docker_client.docker_pull(docker_api, dockyard_address, microservice_name, image_tag)
-                    docker_api.tag(dockyard_address + '/' + microservice_name, microservice_name, tag=image_tag, force=True)
+                    if overwritten_name:
+                        docker_api.tag(dockyard_address + '/' + microservice_name, overwritten_name, tag=image_tag, force=True)
+                        environment['MICROSERVICE_NAME'] = overwritten_name
+                    else:
+                        docker_api.tag(dockyard_address + '/' + microservice_name, microservice_name, tag=image_tag, force=True)
                 except Exception as e:
                     if "ping attempt failed" in str(e):
                         exception_msg += INSECURE_REGISTRY_ERROR_MSG.format(header="ERROR!", address=dockyard_address)
                     raise
 
-            container_info = docker_api.create_container(microservice_name,
+            container_info = docker_api.create_container(overwritten_name or microservice_name,
                                                          ports=ports,
                                                          environment=environment,
                                                          volumes=volumes)
@@ -165,9 +174,10 @@ class Run(api_base.ApiCommand):
             dict_environment = self.__prepare_dict_environment(post_data)
             dict_volumes = self.__prepare_dict_volumes(post_data)
             run_command = self.__prepare_run_command(post_data)
+            overwritten_name = post_data.get('overwritten_name')
         except:
             traceback.print_exc()
             return self.status_error('API Run: Invalid input data.')
 
         return self.run_container(image_path, dockyard_user, dockyard_password, dict_ports, dict_environment,
-                                  dict_volumes, run_command)
+                                  dict_volumes, run_command, overwritten_name)
