@@ -36,7 +36,7 @@ class Run(api_base.ApiCommand):
 
             dict_environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(json.dumps(restart_parameters))
             dict_environment['ARMADA_RUN_COMMAND'] = base64.b64encode(run_command)
-            microservice_name = dict_environment.get("MICROSERVICE_NAME")
+            microservice_name = dict_environment.get('MICROSERVICE_NAME')
 
             ports = None
             port_bindings = None
@@ -89,7 +89,7 @@ class Run(api_base.ApiCommand):
             else:
                 docker_api.tag(image_name, microservice_name, tag=image_tag, force=True)
 
-            container_info = docker_api.create_container(image_name,
+            container_info = docker_api.create_container(microservice_name,
                                                          ports=ports,
                                                          environment=environment,
                                                          volumes=volumes)
@@ -142,7 +142,8 @@ class Run(api_base.ApiCommand):
             environment.update(post_data.get('environment'))
 
         if post_data.get('microservice_name'):
-            environment['MICROSERVICE_NAME'] = post_data.get('microservice_name')
+            microservice_name = post_data.get('microservice_name')
+            environment['MICROSERVICE_NAME'] = microservice_name
         else:
             microservice_name = self.__split_image_path(post_data['image_path'])[1]
             environment['MICROSERVICE_NAME'] = microservice_name
