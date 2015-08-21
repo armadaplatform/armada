@@ -143,10 +143,10 @@ class Run(api_base.ApiCommand):
 
         if post_data.get('microservice_name'):
             microservice_name = post_data.get('microservice_name')
-            environment['MICROSERVICE_NAME'] = microservice_name
         else:
             microservice_name = self.__split_image_path(post_data['image_path'])[1]
-            environment['MICROSERVICE_NAME'] = microservice_name
+
+        environment['MICROSERVICE_NAME'] = microservice_name
         return environment
 
     def __prepare_dict_volumes(self, post_data):
