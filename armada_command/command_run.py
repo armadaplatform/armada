@@ -174,7 +174,7 @@ def command_run(args):
         payload['volumes'][volume[0]] = volume[1]
 
     # --- name
-    payload['overwritten_name'] = args.rename
+    payload['microservice_name'] = args.rename
 
     # --- run_arguments
     run_command = 'armada ' + ' '.join(sys.argv[1:])
