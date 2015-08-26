@@ -31,9 +31,12 @@ class Run(api_base.ApiCommand):
                                   'ports': dict_ports,
                                   'environment': dict_environment,
                                   'volumes': dict_volumes,
-                                  'run_command': run_command}
+                                  'run_command': run_command
+                                  }
+
             dict_environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(json.dumps(restart_parameters))
             dict_environment['ARMADA_RUN_COMMAND'] = base64.b64encode(run_command)
+            microservice_name = dict_environment.get('MICROSERVICE_NAME')
 
             ports = None
             port_bindings = None
@@ -54,7 +57,7 @@ class Run(api_base.ApiCommand):
 
             docker_api = docker_client.api()
 
-            dockyard_address, microservice_name, image_tag = self.__split_image_path(image_path)
+            dockyard_address, image_name, image_tag = self.__split_image_path(image_path)
 
             if dockyard_user and dockyard_password:
                 logged_in = False
@@ -77,12 +80,14 @@ class Run(api_base.ApiCommand):
 
             if dockyard_address:
                 try:
-                    docker_client.docker_pull(docker_api, dockyard_address, microservice_name, image_tag)
-                    docker_api.tag(dockyard_address + '/' + microservice_name, microservice_name, tag=image_tag, force=True)
+                    docker_client.docker_pull(docker_api, dockyard_address, image_name, image_tag)
+                    docker_api.tag(dockyard_address + '/' + image_name, microservice_name, tag=image_tag, force=True)
                 except Exception as e:
                     if "ping attempt failed" in str(e):
                         exception_msg += INSECURE_REGISTRY_ERROR_MSG.format(header="ERROR!", address=dockyard_address)
                     raise
+            else:
+                docker_api.tag(image_name, microservice_name, tag=image_tag, force=True)
 
             container_info = docker_api.create_container(microservice_name,
                                                          ports=ports,
@@ -115,15 +120,15 @@ class Run(api_base.ApiCommand):
 
     def __split_image_path(self, image_path):
         dockyard_address = None
-        microservice_name = image_path
+        image_name = image_path
         image_tag = None
 
-        if '/' in microservice_name:
-            dockyard_address, microservice_name = microservice_name.split('/', 1)
-        if ':' in microservice_name:
-            microservice_name, image_tag = microservice_name.split(':', 1)
+        if '/' in image_name:
+            dockyard_address, image_name = image_name.split('/', 1)
+        if ':' in image_name:
+            image_name, image_tag = image_name.split(':', 1)
 
-        return dockyard_address, microservice_name, image_tag
+        return dockyard_address, image_name, image_tag
 
     def __prepare_dict_ports(self, post_data):
         ports = {}
@@ -136,7 +141,11 @@ class Run(api_base.ApiCommand):
         if post_data.get('environment'):
             environment.update(post_data.get('environment'))
 
-        microservice_name = self.__split_image_path(post_data['image_path'])[1]
+        if post_data.get('microservice_name'):
+            microservice_name = post_data.get('microservice_name')
+        else:
+            microservice_name = self.__split_image_path(post_data['image_path'])[1]
+
         environment['MICROSERVICE_NAME'] = microservice_name
         return environment
 

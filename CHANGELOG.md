@@ -1,9 +1,17 @@
 # Changelog
 
+
+## 0.7.0 (2015-08-21)
+
+#### Features
+- Added parameter `--rename` to `armada run`.
+
+
 ## 0.6.5 (2015-08-06)
 
 #### Improvements
 - `armada stop` and `armada restart` will now display microservice name and container id regardless of passed parameter.
+
 
 ## 0.6.4 (2015-07-17)
 

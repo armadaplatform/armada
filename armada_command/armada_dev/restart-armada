@@ -1,5 +1,4 @@
 #!/bin/bash
 
-docker rm -f `docker ps | grep "8300->8300" | awk '{print $1}'`
-sudo sed -r '/docker (pull|tag)/d' -i /etc/init.d/armada
+docker rm -f `docker ps | grep "->8300" | awk '{print $1}'`
 sudo service armada restart
