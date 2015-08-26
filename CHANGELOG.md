@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+#### Improvements
+- Access Consul agent from Armada commands by localhost, instead of private Docker IP, as it sometimes causes hanging requests. 
+
 
 ## 0.7.0 (2015-08-21)
 
