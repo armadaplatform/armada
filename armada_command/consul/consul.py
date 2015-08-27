@@ -2,7 +2,7 @@ import json
 
 import requests
 
-CONSUL_ADDRESS = '172.17.42.1:8500'
+CONSUL_ADDRESS = 'localhost:8500'
 CONSUL_TIMEOUT_IN_SECONDS = 10
 
 
