@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.2 (2015-09-03)
+
+### Improvements
+-  PID-1 zombie reaping problem resolved. Changed main system process inside containers from microservice init script to supervisor.
+Containers will no longer spawn multiple zombie processes e.g. after armada ssh command.
+- Note: **This change requires rebuilding services created before this fix.**
+
+
 ## 0.7.1 (2015-08-28)
 
 #### Improvements

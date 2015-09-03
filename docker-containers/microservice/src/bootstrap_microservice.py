@@ -47,7 +47,8 @@ def main():
         else:
             os.environ["CONFIG_PATH"] = local_config_path
 
-    subprocess.call(["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"])
+    supervisor_cmd = "/usr/bin/supervisord"
+    os.execv(supervisor_cmd, (supervisor_cmd, "-c", "/etc/supervisor/supervisord.conf"))
 
 if __name__ == '__main__':
     main()
