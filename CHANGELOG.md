@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.3
+
+### Bug fixes
+- Fixed a bug where microservices run with --rename parameter did not recover properly.
+- Fixed docker error when running restart-armada development script.
+
 ## 0.7.2 (2015-09-03)
 
 ### Improvements
