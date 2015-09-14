@@ -31,9 +31,9 @@ class Run(api_base.ApiCommand):
                                   'ports': dict_ports,
                                   'environment': dict_environment,
                                   'volumes': dict_volumes,
-                                  'run_command': run_command
+                                  'run_command': run_command,
+                                  'microservice_name': dict_environment.get('MICROSERVICE_NAME')
                                   }
-
             dict_environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(json.dumps(restart_parameters))
             dict_environment['ARMADA_RUN_COMMAND'] = base64.b64encode(run_command)
             microservice_name = dict_environment.get('MICROSERVICE_NAME')
