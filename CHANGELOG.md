@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.3
+## 0.7.3 (2015-09-14)
 
 ### Bug fixes
 - Fixed a bug where microservices run with --rename parameter did not recover properly.
