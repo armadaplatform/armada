@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.4 (2015-09-16)
+
+### Improvements
+- Updated node.js in `microservice_node` base image from v0.10.25 to v0.12.7.
+
 ## 0.7.3 (2015-09-14)
 
 ### Bug fixes
