@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- New base image `microservice_node4` with node v4.0.0..
+- New base image `microservice_node4` with node v4.0.0.
 
 ## 0.7.4 (2015-09-16)
 
