@@ -24,6 +24,18 @@ class Restart(Run):
                 if env_key == 'RESTART_CONTAINER_PARAMETERS':
                     restart_parameters = json.loads(base64.b64decode(env_value))
 
+            image_path = restart_parameters.get('image_path')
+            dockyard_user = restart_parameters.get('dockyard_user')
+            dockyard_password = restart_parameters.get('dockyard_password')
+            dict_ports = restart_parameters.get('ports')
+            dict_environment = restart_parameters.get('environment')
+            dict_volumes = restart_parameters.get('volumes')
+            run_command = restart_parameters.get('run_command')
+            microservice_name = dict_environment.get('MICROSERVICE_NAME')
+            dockyard_address, _, _ = self._split_image_path(image_path)
+            docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
+            self._pull_latest_image(docker_api, image_path, microservice_name)
+
             docker_api.stop(container_id)
         except Exception as e:
             return self.status_error("Cannot stop requested container. {exception_class} - {exception}".format(
@@ -33,14 +45,6 @@ class Restart(Run):
             deregister_services(container_id)
         except:
             traceback.print_exc()
-
-        image_path = restart_parameters.get('image_path')
-        dockyard_user = restart_parameters.get('dockyard_user')
-        dockyard_password = restart_parameters.get('dockyard_password')
-        dict_ports = restart_parameters.get('ports')
-        dict_environment = restart_parameters.get('environment')
-        dict_volumes = restart_parameters.get('volumes')
-        run_command = restart_parameters.get('run_command')
 
         return self.run_container(image_path, dockyard_user, dockyard_password, dict_ports, dict_environment,
                                   dict_volumes, run_command)

@@ -7,9 +7,9 @@ import sys
 import web
 import api_base
 from armada_command.consul.consul import consul_query
+from armada_command.docker_utils.images import ArmadaImage
 from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
 import docker_client
-
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
@@ -53,41 +53,15 @@ class Run(api_base.ApiCommand):
             volume_bindings = None
             if dict_volumes:
                 volumes = dict_volumes.values()
-                volume_bindings = dict((path_host, {'bind': path_container, 'ro': False}) for path_host, path_container in dict_volumes.iteritems())
+                volume_bindings = dict(
+                    (path_host, {'bind': path_container, 'ro': False}) for path_host, path_container in
+                    dict_volumes.iteritems())
 
-            docker_api = docker_client.api()
+            dockyard_address, image_name, image_tag = self._split_image_path(image_path)
 
-            dockyard_address, image_name, image_tag = self.__split_image_path(image_path)
+            docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
 
-            if dockyard_user and dockyard_password:
-                logged_in = False
-                # Workaround for abrupt changes in docker-py library.
-                login_exceptions = []
-                registry_endpoints = ['https://{0}/v1/'.format(dockyard_address),
-                                        'https://{0}'.format(dockyard_address),
-                                        dockyard_address]
-                for registry_endpoint in registry_endpoints:
-                    try:
-                        docker_api.login(dockyard_user, dockyard_password, registry=registry_endpoint)
-                        logged_in = True
-                        break
-                    except Exception as e:
-                        login_exceptions.append(e)
-                if not logged_in:
-                    for e in login_exceptions:
-                        print_err(e)
-                    raise login_exceptions[0]
-
-            if dockyard_address:
-                try:
-                    docker_client.docker_pull(docker_api, dockyard_address, image_name, image_tag)
-                    docker_api.tag(dockyard_address + '/' + image_name, microservice_name, tag=image_tag, force=True)
-                except Exception as e:
-                    if "ping attempt failed" in str(e):
-                        exception_msg += INSECURE_REGISTRY_ERROR_MSG.format(header="ERROR!", address=dockyard_address)
-                    raise
-            else:
-                docker_api.tag(image_name, microservice_name, tag=image_tag, force=True)
+            self._pull_latest_image(docker_api, image_path, microservice_name)
 
             container_info = docker_api.create_container(microservice_name,
                                                          ports=ports,
@@ -111,14 +85,55 @@ class Run(api_base.ApiCommand):
 
         except Exception as e:
             traceback.print_exc()
-            exception_msg = exception_msg + "Cannot create requested container. {exception_class} - {exception}".format(
+            exception_msg = e.message + " Cannot create requested container. {exception_class} - {exception}".format(
                 exception_class=type(e).__name__, exception=str(e))
             return self.status_error(exception_msg)
 
         short_container_id = long_container_id[:LENGTH_OF_SHORT_CONTAINER_ID]
         return self.status_ok({'container_id': short_container_id, 'endpoints': service_endpoints})
 
-    def __split_image_path(self, image_path):
+    def _get_docker_api(self, dockyard_address, dockyard_user, dockyard_password):
+        if hasattr(self, '__docker_api') and self.__docker_api:
+            return self.__docker_api
+
+        docker_api = docker_client.api()
+
+        if dockyard_user and dockyard_password:
+            logged_in = False
+            # Workaround for abrupt changes in docker-py library.
+            login_exceptions = []
+            registry_endpoints = ['https://{0}/v1/'.format(dockyard_address),
+                                  'https://{0}'.format(dockyard_address),
+                                  dockyard_address]
+            for registry_endpoint in registry_endpoints:
+                try:
+                    docker_api.login(dockyard_user, dockyard_password, registry=registry_endpoint)
+                    logged_in = True
+                    break
+                except Exception as e:
+                    login_exceptions.append(e)
+            if not logged_in:
+                for e in login_exceptions:
+                    print_err(e)
+                raise login_exceptions[0]
+
+        self.__docker_api = docker_api
+        return docker_api
+
+    def _pull_latest_image(self, docker_api, image_path, microservice_name):
+        dockyard_address, image_name, image_tag = self._split_image_path(image_path)
+        if dockyard_address:
+            try:
+                docker_client.docker_pull(docker_api, dockyard_address, image_name, image_tag)
+                docker_api.tag(dockyard_address + '/' + image_name, microservice_name, tag=image_tag, force=True)
+            except Exception as e:
+                if "ping attempt failed" in str(e):
+                    raise RuntimeError(INSECURE_REGISTRY_ERROR_MSG.format(header="ERROR!", address=dockyard_address))
+                raise
+        else:
+            docker_api.tag(image_name, microservice_name, tag=image_tag, force=True)
+
+    def _split_image_path(self, image_path):
         dockyard_address = None
         image_name = image_path
         image_tag = None
@@ -144,7 +159,7 @@ class Run(api_base.ApiCommand):
         if post_data.get('microservice_name'):
             microservice_name = post_data.get('microservice_name')
         else:
-            microservice_name = self.__split_image_path(post_data['image_path'])[1]
+            microservice_name = self._split_image_path(post_data['image_path'])[1]
 
         environment['MICROSERVICE_NAME'] = microservice_name
         return environment
