@@ -190,6 +190,7 @@ def command_run(args):
 
     warn_if_hit_crontab_environment_variable_length(payload['environment'])
 
+    print('Checking if there is new image version. May take few minutes if download is needed...')
     result = armada_api.post('run', payload, ship_name=ship)
 
     if result['status'] == 'ok':

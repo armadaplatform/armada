@@ -59,7 +59,7 @@ def command_restart(args):
             payload = {'container_id': container_id}
             print('Checking if there is new image version. May take few minutes if download is needed...')
             result = armada_api.post('restart', payload, ship_name=instance['Node'])
-            print(str(result))
+
             if result['status'] == 'ok':
                 new_container_id = result['container_id']
                 print('Service has been restarted and is running in container {new_container_id} '
