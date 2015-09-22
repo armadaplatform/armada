@@ -7,6 +7,7 @@
 
 ### Improvements
 - Changed order of steps executed on armada restart. Instead of stop, pull, run now we do: pull, stop, run so that service's downtime is minimized.
+- Changed way of determining time when Docker daemon started to prevent unnecessary services' recoveries.
 
 
 ## 0.7.4 (2015-09-16)
