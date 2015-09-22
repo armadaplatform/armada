@@ -1,9 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.8.0 (2015-09-22)
 
 ### Features
 - New base image `microservice_node4` with node v4.0.0.
+- New armada service - [Static file server](https://github.com/armadaplatform/static-file-server)
 
 ### Improvements
 - Changed order of steps executed on armada restart. Instead of stop, pull, run now we do: pull, stop, run so that service's downtime is minimized.
