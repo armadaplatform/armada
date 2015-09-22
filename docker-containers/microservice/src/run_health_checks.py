@@ -91,7 +91,6 @@ def _terminate_processes(pids):
             pass
 
 
-# d
 def _run_health_checks(services_data, timeout):
     process_groups = {}
     for data in services_data:

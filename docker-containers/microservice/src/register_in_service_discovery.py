@@ -8,12 +8,13 @@ import random
 import sys
 import traceback
 import docker
+import re
 import requests
 from datetime import datetime
 import calendar
 CONSUL_REST_URL = 'http://172.17.42.1:8500/v1/'
 REGISTRATION_DIRECTORY = "/var/opt/service-registration/"
-
+PORT_PATTERN = re.compile(r'^(\d+)(?:/(tcp|udp))?$', re.IGNORECASE)
 
 def _parse_args():
     parser = argparse.ArgumentParser(description='Register service in Armada.')
@@ -23,10 +24,9 @@ def _parse_args():
 
 def _add_arguments(parser):
     parser.add_argument('port',
-                        type=int,
-                        default=80,
+                        default='80',
                         nargs='?',
-                        help='Local port of the registered service. Default 80.')
+                        help='Local TCP (default), or UDP port of the registered service. Examples: 80, 8080/tcp, 6001/udp. Default 80/tcp.')
     parser.add_argument('-s', '--subservice',
                         help='Name of the subservice. It will be visible in Armada as: [microservice_name]:[subservice_name].')
     parser.add_argument('-c', '--health_check', help="Alternative health check path for this service.", default=None)
@@ -110,13 +110,23 @@ def _store_start_timestamp(container_id, container_created_string):
         response = consul_put(key, epoch_timestamp)
         assert response.status_code == requests.codes.ok
 
+def _get_port_and_protocol(args_port):
+    m = PORT_PATTERN.match(args_port)
+    if m is None:
+        raise ValueError('Incorrect format of --port argument. It should match regexp: ^(\d+)(?:/(tcp|udp))?$')
+    port, protocol = m.groups()
+    port = int(port)
+    protocol = (protocol or 'tcp').lower()
+    return '{}/{}'.format(port, protocol)
 
 def main():
     args = _parse_args()
     container_id = socket.gethostname()
     docker_inspect = _get_docker_inspect(container_id)
 
-    service_port = int(docker_inspect['NetworkSettings']['Ports']['{0}/tcp'.format(args.port)][0]['HostPort'])
+    port_and_protocol = _get_port_and_protocol(args.port)
+
+    service_port = int(docker_inspect['NetworkSettings']['Ports'][port_and_protocol][0]['HostPort'])
     service_filename = microservice_name = os.environ.get('MICROSERVICE_NAME')
 
     while True:
