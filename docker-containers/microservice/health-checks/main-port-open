@@ -6,6 +6,7 @@ if [ -n "$1" ]; then
 fi
 
 if [[ "${port}" == */udp ]]; then
+    # -v is necessary, otherwise nc always returns 0 for UDP ports.
     nc -z -u -v 127.0.0.1 $(cut -d/ -f1 <<< ${port})
 else
     nc -z 127.0.0.1 ${port}
