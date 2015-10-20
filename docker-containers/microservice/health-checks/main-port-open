@@ -1,9 +1,17 @@
 #!/bin/bash
+
 port=80
 if [ -n "$1" ]; then
     port="$1"
 fi
-nc -z localhost $port
+
+if [[ "${port}" == */udp ]]; then
+    # -v is necessary, otherwise nc always returns 0 for UDP ports.
+    nc -z -u -v 127.0.0.1 $(cut -d/ -f1 <<< ${port})
+else
+    nc -z 127.0.0.1 ${port}
+fi
+
 if [ $? -eq 0 ]; then
     exit 0
 fi

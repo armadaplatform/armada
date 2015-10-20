@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- Armada supports registering UDP services in catalog.
+- New armada service - [example-udp](https://github.com/armadaplatform/example-udp) that demonstrates registering UDP
+services and discovering it by others.
+
 ## 0.8.0 (2015-09-22)
 
 ### Features
@@ -7,7 +14,8 @@
 - New armada service - [Static file server](https://github.com/armadaplatform/static-file-server)
 
 ### Improvements
-- Changed order of steps executed on armada restart. Instead of stop, pull, run now we do: pull, stop, run so that service's downtime is minimized.
+- Changed order of steps executed on armada restart. Instead of stop, pull, run now we do: pull, stop, run so that
+service's downtime is minimized.
 - Changed way of determining time when Docker daemon started to prevent unnecessary services' recoveries.
 
 
