@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.9.0 (2015-10-21)
 
 ### Features
 - Armada supports registering UDP services in catalog.
