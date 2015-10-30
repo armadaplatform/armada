@@ -1,7 +1,6 @@
 #!/bin/bash
 
 check_interface() {
-    echo "checking $1 $port"
     if [[ "${port}" == */udp ]]; then
         # -v is necessary, otherwise nc always returns 0 for UDP ports.
         nc -z -u -v $1 $(cut -d/ -f1 <<< ${port})
