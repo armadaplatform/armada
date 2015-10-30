@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Improvements
-- Default health-check (main-port-open) passes when main service's port is open on any interface, and not only 127.0.0.1.
+- Default health-check (main-port-open) passes when main service's port is open on any interface, and not only 127.0.0.1. (Contributed by [zerofudge](https://github.com/zerofudge))
 
 ## 0.9.0 (2015-10-21)
 
