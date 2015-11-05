@@ -53,9 +53,13 @@ def command_dockyard_list(args):
     for alias_dict in alias_list:
         default_string = '->'.rjust(len(output_header[0])) if alias_dict['is_default'] else ''
         row = [default_string, alias_dict['name'], alias_dict['address'], alias_dict.get('user', ''),
-               alias_dict.get('password', '')]
+               _hide_password(alias_dict.get('password', ''))]
         output_rows.append(row)
     print_table(output_rows)
+
+
+def _hide_password(password):
+    return '****' if password else ''
 
 
 def command_dockyard_remove(args):
