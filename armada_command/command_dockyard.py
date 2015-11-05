@@ -59,7 +59,7 @@ def command_dockyard_list(args):
 
 
 def _hide_password(password):
-    return "*"*len(password)
+    return '****' if password else ''
 
 
 def command_dockyard_remove(args):
