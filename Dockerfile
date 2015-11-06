@@ -24,6 +24,7 @@ RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_
 ADD ./armada_backend /opt/armada-docker/armada_backend
 ADD ./microservice_templates /opt/armada-docker/microservice_templates
 ADD ./keys /opt/armada-docker/keys
+RUN ln -s /opt/armada-docker/microservice_templates /opt/templates
 
 ADD ./install/armada /usr/local/bin/armada
 RUN chmod +x /usr/local/bin/armada
