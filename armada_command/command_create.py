@@ -39,12 +39,12 @@ def _replace_in_path(path, old, new):
                 shutil.move(file_path, new_file_path)
 
 
-def get_template_name(base):
+def _get_template_name(base):
     return "microservice_{base}_template".format(**locals())
 
 
 def command_create(args):
-    base_template = get_template_name(args.base_template)
+    base_template = _get_template_name(args.base_template)
     service_name = args.name or base_template
     destination_dir = os.path.join(os.getcwd(), service_name)
     if os.path.exists(destination_dir):
