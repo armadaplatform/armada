@@ -4,6 +4,5 @@ IO.write(armada_vagrantfile_path, open('http://vagrant.armada.sh/ArmadaVagrantfi
 load armada_vagrantfile_path
 
 armada_vagrantfile(
-    :microservice_name => '#{$SERVICE_NAME}',
-    :origin_dockyard_address => '#{$DOCKYARD_ADDRESS}'
+    :microservice_name => '_MICROSERVICE_PYTHON_TEMPLATE_'
 )
