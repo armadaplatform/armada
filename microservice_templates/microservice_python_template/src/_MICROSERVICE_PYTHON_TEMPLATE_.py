@@ -1,14 +1,14 @@
 import web
 
 
-class Health(object):
+class Index(object):
     def GET(self):
-        return 'ok'
+        return 'Service works!'
 
 
 def main():
     urls = (
-        '/health', Health.__name__,
+        '/', Index.__name__,
     )
     app = web.application(urls, globals())
     app.run()
