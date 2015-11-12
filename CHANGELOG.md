@@ -1,9 +1,19 @@
 # Changelog
 
-## Unreleased
+## 0.10.0
 
 ### Improvements
 - Default health-check (main-port-open) passes when main service's port is open on any interface, and not only 127.0.0.1. (Contributed by [zerofudge](https://github.com/zerofudge))
+
+
+- Changed `armada create` command syntax from `armada create {template_name} [--name/-n {service_name}]` to `armada create {service-name} [--base-template/-b {template}]`. Default value for `--base-template` is  `python`.
+- Available templates are `python` and `node`. E.g.: `armada create my-service -b node` creates a directory with new service called `my-service` based on `node` template (using `microservice_node` base image).
+
+### Features
+- Added node.js microservice template to `armada create` command with `node` as a base_template name.
+
+### Bug fixes
+- `armada create` command now works properly in any directory on system.
 
 ## 0.9.0 (2015-10-21)
 
