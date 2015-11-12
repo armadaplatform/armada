@@ -6,11 +6,6 @@
     "start": "node _MICROSERVICE_NODE_TEMPLATE_.js"
   },
   "dependencies": {
-    "express": "3.3.x",
-    "underscore" : "1.5.x",
-    "express-validator" : "1.0.1",
-    "raven": "0.6.x",
-    "memory-cache" : "0.0.x",
-    "async" : "0.2.x"
+    "express": "3.3.x"
   }
 }
