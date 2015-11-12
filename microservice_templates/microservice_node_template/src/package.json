@@ -1,0 +1,11 @@
+{
+  "name": "_MICROSERVICE_NODE_TEMPLATE_",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node _MICROSERVICE_NODE_TEMPLATE_.js"
+  },
+  "dependencies": {
+    "express": "3.3.x"
+  }
+}
