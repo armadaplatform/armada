@@ -1,7 +1,6 @@
 from __future__ import print_function
 import argparse
 import os
-import sys
 import json
 import subprocess
 
@@ -48,12 +47,18 @@ def command_ssh(args):
 
     print("Connecting to {0} at {1}:{2}...".format(instance['ServiceName'], ssh_host, ssh_port))
 
-    docker_key_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
 
+    tty = ''
     if args.command:
-        command = 'sudo ' + ' '.join(args.command)
+        command = ' '.join(args.command)
+        # TODO: Should we replace this with -t command flag?
+        if not command.startswith('bash'):
+            tty = '-t'
     else:
-        command = 'sudo -i'
-    ssh_command = ('ssh -t -p {ssh_port} -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host} '
-                   '"{command}"').format(**locals())
+        command = 'bash'
+
+    exec_command = 'docker exec -i {tty} {container_id} {command}'.format(**locals())
+    ssh_command = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host} sudo {exec_command}'.format(**locals())
+    print(ssh_command)
     subprocess.call(ssh_command, shell=True)
