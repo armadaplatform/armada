@@ -8,7 +8,7 @@ ADD scripts/install_packages.sh /tmp/scripts/
 # 'sync' is to fix "text file busy" error.
 RUN cd /tmp/scripts && chmod +x * && sync && ./install_packages.sh
 ADD . /opt/microservice
-RUN cd /opt/microservice/scripts && chmod +x * && sync && ./setup_ssh.sh && ./setup_supervisor.sh
+RUN cd /opt/microservice/scripts && chmod +x * && sync && ./setup_supervisor.sh
 RUN mkdir /var/opt/service-registration/
 
 EXPOSE 22

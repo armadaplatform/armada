@@ -47,18 +47,17 @@ def command_ssh(args):
 
     print("Connecting to {0} at {1}:{2}...".format(instance['ServiceName'], ssh_host, ssh_port))
 
-    os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
+    docker_key_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
 
-    tty = ''
+    # TODO: Should invert this condition and replace this with -t command flag?
+    tty = '-t'
     if args.command:
         command = ' '.join(args.command)
-        # TODO: Should we replace this with -t command flag?
-        if not command.startswith('bash'):
-            tty = '-t'
+        if command.startswith('bash'):
+            tty = ''
     else:
         command = 'bash'
 
     exec_command = 'docker exec -i {tty} {container_id} {command}'.format(**locals())
     ssh_command = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host} sudo {exec_command}'.format(**locals())
-    print(ssh_command)
     subprocess.call(ssh_command, shell=True)

@@ -25,6 +25,7 @@ ADD ./armada_backend /opt/armada-docker/armada_backend
 ADD ./microservice_templates /opt/armada-docker/microservice_templates
 ADD ./keys /opt/armada-docker/keys
 RUN ln -s /opt/armada-docker/microservice_templates /opt/templates
+RUN cd /opt/armada-docker/armada_backend/scripts && chmod +x * && sync && ./setup_ssh.sh
 
 ADD ./install/armada /usr/local/bin/armada
 RUN chmod +x /usr/local/bin/armada
