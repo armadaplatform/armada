@@ -2,7 +2,6 @@ import json
 
 import docker
 
-
 DOCKER_SOCKET_PATH = '/var/run/docker.sock'
 
 
