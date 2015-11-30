@@ -6,6 +6,7 @@ import subprocess
 
 import armada_api
 import armada_utils
+from armada_command.consul.consul import consul_query
 
 
 def parse_args():
@@ -39,15 +40,19 @@ def command_ssh(args):
     container_id = service_id.split(':')[0]
     payload = {'container_id': container_id}
 
-    result = json.loads(armada_api.get('ssh-address', payload, ship_name=instance['Node']))
+    is_local = False
+    local_microservices_ids = set(consul_query('agent/services').keys())
+    if container_id in local_microservices_ids:
+        is_local = True
 
-    if result['status'] != 'ok':
-        raise armada_utils.ArmadaCommandException('armada API error: {0}'.format(result['error']))
-    ssh_host, ssh_port = result['ssh'].split(':')
+    if not is_local:
+        result = json.loads(armada_api.get('ssh-address', payload, ship_name=instance['Node']))
 
-    print("Connecting to {0} at {1}:{2}...".format(instance['ServiceName'], ssh_host, ssh_port))
+        if result['status'] != 'ok':
+            raise armada_utils.ArmadaCommandException('armada API error: {0}'.format(result['error']))
+        ssh_host = result['ssh'].split(':')[0]
 
-    docker_key_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
+        docker_key_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
 
     # TODO: Should invert this condition and replace this with -t command flag?
     tty = '-t'
@@ -58,6 +63,11 @@ def command_ssh(args):
     else:
         command = 'bash'
 
-    exec_command = 'docker exec -i {tty} {container_id} {command}'.format(**locals())
-    ssh_command = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host} sudo {exec_command}'.format(**locals())
+    ssh_command = 'docker exec -i {tty} {container_id} {command}'.format(**locals())
+    if is_local:
+        print("Connecting to {0}...".format(instance['ServiceName']))
+    else:
+        ssh_command = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host} sudo {ssh_command}'.format(**locals())
+        print("Connecting to {0} on host {1}...".format(instance['ServiceName'], ssh_host))
+
     subprocess.call(ssh_command, shell=True)
