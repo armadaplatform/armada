@@ -63,7 +63,7 @@ def command_ssh(args):
     else:
         command = 'bash'
 
-    ssh_command = 'docker exec -i {tty} {container_id} {command}'.format(**locals())
+    ssh_command = 'docker exec -i {tty} {container_id} env TERM=$TERM {command}'.format(**locals())
     if is_local:
         print("Connecting to {0}...".format(instance['ServiceName']))
     else:
