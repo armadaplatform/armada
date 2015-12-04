@@ -1,12 +1,12 @@
 from __future__ import print_function
 import argparse
 import os
-import sys
 import json
 import subprocess
 
 import armada_api
 import armada_utils
+from armada_command.consul.consul import consul_query
 
 
 def parse_args():
@@ -40,20 +40,33 @@ def command_ssh(args):
     container_id = service_id.split(':')[0]
     payload = {'container_id': container_id}
 
-    result = json.loads(armada_api.get('ssh-address', payload, ship_name=instance['Node']))
+    is_local = False
+    local_microservices_ids = set(consul_query('agent/services').keys())
+    if container_id in local_microservices_ids:
+        is_local = True
 
-    if result['status'] != 'ok':
-        raise armada_utils.ArmadaCommandException('armada API error: {0}'.format(result['error']))
-    ssh_host, ssh_port = result['ssh'].split(':')
+    if not is_local:
+        result = json.loads(armada_api.get('ssh-address', payload, ship_name=instance['Node']))
 
-    print("Connecting to {0} at {1}:{2}...".format(instance['ServiceName'], ssh_host, ssh_port))
+        if result['status'] != 'ok':
+            raise armada_utils.ArmadaCommandException('armada API error: {0}'.format(result['error']))
+        ssh_host = result['ssh'].split(':')[0]
 
-    docker_key_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
+        docker_key_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
 
+    tty = '-t'
     if args.command:
-        command = 'sudo ' + ' '.join(args.command)
+        command = ' '.join(args.command)
+        if command.startswith('bash'):
+            tty = ''
     else:
-        command = 'sudo -i'
-    ssh_command = ('ssh -t -p {ssh_port} -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host} '
-                   '"{command}"').format(**locals())
+        command = 'bash'
+
+    ssh_command = 'docker exec -i {tty} {container_id} env TERM=$TERM {command}'.format(**locals())
+    if is_local:
+        print("Connecting to {0}...".format(instance['ServiceName']))
+    else:
+        ssh_command = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host} sudo {ssh_command}'.format(**locals())
+        print("Connecting to {0} on host {1}...".format(instance['ServiceName'], ssh_host))
+
     subprocess.call(ssh_command, shell=True)
