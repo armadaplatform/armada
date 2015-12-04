@@ -54,7 +54,6 @@ def command_ssh(args):
 
         docker_key_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
 
-    # TODO: Should invert this condition and replace this with -t command flag?
     tty = '-t'
     if args.command:
         command = ' '.join(args.command)
