@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.11.0
+
+### Improvements
+- Increased size of health checks logs. (previously: 2 files up to 1MB each. now: 3 files up to 5MB each)
+- Revamped `armada ssh` command by moving `sshd` process from microservice image to Armada container. 
+    - `docker exec` is now used to enter a container on the same host.
+    - In order to enter container on another host, ssh is used to connect to remote Armada container.
+    - **Containers created with new microservice image won't be accessible without updating Armada**
+
+### Features
+- Added microservice_python3.5 base image.
+
+
 ## 0.10.0
 
 ### Improvements
