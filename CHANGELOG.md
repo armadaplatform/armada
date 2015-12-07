@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.11.0
+## 0.11.0 (2015-12-07)
 
 ### Improvements
 - Increased size of health checks logs. (previously: 2 files up to 1MB each. now: 3 files up to 5MB each)
@@ -13,7 +13,7 @@
 - Added microservice_python3.5 base image.
 
 
-## 0.10.0
+## 0.10.0 (2015-13-2015)
 
 ### Improvements
 - Default health-check (main-port-open) passes when main service's port is open on any interface, and not only 127.0.0.1. (Contributed by [zerofudge](https://github.com/zerofudge))
