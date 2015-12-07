@@ -13,7 +13,7 @@
 - Added microservice_python3.5 base image.
 
 
-## 0.10.0 (2015-13-2015)
+## 0.10.0 (2015-11-12)
 
 ### Improvements
 - Default health-check (main-port-open) passes when main service's port is open on any interface, and not only 127.0.0.1. (Contributed by [zerofudge](https://github.com/zerofudge))
