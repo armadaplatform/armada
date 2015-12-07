@@ -17,7 +17,7 @@ RUN rm -f /etc/supervisor/conf.d/local_magellan.conf
 ADD ./armada_backend/health-checks/* /opt/armada-docker/health-checks/
 
 # armada
-ENV ARMADA_VERSION 0.10.0
+ENV ARMADA_VERSION 0.11.0
 
 ADD ./armada_command /opt/armada-docker/armada_command
 RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_command/_version.py
