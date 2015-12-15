@@ -6,8 +6,8 @@ import time
 import sys
 
 import consul
-
 import haproxy
+
 
 MICROSERVICE_ENV = os.environ.get('MICROSERVICE_ENV') or None
 MICROSERVICE_APP_ID = os.environ.get('MICROSERVICE_APP_ID') or None

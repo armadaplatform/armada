@@ -1,21 +1,33 @@
 from __future__ import print_function
 import json
+import socket
 import sys
 
 import requests
 
 
-SHIP_IP = '172.17.42.1'
+_SHIP_IP = None
 
 
 def print_err(*objs):
     print(*objs, file=sys.stderr)
 
 
+def _get_ship_ip():
+    global _SHIP_IP
+    if _SHIP_IP is None:
+        docker_api = docker_client.api()
+        container_id = socket.gethostname()
+        docker_inspect = docker_api.inspect_container(container_id)
+        gateway_ip = docker_inspect[0]['NetworkSettings']['Gateway']
+        _SHIP_IP = gateway_ip
+    return _SHIP_IP
+
+
 def _query(query):
-    hostname = SHIP_IP
+    hostname = _get_ship_ip()
     url = 'http://{hostname}:8500/v1/{query}'.format(**locals())
-    return json.loads(requests.get(url, timeout=5).text)
+    return json.loads(requests.get(url, timeout=7).text)
 
 
 def _create_dict_from_tags(tags):
