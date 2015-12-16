@@ -3,30 +3,27 @@ import datetime
 import glob
 import os
 import random
-import socket
 import subprocess
 import time
 import signal
 import sys
-import requests
 import threading
 import traceback
 import json
+
+import requests
+
 from register_in_service_discovery import REGISTRATION_DIRECTORY
+from common.consul import consul_get
 
 HEALTH_CHECKS_PATH_WILDCARD = '/opt/*/health-checks/*'
 HEALTH_CHECKS_TIMEOUT = 10
 HEALTH_CHECKS_TIMEOUT_VARIATION = 2
 INITIAL_HEALTH_CODE = 0  # passing
-CONSUL_REST_URL = 'http://172.17.42.1:8500/v1/'
 
 
 def print_err(*objs):
     print(*objs, file=sys.stderr)
-
-
-def consul_get(query):
-    return requests.get(CONSUL_REST_URL + query, timeout=5)
 
 
 def _async_execute_local_command(command):

@@ -5,7 +5,9 @@ import sys
 
 import requests
 
+import docker_client
 
+_CONSUL_TIMEOUT_IN_SECONDS = 7
 _SHIP_IP = None
 
 
@@ -16,18 +18,33 @@ def print_err(*objs):
 def _get_ship_ip():
     global _SHIP_IP
     if _SHIP_IP is None:
-        docker_api = docker_client.api()
         container_id = socket.gethostname()
-        docker_inspect = docker_api.inspect_container(container_id)
-        gateway_ip = docker_inspect[0]['NetworkSettings']['Gateway']
+        docker_inspect = docker_client.get_docker_inspect(container_id)
+        gateway_ip = docker_inspect['NetworkSettings']['Gateway']
         _SHIP_IP = gateway_ip
     return _SHIP_IP
 
 
-def _query(query):
+def _get_consul_url():
     hostname = _get_ship_ip()
-    url = 'http://{hostname}:8500/v1/{query}'.format(**locals())
-    return json.loads(requests.get(url, timeout=7).text)
+    url = 'http://{}:8500/v1/'.format(hostname)
+    return url
+
+
+def consul_query(query):
+    return json.loads(consul_get(query).text)
+
+
+def consul_get(query):
+    return requests.get(_get_consul_url() + query, timeout=_CONSUL_TIMEOUT_IN_SECONDS)
+
+
+def consul_post(query, data):
+    return requests.post(_get_consul_url() + query, data=json.dumps(data), timeout=_CONSUL_TIMEOUT_IN_SECONDS)
+
+
+def consul_put(query, data):
+    return requests.put(_get_consul_url() + query, data=json.dumps(data), timeout=_CONSUL_TIMEOUT_IN_SECONDS)
 
 
 def _create_dict_from_tags(tags):
@@ -38,11 +55,11 @@ def _create_dict_from_tags(tags):
 
 def get_service_to_addresses():
     service_to_addresses = {}
-    service_names = list(_query('catalog/services').keys())
+    service_names = list(consul_query('catalog/services').keys())
     for service_name in service_names:
         try:
             query = 'health/service/{service_name}'.format(**locals())
-            instances = _query(query)
+            instances = consul_query(query)
         except Exception as exception:
             exception_class = type(exception).__name__
             print_err(

@@ -1,15 +1,8 @@
-import json
 import socket
 
-import requests
 import web
 
-
-CONSUL_REST_URL = 'http://172.17.42.1:8500/v1/'
-
-
-def consul_query(query):
-    return json.loads(requests.get(CONSUL_REST_URL + query, timeout=5).text)
+from common.consul import consul_query
 
 
 class AddressAdapterException(Exception):

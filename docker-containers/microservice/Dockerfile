@@ -2,7 +2,7 @@ FROM ubuntu:14.04
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
 # You can force apt-get update & upgrade on next 'armada build' by changing the date:
-ENV MICROSERVICE_FORCE_APT_GET_UPDATE 2015-10-19
+ENV MICROSERVICE_APT_GET_UPDATE_DATE 2015-12-16
 
 ADD scripts/install_packages.sh /tmp/scripts/
 # 'sync' is to fix "text file busy" error.
