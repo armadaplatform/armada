@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Start local_magellan only when require_service is invoked.
+
+### Bug fixes
+- Fix hanging Armada on start, when using Docker version 1.9.1.
+
 ## 0.11.0 (2015-12-07)
 
 ### Improvements
