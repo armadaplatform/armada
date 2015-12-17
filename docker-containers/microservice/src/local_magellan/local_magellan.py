@@ -7,7 +7,7 @@ import sys
 
 import haproxy
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+sys.path.append('/opt/microservice/src')
 import common.consul
 
 MICROSERVICE_ENV = os.environ.get('MICROSERVICE_ENV') or None
