@@ -1,12 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.11.1 (2015-12-17)
 
 ### Improvements
 - Start local_magellan only when require_service is invoked.
 
 ### Bug fixes
 - Fix hanging Armada on start, when using Docker version 1.9.1.
+- Use commands `python2` and `pip2` on Armada host in case the default python is 3.x.
+(Contributed by [ryneeverett](https://github.com/ryneeverett))
+- Fix detection of external Armada IP on some systems.
+(Contributed by [ryneeverett](https://github.com/ryneeverett))
 
 ## 0.11.0 (2015-12-07)
 
