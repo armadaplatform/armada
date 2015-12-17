@@ -49,6 +49,7 @@ def main():
     if app_id is None:
         app_id = os.environ.get('MICROSERVICE_APP_ID')
     create_magellan_config(args.port, args.microservice_name, env, app_id)
+    os.system('supervisorctl start local_magellan')
 
 
 if __name__ == '__main__':

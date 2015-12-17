@@ -1,6 +1,6 @@
 from __future__ import print_function
-import os, sys
-
+import os
+import sys
 
 EXCLUDED_ENVIRONMENT_KEYS = {
     'PATH',

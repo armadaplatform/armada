@@ -7,14 +7,18 @@ import time
 import random
 import sys
 import traceback
-import docker
 import re
-import requests
 from datetime import datetime
 import calendar
-CONSUL_REST_URL = 'http://172.17.42.1:8500/v1/'
+
+import requests
+
+from common.consul import consul_query, consul_post, consul_get, consul_put
+from common.docker_client import get_docker_inspect
+
 REGISTRATION_DIRECTORY = "/var/opt/service-registration/"
 PORT_PATTERN = re.compile(r'^(\d+)(?:/(tcp|udp))?$', re.IGNORECASE)
+
 
 def _parse_args():
     parser = argparse.ArgumentParser(description='Register service in Armada.')
@@ -36,38 +40,11 @@ def print_err(*objs):
     print(*objs, file=sys.stderr)
 
 
-def consul_query(query):
-    return json.loads(consul_get(query).text)
-
-
-def consul_get(query):
-    return requests.get(CONSUL_REST_URL + query, timeout=5)
-
-
-def consul_post(query, data):
-    return requests.post(CONSUL_REST_URL + query, data=json.dumps(data), timeout=5)
-
-
-def consul_put(query, data):
-    return requests.put(CONSUL_REST_URL + query, data=json.dumps(data), timeout=5)
-
-
 def _exists_service(service_id):
     try:
         return service_id in consul_query('agent/services')
     except:
         return False
-
-
-def _get_docker_inspect(container_id):
-    docker_inspect = {}
-    docker_api = docker.Client(base_url='unix:///var/run/docker.sock', version='1.15', timeout=5)
-    try:
-        docker_inspect = docker_api.inspect_container(container_id)
-    except Exception as e:
-        print("ERROR on getting docker inspect info: {exception_class} - {exception}".format(
-            exception_class=type(e).__name__, exception=str(e)), file=sys.stderr)
-    return docker_inspect
 
 
 def _create_tags():
@@ -86,7 +63,8 @@ def _register_service(service_id, consul_service_data):
         print_err('Successfully registered.')
 
 
-def _create_service_file(service_filename, full_service_name, service_id, service_container_port, service_health_check_path=None):
+def _create_service_file(service_filename, full_service_name, service_id, service_container_port,
+                         service_health_check_path=None):
     service_registration_data = {
         "service_id": service_id,
         "service_container_port": service_container_port,
@@ -110,6 +88,7 @@ def _store_start_timestamp(container_id, container_created_string):
         response = consul_put(key, epoch_timestamp)
         assert response.status_code == requests.codes.ok
 
+
 def _get_port_and_protocol(args_port):
     m = PORT_PATTERN.match(args_port)
     if m is None:
@@ -119,10 +98,11 @@ def _get_port_and_protocol(args_port):
     protocol = (protocol or 'tcp').lower()
     return '{}/{}'.format(port, protocol)
 
+
 def main():
     args = _parse_args()
     container_id = socket.gethostname()
-    docker_inspect = _get_docker_inspect(container_id)
+    docker_inspect = get_docker_inspect(container_id)
 
     port_and_protocol = _get_port_and_protocol(args.port)
 
@@ -135,7 +115,7 @@ def main():
             if agent_self_dict['Config']:
                 break
         except:
-            pass
+            traceback.print_exc()
         time.sleep(1)
 
     service_id = container_id

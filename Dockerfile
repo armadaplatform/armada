@@ -17,10 +17,7 @@ RUN rm -f /etc/supervisor/conf.d/local_magellan.conf
 ADD ./armada_backend/health-checks/* /opt/armada-docker/health-checks/
 
 # armada
-ENV ARMADA_VERSION 0.11.0
-
 ADD ./armada_command /opt/armada-docker/armada_command
-RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_command/_version.py
 ADD ./armada_backend /opt/armada-docker/armada_backend
 ADD ./microservice_templates /opt/armada-docker/microservice_templates
 ADD ./keys /opt/armada-docker/keys
@@ -29,6 +26,9 @@ RUN cd /opt/armada-docker/armada_backend/scripts && chmod +x * && sync && ./setu
 
 ADD ./install/armada /usr/local/bin/armada
 RUN chmod +x /usr/local/bin/armada
+
+ENV ARMADA_VERSION 0.11.0
+RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_command/_version.py
 
 ENV PYTHONPATH /opt/armada-docker:$PYTHONPATH
 
