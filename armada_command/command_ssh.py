@@ -1,6 +1,7 @@
 from __future__ import print_function
 import argparse
 import os
+import sys
 import json
 import subprocess
 
@@ -69,4 +70,5 @@ def command_ssh(args):
         ssh_command = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host} sudo {ssh_command}'.format(**locals())
         print("Connecting to {0} on host {1}...".format(instance['ServiceName'], ssh_host))
 
-    subprocess.call(ssh_command, shell=True)
+    exit_code = subprocess.call(ssh_command, shell=True)
+    sys.exit(exit_code)
