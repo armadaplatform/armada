@@ -7,8 +7,10 @@ DOCKYARD_FALLBACK_ALIAS = 'armada'
 DOCKYARD_FALLBACK_ADDRESS = 'dockyard.armada.sh'
 INSECURE_REGISTRY_ERROR_MSG = """
 {header}
-  If you are trying to use dockyard using HTTP protocol make sure that its address
-is added to docker insecure registries list, e.g.:
+  If you are trying to use dockyard using HTTP protocol make sure that its
+address is added to docker daemon's --insecure-registries argument. See
+https://docs.docker.com/engine/articles/configuring/ for how to do this on
+various distributions, e.g.:
 \techo DOCKER_OPTS=\\\"\$DOCKER_OPTS --insecure-registry {address}\\\" | sudo tee --append /etc/default/docker
 \tsudo service docker restart
 \tsudo service armada restart
