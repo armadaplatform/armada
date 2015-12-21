@@ -23,5 +23,5 @@ def command_diagnose(args):
     script = "diagnose.sh"
     if args.logs:
         script = "logs.sh"
-    diagnostic_command = "armada ssh {microservice_name} bash < /opt/armada/armada_command/diagnostic_scripts/{script}".format(**locals())
+    diagnostic_command = "armada ssh -i {microservice_name} bash < /opt/armada/armada_command/diagnostic_scripts/{script}".format(**locals())
     subprocess.call(diagnostic_command, shell=True)

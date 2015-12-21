@@ -2,7 +2,6 @@ from __future__ import print_function
 import argparse
 import os
 import json
-import subprocess
 
 import armada_api
 import armada_utils
@@ -20,7 +19,12 @@ def add_arguments(parser):
                         help='Name of the microservice or container_id to ssh into. '
                              'If not provided it will use MICROSERVICE_NAME env variable.')
     parser.add_argument('command', nargs=argparse.REMAINDER,
-                        help='Execute command inside the container.')
+                        help='Execute command inside the container. '
+                             'If not provided it will create interactive bash terminal.')
+    parser.add_argument('-t', '--tty', default=False, action='store_true',
+                        help='Allocate a pseudo-TTY.')
+    parser.add_argument('-i', '--interactive', default=False, action='store_true',
+                        help='Keep STDIN open even if not attached.')
 
 
 def command_ssh(args):
@@ -54,19 +58,24 @@ def command_ssh(args):
 
         docker_key_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
 
-    tty = '-t'
     if args.command:
         command = ' '.join(args.command)
-        if command.startswith('bash'):
-            tty = ''
     else:
         command = 'bash'
+        args.tty = True
+        args.interactive = True
 
-    ssh_command = 'docker exec -i {tty} {container_id} env TERM=$TERM {command}'.format(**locals())
+    tty = '-t' if args.tty else ''
+    interactive = '-i' if args.interactive else ''
+    term = os.environ.get('TERM') or 'dummy'
+
+    ssh_command = 'docker exec {interactive} {tty} {container_id} env TERM={term} {command}'.format(**locals())
     if is_local:
         print("Connecting to {0}...".format(instance['ServiceName']))
     else:
-        ssh_command = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host} sudo {ssh_command}'.format(**locals())
+        ssh_command = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host} sudo {ssh_command}'.format(
+            **locals())
         print("Connecting to {0} on host {1}...".format(instance['ServiceName'], ssh_host))
 
-    subprocess.call(ssh_command, shell=True)
+    ssh_args = ssh_command.split()
+    os.execvp(ssh_args[0], ssh_args)
