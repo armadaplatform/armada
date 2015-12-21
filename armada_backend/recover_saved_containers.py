@@ -1,3 +1,4 @@
+from __future__ import print_function
 import argparse
 from collections import Counter
 from time import sleep
@@ -10,7 +11,6 @@ from armada_backend.api_run import print_err
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.utils import get_container_parameters, get_local_containers_ids
 from armada_command import armada_api
-
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
 RECOVERY_RETRY_LIMIT = 5
@@ -34,9 +34,10 @@ def _get_local_running_containers():
 
 
 def _recover_container(container_parameters):
-    print('Recovering {container_parameters}...\n'.format(**locals()))
+    print_err('Recovering: {}...\n'.format(json.dumps(container_parameters)))
     recovery_result = armada_api.post('run', container_parameters)
-    print('Recovered container: {recovery_result}'.format(**locals()))
+    print_err('Recovered container: {}'.format(json.dumps(recovery_result)))
+
 
 def _multiset_difference(a, b):
     a_counter = Counter(json.dumps(x, sort_keys=True) for x in a)
@@ -51,7 +52,7 @@ def recover_saved_containers(saved_containers):
     containers_to_be_recovered = _multiset_difference(saved_containers, running_containers)
     recovery_retry_count = 0
     while containers_to_be_recovered and recovery_retry_count < RECOVERY_RETRY_LIMIT:
-        print("Recovering containers: ",containers_to_be_recovered)
+        print_err("Recovering containers: {}".format(json.dumps(containers_to_be_recovered)))
         for container_parameters in containers_to_be_recovered:
             _recover_container(container_parameters)
         sleep(DELAY_BETWEEN_RECOVER_RETRY_SECONDS)
@@ -79,10 +80,10 @@ def _recover_saved_containers_from_path(saved_containers_path):
 def _check_if_we_should_recover(saved_containers_path):
     try:
         if int(os.environ.get('DOCKER_START_TIMESTAMP')) > int(os.path.getmtime(saved_containers_path)):
-            print('Docker daemon restart detected.')
+            print_err('Docker daemon restart detected.')
             return True
         else:
-            print('No need to recover.')
+            print_err('No need to recover.')
             return False
     except:
         return False

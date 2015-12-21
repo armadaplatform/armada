@@ -1,5 +1,6 @@
 from __future__ import print_function
 import json
+import os
 import sys
 import urllib
 
@@ -7,15 +8,19 @@ import requests
 
 from armada_command.consul.consul import consul_query
 
-ARMADA_IP = '127.0.0.1'
+
+def __are_we_in_armada_container():
+    return os.environ.get('MICROSERVICE_NAME') == 'armada' and os.path.isfile('/.dockerinit')
 
 
 def __get_armada_address(ship_name=None):
     if not ship_name:
+        if __are_we_in_armada_container():
+            return 'http://127.0.0.1'
         agent_services_dict = consul_query('agent/services')
         for service in agent_services_dict.values():
             if service['Service'] == 'armada':
-                return 'http://{0}:{1}'.format(ARMADA_IP, str(service['Port']))
+                return 'http://127.0.0.1:{}'.format(service['Port'])
     else:
         service_armada_dict = consul_query('catalog/service/armada')
         for service_armada in service_armada_dict:
@@ -25,7 +30,8 @@ def __get_armada_address(ship_name=None):
     raise ValueError('Cannot find ship: {ship_name}.'.format(ship_name=ship_name))
 
 
-def get(api_function, arguments={}, ship_name=None):
+def get(api_function, arguments=None, ship_name=None):
+    arguments = arguments or {}
     try:
         result = requests.get(__get_armada_address(ship_name) + '/' + api_function + '?' + urllib.urlencode(arguments))
         return result.text
@@ -35,7 +41,8 @@ def get(api_function, arguments={}, ship_name=None):
     return None
 
 
-def post(api_function, arguments={}, ship_name=None):
+def post(api_function, arguments=None, ship_name=None):
+    arguments = arguments or {}
     try:
         result = requests.post(__get_armada_address(ship_name) + '/' + api_function, json.dumps(arguments))
         return json.loads(result.text)
