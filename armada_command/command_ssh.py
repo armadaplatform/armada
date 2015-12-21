@@ -3,7 +3,6 @@ import argparse
 import os
 import sys
 import json
-import subprocess
 
 import armada_api
 import armada_utils
