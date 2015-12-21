@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fix bug with `armada ssh` always returning exit code 0. 
+
 ## 0.11.1 (2015-12-17)
 
 ### Improvements
