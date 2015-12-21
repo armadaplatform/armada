@@ -1,8 +1,8 @@
 from __future__ import print_function
 import argparse
 import os
+import sys
 import json
-import subprocess
 
 import armada_api
 import armada_utils
@@ -63,10 +63,13 @@ def command_ssh(args):
         command = 'bash'
 
     ssh_command = 'docker exec -i {tty} {container_id} env TERM=$TERM {command}'.format(**locals())
+
     if is_local:
         print("Connecting to {0}...".format(instance['ServiceName']))
     else:
         ssh_command = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host} sudo {ssh_command}'.format(**locals())
         print("Connecting to {0} on host {1}...".format(instance['ServiceName'], ssh_host))
 
-    subprocess.call(ssh_command, shell=True)
+    ssh_args = ssh_command.split()
+    os.execvp(ssh_args[0], ssh_args)
+    
