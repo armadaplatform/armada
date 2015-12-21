@@ -70,6 +70,7 @@ def command_ssh(args):
     term = os.environ.get('TERM') or 'dummy'
 
     ssh_command = 'docker exec {interactive} {tty} {container_id} env TERM={term} {command}'.format(**locals())
+
     if is_local:
         print("Connecting to {0}...".format(instance['ServiceName']))
     else:
