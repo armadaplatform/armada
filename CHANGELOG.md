@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- You can now pass options `-t/--tty` and `-i/--interactive` to `armada ssh`, which translate to corresponding
+`docker exec` options. The default behavior has been changed in case the command is provided so they are both off.
+
 ## 0.11.1 (2015-12-17)
 
 ### Improvements
