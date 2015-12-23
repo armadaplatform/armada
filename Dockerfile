@@ -9,7 +9,7 @@ RUN pip install -U paramiko web.py docker-py==1.2.2
 
 # Consul
 
-RUN wget https://dl.bintray.com/mitchellh/consul/0.4.1_linux_amd64.zip -O consul.zip
+RUN wget https://releases.hashicorp.com/consul/0.6.0/consul_0.6.0_linux_amd64.zip -O consul.zip
 RUN unzip consul.zip && mv consul /usr/local/bin && rm -f consul.zip
 
 ADD ./armada_backend/supervisor/* /etc/supervisor/conf.d/
