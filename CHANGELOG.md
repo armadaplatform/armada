@@ -9,6 +9,7 @@
 
 ### Bug fixes
 - Fix bug with `armada ssh` always returning exit code 0.
+- Fix recovering services after Docker/host restart.
 
 ## 0.11.1 (2015-12-17)
 
