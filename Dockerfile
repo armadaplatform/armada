@@ -1,10 +1,10 @@
 FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
-ENV ARMADA_APT_GET_UPDATE_DATE 2015-07-17
+ENV ARMADA_APT_GET_UPDATE_DATE 2015-12-28
 
 RUN apt-get update
-RUN apt-get install -y python python-dev unzip rsync
+RUN apt-get install -y python python-dev python-pip unzip rsync openssh-server
 RUN pip install -U paramiko web.py docker-py==1.2.2
 
 # Consul
