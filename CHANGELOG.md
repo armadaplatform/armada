@@ -8,6 +8,10 @@
 `-t` and `-i`, are turned off then.
 - New microservice template for `armada create` - python3 (based on [bottle](http://bottlepy.org/)).
 
+### Improvements
+- Added link to docker docs about configuring insecure registries when connection to such registry is attempted.
+(Contributed by [ryneeverett](https://github.com/ryneeverett))
+
 ### Bug fixes
 - Fix bug with `armada ssh` always returning exit code 0.
 - Fix recovering services after Docker/host restart.
