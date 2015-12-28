@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.12.0 (2015-12-28)
 
 ### Features
 - You can now pass options `-t/--tty` and `-i/--interactive` to `armada ssh`, which translate to corresponding
