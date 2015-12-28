@@ -9,7 +9,7 @@ global
 
 defaults
     mode tcp
-    timeout connect 5s
+    timeout connect 7s
     timeout server 24d
     timeout client 24d
 
