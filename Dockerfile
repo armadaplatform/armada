@@ -32,4 +32,4 @@ RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_
 
 ENV PYTHONPATH /opt/armada-docker:$PYTHONPATH
 
-EXPOSE 80 8300 8301 8301/udp 8400 8500
+EXPOSE 22 80 8300 8301 8301/udp 8400 8500

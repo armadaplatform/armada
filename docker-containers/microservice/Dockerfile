@@ -11,6 +11,4 @@ ADD . /opt/microservice
 RUN cd /opt/microservice/scripts && chmod +x * && sync && ./setup_supervisor.sh
 RUN mkdir /var/opt/service-registration/
 
-EXPOSE 22
-
 CMD ["/usr/bin/python3.4", "/opt/microservice/src/bootstrap_microservice.py"]
