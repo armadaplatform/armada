@@ -10,7 +10,7 @@
 - Increase timeouts to docker server, dockyards and local haproxy.
 - Remove hack for manual installing pip on Ubuntu.
 
-### **UPGRADE WARNING:**
+### :warning: **UPGRADE WARNING** :warning:
 
 Due to Consul upgrade, the promoted Armada agents (leaders and commanders) with version >= 0.13.0 cannot be mixed with
 older versions.
