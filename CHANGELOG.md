@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.13.0 (2015-12-30)
 
 ### Features
 - Upgrade Consul from version 0.4.1 to 0.6.0.
