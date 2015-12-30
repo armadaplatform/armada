@@ -13,7 +13,7 @@
 **UPGRADE WARNING:**
 
 Due to Consul upgrade, the promoted Armada agents (leaders and commanders) with version >= 0.13.0 cannot be mixed with
-versions <= 0.12.0.
+older versions.
 There is a 15 minute window for upgrade. See more details:
 https://github.com/hashicorp/consul/commit/f53bd94dc334c56968ac4e33e19d9ca6a2b5aa22
 
