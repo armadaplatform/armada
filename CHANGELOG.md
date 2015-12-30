@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- Upgrade Consul from version 0.4.1 to 0.6.0.
+
+### Improvements
+- Don't expose port 22 and install openssh-server in microservice image anymore.
+- Increase timeouts to docker server, dockyards and local haproxy.
+- Remove hack for manual installing pip on Ubuntu.
+
+### :warning: **UPGRADE WARNING** :warning:
+
+Due to Consul upgrade, the promoted Armada agents (leaders and commanders) with version >= 0.13.0 cannot be mixed with
+older versions.
+There is a 15 minute window for upgrade. See more details:
+https://github.com/hashicorp/consul/commit/f53bd94dc334c56968ac4e33e19d9ca6a2b5aa22
+
 ## 0.12.0 (2015-12-28)
 
 ### Features

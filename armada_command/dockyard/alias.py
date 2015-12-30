@@ -20,7 +20,7 @@ various distributions, e.g.:
 
 def is_dockyard_address_accessible(url):
     try:
-        r = requests.get(url + "/_ping", timeout=1)
+        r = requests.get(url + "/_ping", timeout=2)
         return r.status_code == 200 and r.text == "{}"
     except:
         return False
