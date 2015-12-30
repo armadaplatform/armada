@@ -7,4 +7,5 @@ add-apt-repository -y ppa:vbernat/haproxy-1.5
 apt-get update
 apt-get install -y haproxy
 
+pip install -U pip
 pip install -U docker-py web.py requests
