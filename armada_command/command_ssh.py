@@ -1,9 +1,8 @@
 from __future__ import print_function
+
 import argparse
 import os
-import json
 
-import armada_api
 import armada_utils
 from armada_command.consul.consul import consul_query
 
@@ -36,8 +35,8 @@ def command_ssh(args):
     instances_count = len(instances)
     if instances_count > 1:
         raise armada_utils.ArmadaCommandException(
-            'There are too many ({instances_count}) matching containers. '
-            'Provide more specific container_id or microservice name.'.format(**locals()))
+                'There are too many ({instances_count}) matching containers. '
+                'Provide more specific container_id or microservice name.'.format(**locals()))
     instance = instances[0]
 
     service_id = instance['ServiceID']
@@ -50,12 +49,7 @@ def command_ssh(args):
         is_local = True
 
     if not is_local:
-        result = json.loads(armada_api.get('ssh-address', payload, ship_name=instance['Node']))
-
-        if result['status'] != 'ok':
-            raise armada_utils.ArmadaCommandException('armada API error: {0}'.format(result['error']))
-        ssh_host = result['ssh'].split(':')[0]
-
+        ssh_host = instance['Address']
         docker_key_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
 
     if args.command:
@@ -75,7 +69,7 @@ def command_ssh(args):
         print("Connecting to {0}...".format(instance['ServiceName']))
     else:
         ssh_command = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host} sudo {ssh_command}'.format(
-            **locals())
+                **locals())
         print("Connecting to {0} on host {1}...".format(instance['ServiceName'], ssh_host))
 
     ssh_args = ssh_command.split()
