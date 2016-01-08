@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- `armada ssh` invoked for remote services, that were rebuilt from microservice image v0.13.0 threw
+`KeyError - '22/tcp'`.
+
 ## 0.13.0 (2015-12-30)
 
 ### Features
