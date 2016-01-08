@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.13.1 (2016-01-08)
 
 ### Bug fixes
 - `armada ssh` invoked for remote services, that were rebuilt from microservice image v0.13.0 threw
