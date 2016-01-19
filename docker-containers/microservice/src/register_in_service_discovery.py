@@ -130,7 +130,7 @@ def main():
         'Name': full_service_name,
         'Port': service_port,
         'Check': {
-            'TTL': '15s',
+            'TTL': '30s',
         }
     }
     tags = _create_tags()

@@ -1,7 +1,7 @@
 FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
-ENV ARMADA_APT_GET_UPDATE_DATE 2015-12-28
+ENV ARMADA_APT_GET_UPDATE_DATE 2016-01-19
 
 RUN apt-get update
 RUN apt-get install -y python python-dev python-pip unzip rsync openssh-server
@@ -9,7 +9,7 @@ RUN pip install -U paramiko web.py docker-py==1.2.2
 
 # Consul
 
-RUN wget https://releases.hashicorp.com/consul/0.6.0/consul_0.6.0_linux_amd64.zip -O consul.zip
+RUN wget https://releases.hashicorp.com/consul/0.6.3/consul_0.6.3_linux_amd64.zip -O consul.zip
 RUN unzip consul.zip && mv consul /usr/local/bin && rm -f consul.zip
 
 ADD ./armada_backend/supervisor/* /etc/supervisor/conf.d/
@@ -27,7 +27,7 @@ RUN cd /opt/armada-docker/armada_backend/scripts && chmod +x * && sync && ./setu
 ADD ./install/armada /usr/local/bin/armada
 RUN chmod +x /usr/local/bin/armada
 
-ENV ARMADA_VERSION 0.13.1
+ENV ARMADA_VERSION 0.13.1c
 RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_command/_version.py
 
 ENV PYTHONPATH /opt/armada-docker:$PYTHONPATH
