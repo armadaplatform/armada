@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Upgrade Consul from version 0.6.0 to 0.6.3.
+- Run Consul using os.execv instead of spawning new process, which makes Consul's logs available in supervisor.
+- Store sorted container parameters in `/opt/armada/` on Ship, to ease checking differences between versions.
+
 ## 0.13.1 (2016-01-08)
 
 ### Bug fixes
