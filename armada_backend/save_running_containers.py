@@ -1,9 +1,9 @@
 import argparse
 import json
 import os
-import traceback
 import shutil
 import sys
+import traceback
 
 from api_run import print_err
 from armada_backend.api_ship import wait_for_consul_ready
@@ -11,7 +11,6 @@ from armada_backend.recover_saved_containers import RECOVERY_COMPLETED_PATH
 from armada_backend.utils import get_container_parameters, get_ship_name
 from armada_backend.utils import get_local_containers_ids
 from armada_command.consul import kv
-from armada_command.consul.consul import consul_query
 
 
 def _parse_args():
@@ -65,6 +64,7 @@ def main():
                 errors_count += 1
                 print_err('ERROR on getting container parameters for {container_id}:'.format(**locals()))
                 traceback.print_exc()
+        containers_parameters_list.sort()
         # Don't overwrite saved containers' list if it would become empty because of errors.
         if containers_parameters_list or not errors_count:
             _save_containers_parameters_list_in_file(containers_parameters_list, saved_containers_path)
