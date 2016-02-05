@@ -1,15 +1,17 @@
 from __future__ import print_function
+
 import base64
 import json
-import traceback
 import os
 import sys
+import traceback
+
 import web
+
 import api_base
-from armada_command.consul.consul import consul_query
-from armada_command.docker_utils.images import ArmadaImage
-from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
 import docker_client
+from armada_command.consul.consul import consul_query
+from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
@@ -23,7 +25,6 @@ def print_err(*objs):
 class Run(api_base.ApiCommand):
     def run_container(self, image_path, dockyard_user, dockyard_password, dict_ports, dict_environment, dict_volumes,
                       run_command):
-        exception_msg = ""
         try:
             restart_parameters = {'image_path': image_path,
                                   'dockyard_user': dockyard_user,
@@ -54,8 +55,8 @@ class Run(api_base.ApiCommand):
             if dict_volumes:
                 volumes = dict_volumes.values()
                 volume_bindings = dict(
-                    (path_host, {'bind': path_container, 'ro': False}) for path_host, path_container in
-                    dict_volumes.iteritems())
+                        (path_host, {'bind': path_container, 'ro': False}) for path_host, path_container in
+                        dict_volumes.iteritems())
 
             dockyard_address, image_name, image_tag = self._split_image_path(image_path)
 
@@ -86,7 +87,7 @@ class Run(api_base.ApiCommand):
         except Exception as e:
             traceback.print_exc()
             exception_msg = e.message + " Cannot create requested container. {exception_class} - {exception}".format(
-                exception_class=type(e).__name__, exception=str(e))
+                    exception_class=type(e).__name__, exception=str(e))
             return self.status_error(exception_msg)
 
         short_container_id = long_container_id[:LENGTH_OF_SHORT_CONTAINER_ID]

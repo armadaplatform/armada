@@ -5,7 +5,7 @@ ENV ARMADA_APT_GET_UPDATE_DATE 2015-12-28
 
 RUN apt-get update
 RUN apt-get install -y python python-dev python-pip unzip rsync openssh-server
-RUN pip install -U paramiko web.py docker-py==1.2.2
+RUN pip install -U paramiko web.py docker-py
 
 # Consul
 
@@ -27,7 +27,7 @@ RUN cd /opt/armada-docker/armada_backend/scripts && chmod +x * && sync && ./setu
 ADD ./install/armada /usr/local/bin/armada
 RUN chmod +x /usr/local/bin/armada
 
-ENV ARMADA_VERSION 0.13.1
+ENV ARMADA_VERSION 0.13.1-dockyard-v2
 RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_command/_version.py
 
 ENV PYTHONPATH /opt/armada-docker:$PYTHONPATH

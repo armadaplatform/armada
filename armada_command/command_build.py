@@ -1,9 +1,10 @@
 from __future__ import print_function
+
 import argparse
 import os
 import sys
-from armada_command.armada_utils import execute_local_command
 
+from armada_command.armada_utils import execute_local_command
 from armada_command.docker_utils.images import ArmadaImage
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS
@@ -57,10 +58,12 @@ def command_build(args):
                 sys.exit(1)
 
         dockyard_dict = dockyard.get_dockyard_dict(dockyard_alias)
-        did_print = print_dockyard_unavailability_warning(dockyard_dict.get("address"),
-                                    dockyard_dict.get("user"),
-                                    dockyard_dict.get("password"),
-                                    "ERROR! Cannot pull from dockyard!")
+        did_print = print_dockyard_unavailability_warning(
+                dockyard_dict.get("address"),
+                dockyard_dict.get("user"),
+                dockyard_dict.get("password"),
+                "ERROR! Cannot pull from dockyard!",
+        )
         retries = 0 if did_print else 3
         base_image_path = base_image.image_path
         pull_command = 'docker pull {base_image_path}'.format(**locals())

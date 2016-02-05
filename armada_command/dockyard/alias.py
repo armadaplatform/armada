@@ -1,7 +1,9 @@
-from armada_command.consul import kv
-import requests
 import subprocess
 from distutils.version import LooseVersion as Version
+
+import requests
+
+from armada_command.consul import kv
 
 DOCKYARD_FALLBACK_ALIAS = 'armada'
 DOCKYARD_FALLBACK_ADDRESS = 'dockyard.armada.sh'
@@ -18,14 +20,6 @@ various distributions, e.g.:
 """
 
 
-def is_dockyard_address_accessible(url):
-    try:
-        r = requests.get(url + "/_ping", timeout=2)
-        return r.status_code == 200 and r.text == "{}"
-    except:
-        return False
-
-
 def print_dockyard_unavailability_warning(address, user=None, password=None, header="Warning!"):
     if user and password:
         return
@@ -39,7 +33,8 @@ def print_dockyard_unavailability_warning(address, user=None, password=None, hea
             docker_version = process.communicate()[0].split('\n')[0].split(": ")[1]
 
             if Version(docker_version) > Version("1.3.0"):
-                process_ps = subprocess.Popen("ps ax | grep 'docker ' | grep '/usr/bin/docker'", shell=True, stdout=subprocess.PIPE)
+                process_ps = subprocess.Popen("ps ax | grep 'docker ' | grep '/usr/bin/docker'", shell=True,
+                                              stdout=subprocess.PIPE)
                 docker_process = process_ps.communicate()[0].split('\n')[0]
                 docker_commandline = docker_process.split(None, 4)[-1]
                 if "--insecure-registry " + address not in docker_commandline:
@@ -48,7 +43,6 @@ def print_dockyard_unavailability_warning(address, user=None, password=None, hea
                     return True
         except Exception:
             pass
-
 
 
 def set_alias(name, address, user=None, password=None, check_if_accessible=True):
