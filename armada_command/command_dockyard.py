@@ -1,4 +1,7 @@
 from __future__ import print_function
+
+from armada_command.dockyard.alias import print_http_dockyard_unavailability_warning
+from armada_command.dockyard.dockyard import dockyard_factory
 from dockyard import alias
 
 
@@ -38,6 +41,11 @@ def command_dockyard(args):
 
 def command_dockyard_set(args):
     alias.set_alias(args.name, args.address, args.user, args.password)
+    dockyard = dockyard_factory(args.address, args.user, args.password)
+
+    if dockyard.is_http():
+        header = " Warning!\n Your dockyard alias has been set BUT:"
+        print_http_dockyard_unavailability_warning(args.address, args.name, header)
 
 
 def print_table(rows):

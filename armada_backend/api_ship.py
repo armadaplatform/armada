@@ -1,14 +1,15 @@
-import os
 import json
+import os
 import random
 import time
-from armada_command.consul.consul import consul_query, consul_put
-from utils import get_ship_name, get_other_ship_ips, get_current_datacenter
-from runtime_settings import override_runtime_settings
-import consul_config
-import api_base
 from socket import gethostname
+
+import api_base
+import consul_config
 from armada_backend.utils import deregister_services
+from armada_command.consul.consul import consul_query, consul_put
+from runtime_settings import override_runtime_settings
+from utils import get_ship_name, get_other_ship_ips, get_current_datacenter
 
 
 def _get_current_consul_mode():
@@ -34,7 +35,7 @@ def _get_armada_size():
         return 0
 
 
-def wait_for_consul_ready(timeout_seconds = 60):
+def wait_for_consul_ready(timeout_seconds=60):
     timeout_expiration = time.time() + timeout_seconds
     while time.time() < timeout_expiration:
         time.sleep(1)
@@ -53,7 +54,6 @@ def wait_for_consul_ready(timeout_seconds = 60):
 
 
 def _restart_consul():
-
     # Services will be registered again by their script 'register_in_service_discovery'.
     agent_self_dict = consul_query('agent/self')
     node_name = agent_self_dict['Config']['NodeName']
@@ -80,11 +80,11 @@ class Name(api_base.ApiCommand):
 
         current_consul_mode = _get_current_consul_mode()
         if current_consul_mode == consul_config.ConsulMode.BOOTSTRAP:
-            override_runtime_settings(ship_name = ship_name,
-                                      ship_ips = [],
-                                      datacenter = 'dc-' + str(random.randrange(1000000)))
+            override_runtime_settings(ship_name=ship_name,
+                                      ship_ips=[],
+                                      datacenter='dc-' + str(random.randrange(1000000)))
         else:
-            override_runtime_settings(ship_name = ship_name)
+            override_runtime_settings(ship_name=ship_name)
 
         if _restart_consul():
             return self.status_ok()
@@ -100,7 +100,7 @@ class Join(api_base.ApiCommand):
         armada_size = _get_armada_size()
         if armada_size > 1:
             return self.status_error('Currently only single ship armadas can join the others. '
-                                     'Your armada has size: {armada_size}.'.format(armada_size = armada_size))
+                                     'Your armada has size: {armada_size}.'.format(armada_size=armada_size))
 
         try:
             agent_self_dict = consul_query('agent/self', consul_address='{consul_host}:8500'.format(**locals()))
@@ -110,12 +110,12 @@ class Join(api_base.ApiCommand):
 
         current_consul_mode = _get_current_consul_mode()
         if current_consul_mode == consul_config.ConsulMode.BOOTSTRAP:
-            override_runtime_settings(consul_mode = consul_config.ConsulMode.CLIENT,
-                                      ship_ips = [consul_host],
-                                      datacenter = datacenter)
+            override_runtime_settings(consul_mode=consul_config.ConsulMode.CLIENT,
+                                      ship_ips=[consul_host],
+                                      datacenter=datacenter)
         else:
-            override_runtime_settings(ship_ips = [consul_host] + get_other_ship_ips(),
-                                      datacenter = datacenter)
+            override_runtime_settings(ship_ips=[consul_host] + get_other_ship_ips(),
+                                      datacenter=datacenter)
 
         if _restart_consul():
             return self.status_ok()
@@ -132,7 +132,7 @@ class Promote(api_base.ApiCommand):
         if current_consul_mode == consul_config.ConsulMode.BOOTSTRAP:
             return self.status_error('Ship must join armada to be promoted to server.')
 
-        override_runtime_settings(consul_mode = consul_config.ConsulMode.SERVER)
+        override_runtime_settings(consul_mode=consul_config.ConsulMode.SERVER)
 
         if _restart_consul():
             return self.status_ok()

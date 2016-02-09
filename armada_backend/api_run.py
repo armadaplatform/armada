@@ -55,8 +55,8 @@ class Run(api_base.ApiCommand):
             if dict_volumes:
                 volumes = dict_volumes.values()
                 volume_bindings = dict(
-                        (path_host, {'bind': path_container, 'ro': False}) for path_host, path_container in
-                        dict_volumes.iteritems())
+                    (path_host, {'bind': path_container, 'ro': False}) for path_host, path_container in
+                    dict_volumes.iteritems())
 
             dockyard_address, image_name, image_tag = self._split_image_path(image_path)
 
@@ -86,8 +86,8 @@ class Run(api_base.ApiCommand):
 
         except Exception as e:
             traceback.print_exc()
-            exception_msg = e.message + " Cannot create requested container. {exception_class} - {exception}".format(
-                    exception_class=type(e).__name__, exception=str(e))
+            exception_msg = " Cannot create requested container. {exception_class} - {exception}".format(
+                exception_class=type(e).__name__, exception=str(e))
             return self.status_error(exception_msg)
 
         short_container_id = long_container_id[:LENGTH_OF_SHORT_CONTAINER_ID]

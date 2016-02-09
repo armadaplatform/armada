@@ -5,12 +5,10 @@ from armada_command.dockyard.dockyard import dockyard_factory
 
 class ArmadaImage(object):
     def __init__(self, image_path, dockyard_alias=None):
-        self.dockyard_alias = dockyard_alias
-        self.dockyard_dict = None
-        self.dockyard_auth = None
-        self.dockyard_url = None
         self.dockyard = None
         dockyard_address, self.image_name = ArmadaImage.__split_image_path(image_path)
+        dockyard_dict = {}
+
         if dockyard_address:
             if dockyard_alias:
                 raise ArmadaCommandException('Ambiguous dockyard. Please specify either -d/--dockyard '
@@ -19,13 +17,13 @@ class ArmadaImage(object):
         elif dockyard_alias == 'local':
             self.image_path = image_path
         else:
-            self.dockyard_dict = dockyard.get_dockyard_dict(self.dockyard_alias)
-            dockyard_address = self.dockyard_dict['address']
+            dockyard_dict = dockyard.get_dockyard_dict(dockyard_alias)
+            dockyard_address = dockyard_dict['address']
             self.image_path = dockyard_address + '/' + self.image_name
 
         self.dockyard = dockyard_factory(dockyard_address,
-                                         self.dockyard_dict.get('user'),
-                                         self.dockyard_dict.get('password'))
+                                         dockyard_dict.get('user'),
+                                         dockyard_dict.get('password'))
 
     def is_remote(self):
         return self.dockyard.is_remote()

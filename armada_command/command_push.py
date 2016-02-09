@@ -8,7 +8,8 @@ import socket
 from armada_command.armada_utils import ArmadaCommandException, execute_local_command
 from armada_command.docker_utils.images import ArmadaImage
 from armada_command.dockyard import dockyard
-from armada_command.dockyard.alias import print_dockyard_unavailability_warning
+from armada_command.dockyard.alias import print_http_dockyard_unavailability_warning
+from armada_command.dockyard.dockyard import dockyard_factory
 
 
 def parse_args():
@@ -43,7 +44,7 @@ def login_to_dockyard(dockyard_alias):
                          '--email="{current_user_email}" {dockyard_address}').format(**locals())
         if execute_local_command(login_command)[0] != 0:
             raise ArmadaCommandException(
-                    'ERROR: Could not login to dockyard with alias {dockyard_alias}.'.format(**locals()))
+                'ERROR: Could not login to dockyard with alias {dockyard_alias}.'.format(**locals()))
 
 
 def command_push(args):
@@ -56,7 +57,7 @@ def command_push(args):
     if '/' not in args.image_path:
         if not ArmadaImage(image.image_name, 'local').exists():
             raise Exception('Image {} does not exist. Typo?'.format(image.image_name))
-        dockyard_string = image.dockyard_address or ''
+        dockyard_string = image.dockyard.url or ''
         dockyard_string += ' (alias: {})'.format(dockyard_alias) if dockyard_alias else ''
         print('Pushing image {} to dockyard: {}...'.format(image.image_name, dockyard_string))
         tag_command = 'docker tag -f {} {}'.format(image.image_name, image.image_path)
@@ -67,10 +68,15 @@ def command_push(args):
         print('Pushing image {}...'.format(image))
 
     dockyard_dict = dockyard.get_dockyard_dict(dockyard_alias)
-    did_print = print_dockyard_unavailability_warning(dockyard_dict.get("address"),
-                                                      dockyard_dict.get("user"),
-                                                      dockyard_dict.get("password"),
-                                                      "ERROR! Cannot push to dockyard!")
+    did_print = False
+    d = dockyard_factory(dockyard_dict.get('address'), dockyard_dict.get('user'), dockyard_dict.get('password'))
+    if d.is_http():
+        did_print = print_http_dockyard_unavailability_warning(
+            dockyard_dict['address'],
+            dockyard_alias,
+            "ERROR! Cannot push to dockyard!",
+        )
+
     retries = 0 if did_print else 3
     login_to_dockyard(dockyard_alias)
     push_command = 'docker push {}'.format(image.image_path)
