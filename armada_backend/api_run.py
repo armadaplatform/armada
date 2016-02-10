@@ -26,15 +26,16 @@ class Run(api_base.ApiCommand):
     def run_container(self, image_path, dockyard_user, dockyard_password, dict_ports, dict_environment, dict_volumes,
                       run_command):
         try:
-            restart_parameters = {'image_path': image_path,
-                                  'dockyard_user': dockyard_user,
-                                  'dockyard_password': dockyard_password,
-                                  'ports': dict_ports,
-                                  'environment': dict_environment,
-                                  'volumes': dict_volumes,
-                                  'run_command': run_command,
-                                  'microservice_name': dict_environment.get('MICROSERVICE_NAME')
-                                  }
+            restart_parameters = {
+                'image_path': image_path,
+                'dockyard_user': dockyard_user,
+                'dockyard_password': dockyard_password,
+                'ports': dict_ports,
+                'environment': dict_environment,
+                'volumes': dict_volumes,
+                'run_command': run_command,
+                'microservice_name': dict_environment.get('MICROSERVICE_NAME')
+            }
             dict_environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(json.dumps(restart_parameters))
             dict_environment['ARMADA_RUN_COMMAND'] = base64.b64encode(run_command)
             microservice_name = dict_environment.get('MICROSERVICE_NAME')
@@ -103,9 +104,11 @@ class Run(api_base.ApiCommand):
             logged_in = False
             # Workaround for abrupt changes in docker-py library.
             login_exceptions = []
-            registry_endpoints = ['https://{0}/v1/'.format(dockyard_address),
-                                  'https://{0}'.format(dockyard_address),
-                                  dockyard_address]
+            registry_endpoints = [
+                'https://{0}/v1/'.format(dockyard_address),
+                'https://{0}'.format(dockyard_address),
+                dockyard_address
+            ]
             for registry_endpoint in registry_endpoints:
                 try:
                     docker_api.login(dockyard_user, dockyard_password, registry=registry_endpoint)

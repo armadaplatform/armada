@@ -3,7 +3,6 @@ from __future__ import print_function
 import json
 import os
 from datetime import datetime
-from pprint import pprint
 from urlparse import urlparse
 
 import requests
@@ -67,11 +66,18 @@ DOCKYARD_API_ENDPOINTS = {
     'v2': 'v2',
 }
 
+CA_FILE_WILDCARDS = [
+    '/etc/docker/certs.d/{}/ca.crt',
+    '/usr/local/share/ca-certificates/{}.crt',
+    '/etc/pki/ca-trust/source/anchors/{}.crt',
+]
+
 
 def _get_ca_file_path(domain):
-    ca_file_path = '/usr/local/share/ca-certificates/{}.crt'.format(domain)
-    if os.path.exists(ca_file_path):
-        return ca_file_path
+    for wildcard in CA_FILE_WILDCARDS:
+        file_path = wildcard.format(domain)
+        if os.path.exists(file_path):
+            return file_path
     return None
 
 
@@ -83,7 +89,6 @@ def _http_get(url, **kwargs):
         ca_file_path = _get_ca_file_path(domain)
         if ca_file_path:
             verify_tls = ca_file_path
-    print(url, verify_tls, kwargs)
     return requests.get(url, verify=verify_tls, **kwargs)
 
 
@@ -92,16 +97,10 @@ def detect_dockyard_api_version(dockyard_address, user, password):
         try:
             url = dockyard_address.rstrip('/') + '/' + endpoint
             auth = None
-            # verify_tls = True
             if user and password:
                 auth = (user, password)
-            # else:
-            #     verify_tls = False
 
-            # r = requests.get(url, timeout=2, auth=auth, verify=verify_tls)
-            print('http_get: {} {}'.format(url, auth))
             r = _http_get(url, timeout=2, auth=auth)
-            print(r)
             if r.status_code == requests.codes.ok and r.text == '{}':
                 return api_version
         except:
@@ -129,7 +128,6 @@ def dockyard_factory(url, user=None, password=None):
             protocol = 'https'
         else:
             api_version = detect_dockyard_api_version('https://' + url, user, password)
-            print('detection1: {}'.format(api_version))
             if api_version is not None:
                 protocol = 'https'
             else:
@@ -137,7 +135,6 @@ def dockyard_factory(url, user=None, password=None):
         url = '{}://{}'.format(protocol, url)
     if api_version is None:
         api_version = detect_dockyard_api_version(url, user, password)
-        print('detection2: {}'.format(api_version))
     if api_version is None:
         raise DockyardFactoryException('Could not detect dockyard API version. Is it a dockyard?')
     if api_version == 'v1':
@@ -148,6 +145,8 @@ def dockyard_factory(url, user=None, password=None):
 
 
 class Dockyard(object):
+    url = None
+
     def __init__(self):
         pass
 
@@ -193,7 +192,6 @@ class DockyardV2(RemoteDockyard):
     def get_image_creation_time(self, image_name, tag='latest'):
         url = '{}/v2/{}/manifests/{}'.format(self.url, image_name, tag)
         manifests = _http_get(url, auth=self.auth).json()
-        # pprint(manifests)
         if 'history' not in manifests:
             return None
         return max([json.loads(history['v1Compatibility'])['created'] for history in manifests['history']])
@@ -213,15 +211,3 @@ class LocalDockyard(Dockyard):
 
     def is_remote(self):
         return False
-
-
-if __name__ == '__main__':
-    d1 = DockyardV1('http://dockyard.armada.sh')
-    pprint(d1.get_image_creation_time('example'))
-
-    # d2 = DockyardV2('https://dockyard-v2.dev')
-    d2 = DockyardV2('https://dockyard.fi')
-    pprint(d2.get_image_creation_time('example-python'))
-
-    dl = LocalDockyard()
-    pprint(dl.get_image_creation_time('example-python'))

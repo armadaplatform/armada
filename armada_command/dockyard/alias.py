@@ -43,9 +43,11 @@ def print_http_dockyard_unavailability_warning(address, alias, header="Warning!"
     docker_version = Version(get_docker_server_version())
 
     if docker_version >= Version('1.7.0'):
-        message = DISABLED_REMOTE_HTTP_REGISTRY.format(address=address, alias=alias, header=header)
-        print_err(message)
-        return True
+        if address.split(':')[0] not in ['127.0.0.1', 'localhost']:
+            message = DISABLED_REMOTE_HTTP_REGISTRY.format(address=address, alias=alias, header=header)
+            print_err(message)
+            return True
+        return False
 
     if docker_version > Version('1.3.0'):
         cmd = 'ps ax | grep $(which docker)'

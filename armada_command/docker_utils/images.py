@@ -12,15 +12,15 @@ class ArmadaImage(object):
         if dockyard_address:
             if dockyard_alias:
                 raise ArmadaCommandException('Ambiguous dockyard. Please specify either -d/--dockyard '
-                                             'or dockyard_ip[:port]/microservice_name')
-            self.image_path = image_path
+                                             'or dockyard_hostname[:port]/image_name')
         elif dockyard_alias == 'local':
-            self.image_path = image_path
+            pass
         else:
             dockyard_dict = dockyard.get_dockyard_dict(dockyard_alias)
             dockyard_address = dockyard_dict['address']
-            self.image_path = dockyard_address + '/' + self.image_name
+            image_path = dockyard_address + '/' + self.image_name
 
+        self.image_path = image_path
         self.dockyard = dockyard_factory(dockyard_address,
                                          dockyard_dict.get('user'),
                                          dockyard_dict.get('password'))
