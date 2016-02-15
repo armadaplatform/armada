@@ -1,15 +1,16 @@
 from __future__ import print_function
+
 import argparse
+import calendar
 import json
 import os
-import socket
-import time
 import random
-import sys
-import traceback
 import re
+import socket
+import sys
+import time
+import traceback
 from datetime import datetime
-import calendar
 
 import requests
 
@@ -30,9 +31,11 @@ def _add_arguments(parser):
     parser.add_argument('port',
                         default='80',
                         nargs='?',
-                        help='Local TCP (default), or UDP port of the registered service. Examples: 80, 8080/tcp, 6001/udp. Default 80/tcp.')
+                        help='Local TCP (default), or UDP port of the registered service. '
+                             'Examples: 80, 8080/tcp, 6001/udp. Default 80/tcp.')
     parser.add_argument('-s', '--subservice',
-                        help='Name of the subservice. It will be visible in Armada as: [microservice_name]:[subservice_name].')
+                        help='Name of the subservice. It will be visible in Armada as: '
+                             '[microservice_name]:[subservice_name].')
     parser.add_argument('-c', '--health_check', help="Alternative health check path for this service.", default=None)
 
 
@@ -82,7 +85,7 @@ def _store_start_timestamp(container_id, container_created_string):
     # Converting "2014-12-11T09:24:13.852579969Z" to an epoch timestamp
     docker_timestamp = container_created_string[:-4]
     epoch_timestamp = str(calendar.timegm(datetime.strptime(
-        docker_timestamp, "%Y-%m-%dT%H:%M:%S.%f").timetuple()))
+            docker_timestamp, "%Y-%m-%dT%H:%M:%S.%f").timetuple()))
     key = "kv/start_timestamp/" + container_id
     if consul_get(key).status_code == requests.codes.not_found:
         response = consul_put(key, epoch_timestamp)
@@ -123,7 +126,7 @@ def main():
     if args.subservice:
         service_id += ':' + args.subservice
         full_service_name += ':' + args.subservice
-        service_filename += "-" + args.subservice
+        service_filename += '-' + args.subservice
 
     consul_service_data = {
         'ID': service_id,

@@ -1,7 +1,7 @@
 FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
-ENV ARMADA_APT_GET_UPDATE_DATE 2015-12-28
+ENV ARMADA_APT_GET_UPDATE_DATE 2016-01-19
 
 RUN apt-get update
 RUN apt-get install -y python python-dev python-pip unzip rsync openssh-server
@@ -9,7 +9,7 @@ RUN pip install -U paramiko web.py docker-py
 
 # Consul
 
-RUN wget https://releases.hashicorp.com/consul/0.6.0/consul_0.6.0_linux_amd64.zip -O consul.zip
+RUN wget https://releases.hashicorp.com/consul/0.6.3/consul_0.6.3_linux_amd64.zip -O consul.zip
 RUN unzip consul.zip && mv consul /usr/local/bin && rm -f consul.zip
 
 ADD ./armada_backend/supervisor/* /etc/supervisor/conf.d/
