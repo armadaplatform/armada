@@ -15,6 +15,7 @@ RUNNING_CONTAINERS_PARAMETERS_PATH = '/opt/armada/running_containers_parameters.
 def enum(**enums):
     return type('Enum', (), enums)
 
+
 ConsulMode = enum(BOOTSTRAP=0, SERVER=1, CLIENT=2)
 
 

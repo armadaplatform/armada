@@ -13,7 +13,7 @@ def get_local_services_ids():
 
 def get_running_container_ids():
     docker_api = docker_client.api()
-    return [container['Id'][:LENGTH_OF_SHORT_CONTAINER_ID] for container in docker_api.containers()]
+    return set(container['Id'][:LENGTH_OF_SHORT_CONTAINER_ID] for container in docker_api.containers())
 
 
 def deregister_not_running_services():

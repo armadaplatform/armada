@@ -1,8 +1,7 @@
-import subprocess
-import os
-import shutil
-import random
 import json
+import os
+import random
+import shutil
 
 import consul_config
 
@@ -50,11 +49,12 @@ def main():
     with open(consul_config.CONFIG_PATH, 'w') as config_file:
         config_file.write(consul_config_content)
 
-    command = 'consul agent -config-file {config_path}'.format(config_path=consul_config.CONFIG_PATH)
+    command = '/usr/local/bin/consul agent -config-file {config_path}'.format(config_path=consul_config.CONFIG_PATH)
     print 'RUNNING: ' + command
 
-    with open('/tmp/consul.log', 'a') as output_f:
-        subprocess.call(command.split(), stdout=output_f, stderr=output_f)
+    args = command.split()
+    os.execv(args[0], args)
+
 
 if __name__ == '__main__':
     main()

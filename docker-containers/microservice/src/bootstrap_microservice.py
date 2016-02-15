@@ -1,5 +1,5 @@
 import os
-import subprocess
+
 
 def _get_all_parent_dirs(path):
     while True:
@@ -10,6 +10,7 @@ def _get_all_parent_dirs(path):
             break
         path = parent
     yield ''
+
 
 def _get_all_parent_dirs_with_combinations(path_A, path_B):
     for path in _get_all_parent_dirs(os.path.join(path_A, path_B)):
@@ -24,8 +25,10 @@ def _get_all_parent_dirs_with_combinations(path_A, path_B):
     for path in _get_all_parent_dirs(path_B):
         yield path
 
+
 def _nesting_level(path):
     return path.rstrip('/').count('/')
+
 
 def main():
     if "CONFIG_DIR" in os.environ:
@@ -34,7 +37,7 @@ def main():
         env_name = os.environ.get("MICROSERVICE_ENV", '')
         app_id = os.environ.get("MICROSERVICE_APP_ID", '')
 
-        config_dirs_combinations = list(set(_get_all_parent_dirs_with_combinations(env_name, app_id)))
+        config_dirs_combinations = set(_get_all_parent_dirs_with_combinations(env_name, app_id))
 
         config_dirs_full_paths = [os.path.join(service_path, config_dir, path) for path in config_dirs_combinations]
         config_dirs_full_paths.sort(key=_nesting_level, reverse=True)
@@ -49,6 +52,7 @@ def main():
 
     supervisor_cmd = "/usr/bin/supervisord"
     os.execv(supervisor_cmd, (supervisor_cmd, "-c", "/etc/supervisor/supervisord.conf"))
+
 
 if __name__ == '__main__':
     main()

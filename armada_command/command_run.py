@@ -92,7 +92,7 @@ def command_run(args):
     is_run_locally = ship is None
     dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(microservice_name, is_run_locally)
     vagrant_dev = False
-    if args.hidden_vagrant_dev or (are_we_in_vagrant() and not args.dockyard and dockyard_alias == 'local'):
+    if args.hidden_vagrant_dev or (are_we_in_vagrant() and dockyard_alias == 'local'):
         print('INFO: Detected development environment for microservice {microservice_name}. '
               'Using local docker registry.'.format(**locals()))
         vagrant_dev = True
