@@ -1,3 +1,4 @@
+import re
 import subprocess
 from distutils.version import LooseVersion as Version
 
@@ -22,7 +23,7 @@ various distributions, e.g.:
 
 DISABLED_REMOTE_HTTP_REGISTRY = """
 {header}
- Since Docker v1.7.0 it is impossible to use HTTP dockyard from any host
+ Since Docker v1.8.0 it is impossible to use HTTP dockyard from any host
 except from localhost. It is recommended to use HTTPS. However, if you
 still want to use HTTP and are aware of the insecurity issues, you can use
 work-around and access it by running proxy service:
@@ -42,7 +43,7 @@ def get_docker_server_version():
 def print_http_dockyard_unavailability_warning(address, alias, header="Warning!"):
     docker_version = Version(get_docker_server_version())
 
-    if docker_version >= Version('1.7.0'):
+    if docker_version >= Version('1.8.0'):
         if address.split(':')[0] not in ['127.0.0.1', 'localhost']:
             message = DISABLED_REMOTE_HTTP_REGISTRY.format(address=address, alias=alias, header=header)
             print_err(message)
@@ -52,7 +53,7 @@ def print_http_dockyard_unavailability_warning(address, alias, header="Warning!"
     if docker_version > Version('1.3.0'):
         cmd = 'ps ax | grep $(which docker)'
         ps_output = subprocess.check_output(cmd, shell=True)
-        if '--insecure-registry {}'.format(address) not in ps_output:
+        if re.search(r'--insecure-registry[ =]' + re.escape(address) + r'\b', ps_output) is None:
             message = INSECURE_REGISTRY_ERROR_MSG.format(address=address, header=header)
             print_err(message)
             return True

@@ -6,6 +6,7 @@ from datetime import datetime
 from urlparse import urlparse
 
 import requests
+from requests.exceptions import SSLError
 
 import alias
 from armada_command import armada_api
@@ -61,11 +62,6 @@ def get_dockyard_address(alias_name=None):
     return get_dockyard_dict(alias_name)['address']
 
 
-DOCKYARD_API_ENDPOINTS = {
-    'v1': '_ping',
-    'v2': 'v2',
-}
-
 CA_FILE_WILDCARDS = [
     '/etc/docker/certs.d/{}/ca.crt',
     '/usr/local/share/ca-certificates/{}.crt',
@@ -92,20 +88,41 @@ def _http_get(url, **kwargs):
     return requests.get(url, verify=verify_tls, **kwargs)
 
 
+DOCKYARD_API_ENDPOINTS = {
+    'v1': '/_ping',
+    'v2': '/v2',
+}
+
+
+class DockyardDetectionException(Exception):
+    def __init__(self, reason, specific_reason=None):
+        self.specific_reason = specific_reason
+        self.reason = '{}: {}'.format(reason, specific_reason or 'Is it a dockyard?')
+        super(DockyardDetectionException, self).__init__(self.reason)
+
+    def is_specific(self):
+        return self.specific_reason is not None
+
+
 def detect_dockyard_api_version(dockyard_address, user, password):
+    possible_reason = None
     for api_version, endpoint in DOCKYARD_API_ENDPOINTS.items():
         try:
-            url = dockyard_address.rstrip('/') + '/' + endpoint
+            url = dockyard_address.rstrip('/') + endpoint
             auth = None
             if user and password:
                 auth = (user, password)
-
-            r = _http_get(url, timeout=2, auth=auth)
-            if r.status_code == requests.codes.ok and r.text == '{}':
-                return api_version
+            try:
+                r = _http_get(url, timeout=2, auth=auth)
+                if r.status_code == requests.codes.unauthorized:
+                    possible_reason = 'Unauthorized request. HTTP code: {}'.format(r.status_code)
+                if r.status_code == requests.codes.ok and r.text == '{}':
+                    return api_version
+            except SSLError as e:
+                possible_reason = 'SSLError: {}'.format(e)
         except:
             pass
-    return None
+    raise DockyardDetectionException('Could not detect dockyard API version', possible_reason)
 
 
 class DockyardFactoryException(Exception):
@@ -123,20 +140,27 @@ def dockyard_factory(url, user=None, password=None):
     parsed_url = urlparse(url)
     protocol = parsed_url.scheme
     api_version = None
+    most_specific_exception = None
     if not protocol:
         if auth:
             protocol = 'https'
         else:
-            api_version = detect_dockyard_api_version('https://' + url, user, password)
-            if api_version is not None:
+            try:
+                api_version = detect_dockyard_api_version('https://' + url, user, password)
                 protocol = 'https'
-            else:
+            except DockyardDetectionException as e:
                 protocol = 'http'
+                if e.is_specific():
+                    most_specific_exception = e
         url = '{}://{}'.format(protocol, url)
     if api_version is None:
-        api_version = detect_dockyard_api_version(url, user, password)
-    if api_version is None:
-        raise DockyardFactoryException('Could not detect dockyard API version. Is it a dockyard?')
+        try:
+            api_version = detect_dockyard_api_version(url, user, password)
+        except DockyardDetectionException as e:
+            if most_specific_exception is None or e.is_specific():
+                most_specific_exception = e
+            raise most_specific_exception
+
     if api_version == 'v1':
         return DockyardV1(url, auth)
     if api_version == 'v2':
@@ -154,7 +178,10 @@ class Dockyard(object):
         raise NotImplementedError()
 
     def is_remote(self):
-        raise NotImplementedError
+        raise NotImplementedError()
+
+    def is_http(self):
+        return NotImplementedError()
 
 
 class RemoteDockyard(Dockyard):
@@ -201,12 +228,14 @@ class LocalDockyard(Dockyard):
     def __init__(self):
         super(LocalDockyard, self).__init__()
 
-    def get_image_creation_time(self, image_name, tag='latest'):
-        images_response = json.loads(armada_api.get('images/{}:{}'.format(image_name, tag)))
+    def get_image_creation_time(self, name, tag='latest'):
+        images_response = json.loads(armada_api.get('images/{}'.format(name)))
         if images_response['status'] == 'ok':
-            image_info = json.loads(images_response['image_info'])
-            if image_info:
-                return datetime.utcfromtimestamp(int(image_info[0]['Created'])).isoformat()
+            image_infos = json.loads(images_response['image_info'])
+            name_with_tag = '{}:{}'.format(name, tag)
+            image_info_for_tag = [image_info for image_info in image_infos if name_with_tag in image_info['RepoTags']]
+            if image_info_for_tag:
+                return datetime.utcfromtimestamp(int(image_info_for_tag[0]['Created'])).isoformat()
         return None
 
     def is_remote(self):

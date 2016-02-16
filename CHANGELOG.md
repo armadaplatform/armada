@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+- Support for dockyard-v2 (docker registry v2).
+- Support for HTTPS dockyards with self-signed certificates. 
+- Detect not working remote HTTP dockyards and suggest workaround. 
+
 ### Improvements
 - Upgrade Consul from version 0.6.0 to 0.6.3.
 - Run Consul using os.execv instead of spawning new process, which makes Consul's logs available in supervisor.

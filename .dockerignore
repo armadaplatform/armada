@@ -3,3 +3,5 @@
 .vagrant
 *.pyc
 *.BAK
+docker-containers/
+*.md

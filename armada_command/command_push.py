@@ -26,6 +26,7 @@ def add_arguments(parser):
                              'If not provided it will use MICROSERVICE_NAME env variable.'
                              'You can also override default registry address, by passing full image path,  '
                              'e.g. dockyard.example.com:5000/my-service')
+    parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
     parser.add_argument('-d', '--dockyard',
                         help='Push image to dockyard with this alias.')
 
