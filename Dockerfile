@@ -23,7 +23,7 @@ RUN cd /opt/armada-docker/armada_backend/scripts && chmod +x * && sync && ./setu
 ADD ./install/armada /usr/local/bin/armada
 RUN chmod +x /usr/local/bin/armada
 
-ENV ARMADA_VERSION 0.13.1-dev-1
+ENV ARMADA_VERSION 0.13.1
 RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_command/_version.py
 
 ENV PYTHONPATH /opt/armada-docker:$PYTHONPATH
