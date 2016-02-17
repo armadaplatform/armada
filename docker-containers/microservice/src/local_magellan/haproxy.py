@@ -1,4 +1,5 @@
 import os
+import socket
 
 CONFIG_PATH = '/var/opt/haproxy-local.cfg'
 PID_PATH = '/var/run/haproxy-local.pid'
@@ -16,6 +17,14 @@ defaults
 '''
 
 
+def _is_ip(hostname):
+    try:
+        socket.inet_aton(hostname)
+        return True
+    except socket.error:
+        return False
+
+
 def get_current_config():
     if not os.path.exists(CONFIG_PATH):
         return ''
@@ -31,9 +40,22 @@ def generate_config_from_mapping(port_to_addresses):
         if not addresses:
             result += '\t\ttcp-request connection reject\n'
         else:
-            for i, address in enumerate(addresses):
-                result += '\t\tserver server_{i} {address} maxconn 128\n'.format(**locals())
+            result += _make_server_config(addresses)
         result += '\n'
+    return result
+
+
+def _make_server_config(addresses):
+    result = ""
+    for i, address in enumerate(addresses):
+        protocol, host = address.split("://") if "://" in address else ("", address)
+
+        result += '\t\tserver server_{i} {host} maxconn 128\n'.format(**locals())
+        hostname = host.split(':')[0]
+
+        if not _is_ip(hostname) and protocol == "http":
+            result += '\t\thttp-request set-header Host {}\n'.format(host)
+            result += '\t\tmode {}\n'.format(protocol)
     return result
 
 
