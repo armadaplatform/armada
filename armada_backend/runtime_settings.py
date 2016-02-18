@@ -1,8 +1,8 @@
-from armada_command.dockyard import alias
-from armada_backend.utils import get_ship_name, get_other_ship_ips, get_current_datacenter, is_ship_commander
-import consul_config
-
 import json
+
+import consul_config
+from armada_backend.utils import get_ship_name, get_other_ship_ips, get_current_datacenter, is_ship_commander
+from armada_command.dockyard import alias
 
 
 def _save_runtime_settings():
@@ -17,7 +17,7 @@ def _save_runtime_settings():
         runtime_settings.write(json.dumps(consul_settings, sort_keys=True, indent=4))
 
 
-def override_runtime_settings(consul_mode = None, ship_name = None, ship_ips = None, datacenter = None):
+def override_runtime_settings(consul_mode=None, ship_name=None, ship_ips=None, datacenter=None):
     consul_settings = {}
     if consul_mode is not None:
         consul_settings['is_commander'] = consul_mode != consul_config.ConsulMode.CLIENT
@@ -48,7 +48,7 @@ def _init_dockyards():
     for info in dockyards:
         dockyard_alias = info.get('name')
         if dockyard_alias and not alias.get_alias(dockyard_alias):
-            alias.set_alias(dockyard_alias, info.get('address'), info.get('user'), info.get('password'), check_if_accessible=False)
+            alias.set_alias(dockyard_alias, info.get('address'), info.get('user'), info.get('password'))
             if info.get('is_default') == True:
                 default_alias = dockyard_alias
     if default_alias:

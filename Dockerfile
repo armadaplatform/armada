@@ -1,14 +1,13 @@
 FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
-ENV ARMADA_APT_GET_UPDATE_DATE 2016-01-19
+ENV ARMADA_APT_GET_UPDATE_DATE 2016-02-15
 
 RUN apt-get update
 RUN apt-get install -y python python-dev python-pip unzip rsync openssh-server
-RUN pip install -U paramiko web.py docker-py==1.2.2
+RUN pip install -U paramiko web.py docker-py==1.7.0
 
 # Consul
-
 RUN wget https://releases.hashicorp.com/consul/0.6.3/consul_0.6.3_linux_amd64.zip -O consul.zip
 RUN unzip consul.zip && mv consul /usr/local/bin && rm -f consul.zip
 
@@ -17,10 +16,7 @@ RUN rm -f /etc/supervisor/conf.d/local_magellan.conf
 ADD ./armada_backend/health-checks/* /opt/armada-docker/health-checks/
 
 # armada
-ADD ./armada_command /opt/armada-docker/armada_command
-ADD ./armada_backend /opt/armada-docker/armada_backend
-ADD ./microservice_templates /opt/armada-docker/microservice_templates
-ADD ./keys /opt/armada-docker/keys
+ADD . /opt/armada-docker
 RUN ln -s /opt/armada-docker/microservice_templates /opt/templates
 RUN cd /opt/armada-docker/armada_backend/scripts && chmod +x * && sync && ./setup_ssh.sh
 

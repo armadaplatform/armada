@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 import argparse
 import os
 import sys
@@ -9,7 +10,6 @@ from armada_command.docker_utils.images import ArmadaImage, select_latest_image
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default
 from command_run_hermes import process_hermes, CONFIG_PATH_BASE
-
 
 verbose = False
 
@@ -76,8 +76,9 @@ def warn_if_hit_crontab_environment_variable_length(env_variables_dict):
     for env_key, env_value in env_variables_dict.items():
         env_declaration = '{0}="{1}"'.format(env_key, env_value)
         if len(env_declaration) >= 1000:
-            print('Warning: Environment variable {0} may have not been added to container\'s crontab because of hitting '
-                  '1000 characters crontab limit.'.format(env_key), file=sys.stderr)
+            print(
+                'Warning: Environment variable {0} may have not been added to container\'s crontab because of hitting '
+                '1000 characters crontab limit.'.format(env_key), file=sys.stderr)
 
 
 def command_run(args):
@@ -99,7 +100,7 @@ def command_run(args):
     image = ArmadaImage(microservice_name, dockyard_alias)
 
     if args.hidden_is_restart:
-        local_image = ArmadaImage(image.microservice_name, 'local')
+        local_image = ArmadaImage(image.image_name, 'local')
         image = select_latest_image(image, local_image)
 
     if vagrant_dev and not image.exists():
@@ -119,16 +120,16 @@ def command_run(args):
             print('Image {image} not found. Aborting.'.format(**locals()))
             sys.exit(1)
 
-    dockyard_string = image.dockyard_address or ''
+    dockyard_string = image.dockyard.url or ''
     if dockyard_alias:
         dockyard_string += ' (alias: {dockyard_alias})'.format(**locals())
     ship_string = ' on remote ship: {ship}'.format(**locals()) if ship else ' locally'
     if args.rename:
-        print('Running microservice {name} (renamed from {image.microservice_name}) from dockyard: {dockyard_string}{ship_string}...'.format(
-            name=args.rename, **locals()))
+        print('Running microservice {} (from image {}) from dockyard: {}{}...'.format(
+            args.rename, image.image_name, dockyard_string, ship_string))
     else:
-        print('Running microservice {image.microservice_name} from dockyard: {dockyard_string}{ship_string}...'.format(
-            **locals()))
+        print('Running microservice {} from dockyard: {}{}...'.format(
+            image.image_name, dockyard_string, ship_string))
 
     payload = {'image_path': image.image_path, 'environment': {}, 'ports': {}, 'volumes': {}}
     if dockyard_alias and dockyard_alias != 'local':
@@ -147,7 +148,7 @@ def command_run(args):
             payload['volumes'][microservice_path] = microservice_path
         payload['environment']['ARMADA_VAGRANT_DEV'] = '1'
 
-    hermes_env, hermes_volumes = process_hermes(image.microservice_name, args.env, args.app_id,
+    hermes_env, hermes_volumes = process_hermes(image.image_name, args.env, args.app_id,
                                                 sum(args.configs or [], []))
     payload['environment'].update(hermes_env or {})
     payload['volumes'].update(hermes_volumes or {})

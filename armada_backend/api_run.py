@@ -1,15 +1,17 @@
 from __future__ import print_function
+
 import base64
 import json
-import traceback
 import os
 import sys
+import traceback
+
 import web
+
 import api_base
-from armada_command.consul.consul import consul_query
-from armada_command.docker_utils.images import ArmadaImage
-from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
 import docker_client
+from armada_command.consul.consul import consul_query
+from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
@@ -23,17 +25,17 @@ def print_err(*objs):
 class Run(api_base.ApiCommand):
     def run_container(self, image_path, dockyard_user, dockyard_password, dict_ports, dict_environment, dict_volumes,
                       run_command):
-        exception_msg = ""
         try:
-            restart_parameters = {'image_path': image_path,
-                                  'dockyard_user': dockyard_user,
-                                  'dockyard_password': dockyard_password,
-                                  'ports': dict_ports,
-                                  'environment': dict_environment,
-                                  'volumes': dict_volumes,
-                                  'run_command': run_command,
-                                  'microservice_name': dict_environment.get('MICROSERVICE_NAME')
-                                  }
+            restart_parameters = {
+                'image_path': image_path,
+                'dockyard_user': dockyard_user,
+                'dockyard_password': dockyard_password,
+                'ports': dict_ports,
+                'environment': dict_environment,
+                'volumes': dict_volumes,
+                'run_command': run_command,
+                'microservice_name': dict_environment.get('MICROSERVICE_NAME')
+            }
             dict_environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(json.dumps(restart_parameters))
             dict_environment['ARMADA_RUN_COMMAND'] = base64.b64encode(run_command)
             microservice_name = dict_environment.get('MICROSERVICE_NAME')
@@ -85,7 +87,7 @@ class Run(api_base.ApiCommand):
 
         except Exception as e:
             traceback.print_exc()
-            exception_msg = e.message + " Cannot create requested container. {exception_class} - {exception}".format(
+            exception_msg = " Cannot create requested container. {exception_class} - {exception}".format(
                 exception_class=type(e).__name__, exception=str(e))
             return self.status_error(exception_msg)
 
@@ -102,9 +104,11 @@ class Run(api_base.ApiCommand):
             logged_in = False
             # Workaround for abrupt changes in docker-py library.
             login_exceptions = []
-            registry_endpoints = ['https://{0}/v1/'.format(dockyard_address),
-                                  'https://{0}'.format(dockyard_address),
-                                  dockyard_address]
+            registry_endpoints = [
+                'https://{0}/v1/'.format(dockyard_address),
+                'https://{0}'.format(dockyard_address),
+                dockyard_address
+            ]
             for registry_endpoint in registry_endpoints:
                 try:
                     docker_api.login(dockyard_user, dockyard_password, registry=registry_endpoint)

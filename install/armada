@@ -1,5 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 export PYTHONPATH="/opt/armada:${PYTHONPATH}"
 
-python -m armada_command.armada $@
+python -m armada_command.armada "$@"

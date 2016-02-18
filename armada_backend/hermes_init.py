@@ -1,12 +1,14 @@
 from __future__ import print_function
-from armada_backend.utils import get_container_ssh_address
-from armada_command.consul.consul import consul_query
-import requests
+
 import json
 import socket
-import time
 import sys
+import time
 
+import requests
+
+from armada_backend.utils import get_container_ssh_address
+from armada_command.consul.consul import consul_query, ConsulException
 
 HERMES_DIRECTORY = '/etc/opt'
 
@@ -20,7 +22,7 @@ def _consul_discover(service_name):
     try:
         query = 'health/service/{service_name}'.format(service_name=service_name)
         instances = consul_query(query)
-    except ConsulException as exception:
+    except ConsulException:
         pass
 
     for instance in instances:
@@ -79,14 +81,13 @@ def _fetch_hermes_from_couriers(courier_addresses):
     for courier_address in courier_addresses:
         courier_url = 'http://{courier_address}/update_hermes'.format(**locals())
         try:
-            payload = { 'ssh': my_ssh_address, 'path': HERMES_DIRECTORY }
+            payload = {'ssh': my_ssh_address, 'path': HERMES_DIRECTORY}
             requests.post(courier_url, json.dumps(payload))
         except Exception as e:
             _print_err('Fetching all sources from courier {courier_address} failed: {e}'.format(**locals()))
 
 
 if __name__ == '__main__':
-
     _wait_for_armada_start()
 
     # We fetch data from courier as soon as possible to cover most common case of 1 courier running.

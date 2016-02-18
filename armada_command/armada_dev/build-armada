@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 IMAGE_PATH="/opt/armada-src/"
 IMAGE_NAME="armada"
