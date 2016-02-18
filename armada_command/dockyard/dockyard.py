@@ -174,7 +174,7 @@ class Dockyard(object):
     def __init__(self):
         pass
 
-    def get_image_creation_time(self, image_name, tag='latest'):
+    def get_image_creation_time(self, name, tag='latest'):
         raise NotImplementedError()
 
     def is_remote(self):
@@ -216,8 +216,8 @@ class DockyardV2(RemoteDockyard):
     def __init__(self, url, auth=None):
         super(DockyardV2, self).__init__(url, auth)
 
-    def get_image_creation_time(self, image_name, tag='latest'):
-        url = '{}/v2/{}/manifests/{}'.format(self.url, image_name, tag)
+    def get_image_creation_time(self, name, tag='latest'):
+        url = '{}/v2/{}/manifests/{}'.format(self.url, name, tag)
         manifests = _http_get(url, auth=self.auth).json()
         if 'history' not in manifests:
             return None
