@@ -48,7 +48,7 @@ def generate_config_from_mapping(port_to_addresses):
 def _make_server_config(addresses):
     result = ""
     for i, address in enumerate(addresses):
-        protocol, host = address.split("://") if "://" in address else ("", address)
+        protocol, host = address.split("://", 2) if "://" in address else ("", address)
 
         result += '\t\tserver server_{i} {host} maxconn 128\n'.format(**locals())
         hostname = host.split(':')[0]
