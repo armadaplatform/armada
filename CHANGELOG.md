@@ -6,6 +6,7 @@
 - Support for dockyard-v2 (docker registry v2).
 - Support for HTTPS dockyards with self-signed certificates. 
 - Detect not working remote HTTP dockyards and suggest workaround. 
+- Added microservice_go base image.
 
 ### Improvements
 - Upgrade Consul from version 0.6.0 to 0.6.3.
