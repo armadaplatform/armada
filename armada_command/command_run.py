@@ -145,9 +145,8 @@ def command_run(args):
         payload['dockyard_password'] = dockyard_info.get('password')
 
     if vagrant_dev:
-        if not args.dynamic_ports:
+        if not (args.dynamic_ports or args.publish):
             payload['ports']['4999'] = '80'
-            payload['ports']['2999'] = '22'
         if not args.use_latest_image_code:
             microservice_path = '/opt/{microservice_name}'.format(**locals())
             payload['volumes'][microservice_path] = microservice_path
