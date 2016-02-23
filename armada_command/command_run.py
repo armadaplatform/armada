@@ -71,6 +71,10 @@ def add_arguments(parser):
                              'If it\'s a relative path it will be mounted from {config_path_base}'.format(
                             config_path_base=CONFIG_PATH_BASE))
 
+    # Docker args
+    parser.add_argument('-da', '--docker-args', nargs=argparse.REMAINDER, help="Docker params: -c/--cpu-shares, -m/--memory, --memory-swap")
+
+
 
 def warn_if_hit_crontab_environment_variable_length(env_variables_dict):
     for env_key, env_value in env_variables_dict.items():
@@ -185,12 +189,15 @@ def command_run(args):
         run_command += ' --hidden_is_restart'
     payload['run_command'] = run_command
 
+    # --- docker_args
+    if args.docker_args:
+        payload['docker_args'] = args.docker_args
+
     # ---
     if verbose:
         print('payload: {0}'.format(payload))
 
     warn_if_hit_crontab_environment_variable_length(payload['environment'])
-
     print('Checking if there is new image version. May take few minutes if download is needed...')
     result = armada_api.post('run', payload, ship_name=ship)
 

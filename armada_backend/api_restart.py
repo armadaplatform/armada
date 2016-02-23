@@ -30,6 +30,7 @@ class Restart(Run):
         dict_environment = restart_parameters.get('environment')
         dict_volumes = restart_parameters.get('volumes')
         run_command = restart_parameters.get('run_command')
+        docker_args = restart_parameters.get('docker_args')
         microservice_name = dict_environment.get('MICROSERVICE_NAME')
         dockyard_address, _, _ = self._split_image_path(image_path)
         docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
@@ -51,4 +52,4 @@ class Restart(Run):
             traceback.print_exc()
 
         return self.run_container(image_path, dockyard_user, dockyard_password, dict_ports, dict_environment,
-                                  dict_volumes, run_command)
+                                  dict_volumes, run_command, docker_args)

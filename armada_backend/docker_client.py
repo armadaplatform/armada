@@ -10,7 +10,7 @@ class DockerException(Exception):
 
 
 def api():
-    return docker.Client(base_url='unix://' + DOCKER_SOCKET_PATH, version='1.15', timeout=7)
+    return docker.Client(base_url='unix://' + DOCKER_SOCKET_PATH, timeout=7)
 
 
 def _get_error_from_docker_pull_event(event):
