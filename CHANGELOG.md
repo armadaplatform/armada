@@ -1,9 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.14.0 (2016-02-23)
 
 ### Features
-- Support for dockyard-v2 (docker registry v2).
+- Support for [dockyard-v2](https://github.com/armadaplatform/dockyard-v2) (based on docker registry v2).
 - Support for HTTPS dockyards with self-signed certificates. 
 - Detect not working remote HTTP dockyards and suggest workaround. 
 - Added microservice_go base image.
@@ -11,7 +11,7 @@
 ### Improvements
 - Upgrade Consul from version 0.6.0 to 0.6.3.
 - Run Consul using os.execv instead of spawning new process, which makes Consul's logs available in supervisor.
-- Store sorted container parameters in `/opt/armada/` on Ship, to ease checking differences between versions.
+- Store sorted container parameters in `/opt/armada/` on Ship, to make checking differences between versions easier.
 - Allow microservices' local haproxy to forward http connections with Host header.
 
 ### Bug fixes
