@@ -72,8 +72,8 @@ def add_arguments(parser):
                             config_path_base=CONFIG_PATH_BASE))
 
     # Docker args
-    parser.add_argument('-da', '--docker-args', nargs=argparse.REMAINDER, help="Docker params: -c/--cpu-shares, -m/--memory, --memory-swap")
-
+    parser.add_argument('-D', '--docker-args', nargs=argparse.REMAINDER,
+                        help="Docker params: -c/--cpu-shares, -m/--memory, --memory-swap, --cgroup-parent")
 
 
 def warn_if_hit_crontab_environment_variable_length(env_variables_dict):
@@ -93,6 +93,7 @@ def command_run(args):
     if not microservice_name:
         raise ArmadaCommandException('ERROR: Please specify microservice_name argument'
                                      ' or set MICROSERVICE_NAME environment variable')
+
     ship = args.ship
     is_run_locally = ship is None
     dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(microservice_name, is_run_locally)

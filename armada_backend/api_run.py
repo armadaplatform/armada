@@ -64,12 +64,9 @@ class Run(api_base.ApiCommand):
 
             dockyard_address, image_name, image_tag = self._split_image_path(image_path)
             docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
-            host_config = self._create_host_config(docker_api, docker_args, volume_bindings, port_bindings)
             self._pull_latest_image(docker_api, image_path, microservice_name)
 
-            #host_config = {"CpuShares": 20, "PublishAllPorts": True, "Privileged": True}
-            print_err(host_config)
-
+            host_config = self._create_host_config(docker_api, docker_args, volume_bindings, port_bindings)
             container_info = docker_api.create_container(microservice_name,
                                                          ports=ports,
                                                          environment=environment,
@@ -152,12 +149,13 @@ class Run(api_base.ApiCommand):
         return dockyard_address, image_name, image_tag
 
     def _create_host_config(self, docker_api, docker_args, binds, port_bindings):
-        print_err("DOCKER ARGS", docker_args)
         parser = argparse.ArgumentParser()
         parser.add_argument('-c', '--cpu-shares', type=int)
         parser.add_argument('-m', '--memory')
         parser.add_argument('--memory-swap')
+        parser.add_argument('--cgroup-parent')
         args, _ = parser.parse_known_args(docker_args)
+
         host_config = docker_api.create_host_config(
             privileged=True,
             publish_all_ports=True,
@@ -165,9 +163,9 @@ class Run(api_base.ApiCommand):
             port_bindings=port_bindings,
             mem_limit=args.memory,
             memswap_limit=args.memory_swap,
+            cgroup_parent=args.cgroup_parent
         )
         host_config['CpuShares'] = args.cpu_shares
-        print_err(host_config)
         return host_config
 
     def __prepare_dict_ports(self, post_data):
