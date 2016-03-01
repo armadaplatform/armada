@@ -236,6 +236,10 @@ def _payload_update_run_command(vagrant_dev, payload):
 
 
 def _print_result(result, is_restart):
+    if not result:
+        print("ERROR: armada API call failed.")
+        sys.exit(1)
+
     if result['status'] == 'ok':
         container_id = result['container_id']
         if is_restart:
