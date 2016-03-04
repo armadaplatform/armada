@@ -25,4 +25,4 @@ def docker_pull(docker_api, dockyard_address, image_name, image_tag):
         event = json.loads(event_json)
         error = _get_error_from_docker_pull_event(event)
         if error:
-            raise DockerException('Cannot push image {}:{}, error: {}'.format(image_address, image_tag, error))
+            raise DockerException('Cannot pull image {}:{}, error: {}'.format(image_address, image_tag, error))
