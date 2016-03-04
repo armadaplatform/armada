@@ -14,11 +14,7 @@ def api():
 
 
 def _get_error_from_docker_pull_event(event):
-    if 'error' in event:
-        return event['error']
-    if 'errorDetail' in event:
-        return event['errorDetail']
-    return None
+    return event.get('error') or event.get('errorDetail')
 
 
 def docker_pull(docker_api, dockyard_address, image_name, image_tag):
@@ -28,5 +24,5 @@ def docker_pull(docker_api, dockyard_address, image_name, image_tag):
     for event_json in pull_output:
         event = json.loads(event_json)
         error = _get_error_from_docker_pull_event(event)
-        if error is not None:
-            raise DockerException('Error on pull {image_address}, error: {error}'.format(**locals()))
+        if error:
+            raise DockerException('Cannot pull image {}:{}, error: {}'.format(image_address, image_tag, error))

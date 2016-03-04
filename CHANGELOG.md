@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fix bug with pulling image without explicit tag.
+
 ## 0.14.0 (2016-02-23)
 
 ### Features
