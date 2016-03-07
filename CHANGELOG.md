@@ -4,6 +4,7 @@
 
 ### Bug fixes
 - Fixed detection of development environment.
+- Fix bug with pulling image without explicit tag.
 
 ## 0.14.0 (2016-02-23)
 
