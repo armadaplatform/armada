@@ -24,7 +24,7 @@ class RunPayload:
             dockyard_info = dockyard.alias.get_alias(dockyard_alias)
             if not dockyard_info:
                 raise ArmadaCommandException("Couldn't read configuration for dockyard alias {0}.".format(dockyard_alias))
-            self._payload['dockyard_user'] = dockyard_info.get('user'),
+            self._payload['dockyard_user'] = dockyard_info.get('user')
             self._payload['dockyard_password'] = dockyard_info.get('password')
 
     def update_vagrant(self, dynamic_ports, latest_image_code, microservice_name):
