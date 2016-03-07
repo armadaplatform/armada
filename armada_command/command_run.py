@@ -9,6 +9,7 @@ from armada_command.armada_utils import ArmadaCommandException
 from armada_command.docker_utils.images import ArmadaImage, select_latest_image
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default
+from armada_command.armada_payload import RunPayload
 from command_run_hermes import process_hermes, CONFIG_PATH_BASE
 
 verbose = False
@@ -89,17 +90,54 @@ def command_run(args):
     if not microservice_name:
         raise ArmadaCommandException('ERROR: Please specify microservice_name argument'
                                      ' or set MICROSERVICE_NAME environment variable')
+
     ship = args.ship
     is_run_locally = ship is None
     dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(microservice_name, is_run_locally)
+
+    vagrant_dev = _is_vagrant_dev(args.hidden_is_restart, dockyard_alias, microservice_name)
+
+    dockyard_alias, image = _find_dockyard_with_image(vagrant_dev, args.hidden_is_restart, dockyard_alias,
+                                                      microservice_name)
+
+    _print_run_info(image, dockyard_alias, ship, args.rename)
+
+    payload = RunPayload()
+    payload.update_image_path(image.image_path)
+    payload.update_dockyard(dockyard_alias)
+    if vagrant_dev:
+        payload.update_vagrant(args.dynamic_ports, args.use_latest_image_code, microservice_name)
+    payload.update_hermes(image.image_name, args.env, args.app_id, args.configs)
+    payload.update_environment(args.e)
+    payload.update_ports(args.publish)
+    payload.update_volumes(args.volumes)
+    payload.update_microservice_name(args.rename)
+    payload.update_run_command(vagrant_dev)
+
+    if verbose:
+        print('payload: {0}'.format(payload))
+
+    warn_if_hit_crontab_environment_variable_length(payload.get('environment'))
+
+    print('Checking if there is new image version. May take few minutes if download is needed...')
+    result = armada_api.post('run', payload.data(), ship_name=ship)
+    _handle_result(result, args.hidden_is_restart)
+
+
+def _is_vagrant_dev(hidden_vagrant_dev, dockyard_alias, microservice_name):
     vagrant_dev = False
-    if args.hidden_vagrant_dev or (are_we_in_vagrant() and dockyard_alias == 'local'):
+    if hidden_vagrant_dev or (are_we_in_vagrant() and dockyard_alias == 'local' and os.environ.get(
+            'MICROSERVICE_NAME') == microservice_name):
         print('INFO: Detected development environment for microservice {microservice_name}. '
               'Using local docker registry.'.format(**locals()))
         vagrant_dev = True
+    return vagrant_dev
+
+
+def _find_dockyard_with_image(vagrant_dev, is_restart, dockyard_alias, microservice_name):
     image = ArmadaImage(microservice_name, dockyard_alias)
 
-    if args.hidden_is_restart:
+    if is_restart:
         local_image = ArmadaImage(image.image_name, 'local')
         image = select_latest_image(image, local_image)
 
@@ -117,92 +155,38 @@ def command_run(args):
             image = ArmadaImage(microservice_name, dockyard_alias)
             was_fallback_dockyard = False
         if was_fallback_dockyard or not image.exists():
-            print('Image {image} not found. Aborting.'.format(**locals()))
-            sys.exit(1)
+            raise ArmadaCommandException('Image {image} not found. Aborting.'.format(**locals()))
 
+    return dockyard_alias, image
+
+
+def _print_run_info(image, dockyard_alias, ship, rename):
     dockyard_string = image.dockyard.url or ''
     if dockyard_alias:
         dockyard_string += ' (alias: {dockyard_alias})'.format(**locals())
+
     ship_string = ' on remote ship: {ship}'.format(**locals()) if ship else ' locally'
-    if args.rename:
+    if rename:
         print('Running microservice {} (from image {}) from dockyard: {}{}...'.format(
-            args.rename, image.image_name, dockyard_string, ship_string))
+            rename, image.image_name, dockyard_string, ship_string))
     else:
         print('Running microservice {} from dockyard: {}{}...'.format(
             image.image_name, dockyard_string, ship_string))
 
-    payload = {'image_path': image.image_path, 'environment': {}, 'ports': {}, 'volumes': {}}
-    if dockyard_alias and dockyard_alias != 'local':
-        dockyard_info = dockyard.alias.get_alias(dockyard_alias)
-        if not dockyard_info:
-            raise ArmadaCommandException("Couldn't read configuration for dockyard alias {0}.".format(dockyard_alias))
-        payload['dockyard_user'] = dockyard_info.get('user')
-        payload['dockyard_password'] = dockyard_info.get('password')
 
-    if vagrant_dev:
-        if not args.dynamic_ports:
-            payload['ports']['4999'] = '80'
-            payload['ports']['2999'] = '22'
-        if not args.use_latest_image_code:
-            microservice_path = '/opt/{microservice_name}'.format(**locals())
-            payload['volumes'][microservice_path] = microservice_path
-        payload['environment']['ARMADA_VAGRANT_DEV'] = '1'
 
-    hermes_env, hermes_volumes = process_hermes(image.image_name, args.env, args.app_id,
-                                                sum(args.configs or [], []))
-    payload['environment'].update(hermes_env or {})
-    payload['volumes'].update(hermes_volumes or {})
+def _handle_result(result, is_restart):
+    if not result:
+        raise ArmadaCommandException("ERROR: armada API call failed.")
 
-    # --- environment
-    for env_var in sum(args.e or [], []):
-        env_key, env_value = (env_var.strip('"').split('=', 1) + [''])[:2]
-        payload['environment'][env_key] = env_value
+    if result.get('status') != 'ok':
+        raise ArmadaCommandException('ERROR: {0}'.format(result['error']))
 
-    # --- ports
-    for port_mapping in sum(args.publish or [], []):
-        try:
-            port_host, port_container = map(int, (port_mapping.split(':', 1) + [None])[:2])
-            payload['ports'][str(port_host)] = str(port_container)
-        except (ValueError, TypeError):
-            print('Invalid port mapping: {0}'.format(port_mapping), file=sys.stderr)
-            return
-
-    # --- volumes
-    for volume_string in sum(args.volumes or [], []):
-        volume = volume_string.split(':')
-        if len(volume) == 1:
-            volume *= 2
-        payload['volumes'][volume[0]] = volume[1]
-
-    # --- name
-    payload['microservice_name'] = args.rename
-
-    # --- run_arguments
-    run_command = 'armada ' + ' '.join(sys.argv[1:])
-    if vagrant_dev and '--hidden_vagrant_dev' not in run_command:
-        run_command += ' --hidden_vagrant_dev'
-    if '--hidden_is_restart' not in run_command:
-        run_command += ' --hidden_is_restart'
-    payload['run_command'] = run_command
-
-    # ---
-    if verbose:
-        print('payload: {0}'.format(payload))
-
-    warn_if_hit_crontab_environment_variable_length(payload['environment'])
-
-    print('Checking if there is new image version. May take few minutes if download is needed...')
-    result = armada_api.post('run', payload, ship_name=ship)
-
-    if result['status'] == 'ok':
-        container_id = result['container_id']
-        if args.hidden_is_restart:
-            print('Service has been restarted and is running in container {container_id} '
-                  'available at addresses:'.format(**locals()))
-        else:
-            print('Service is running in container {container_id} available at addresses:'.format(**locals()))
-        for service_address, docker_port in result['endpoints'].iteritems():
-            print('  {0} ({1})'.format(service_address, docker_port))
+    container_id = result['container_id']
+    if is_restart:
+        print('Service has been restarted and is running in container {container_id} '
+              'available at addresses:'.format(**locals()))
     else:
-        print('ERROR: {0}'.format(result['error']))
-        sys.exit(1)
+        print('Service is running in container {container_id} available at addresses:'.format(**locals()))
+    for service_address, docker_port in result['endpoints'].iteritems():
+        print('  {0} ({1})'.format(service_address, docker_port))
