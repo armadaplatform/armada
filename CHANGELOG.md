@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fixed detection of development environment.
+
 ## 0.14.0 (2016-02-23)
 
 ### Features
