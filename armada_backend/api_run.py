@@ -26,7 +26,7 @@ def print_err(*objs):
 class Run(api_base.ApiCommand):
 
     def run_container(self, image_path, dockyard_user, dockyard_password, dict_ports, dict_environment, dict_volumes,
-                      run_command, docker_args):
+                      run_command, resource_limits):
         try:
             restart_parameters = {
                 'image_path': image_path,
@@ -37,7 +37,7 @@ class Run(api_base.ApiCommand):
                 'volumes': dict_volumes,
                 'run_command': run_command,
                 'microservice_name': dict_environment.get('MICROSERVICE_NAME'),
-                'docker_args': docker_args
+                'resource_limits': resource_limits
             }
             dict_environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(json.dumps(restart_parameters))
             dict_environment['ARMADA_RUN_COMMAND'] = base64.b64encode(run_command)
@@ -66,7 +66,7 @@ class Run(api_base.ApiCommand):
             docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
             self._pull_latest_image(docker_api, image_path, microservice_name)
 
-            host_config = self._create_host_config(docker_api, docker_args, volume_bindings, port_bindings)
+            host_config = self._create_host_config(docker_api, resource_limits, volume_bindings, port_bindings)
             container_info = docker_api.create_container(microservice_name,
                                                          ports=ports,
                                                          environment=environment,
@@ -148,24 +148,17 @@ class Run(api_base.ApiCommand):
 
         return dockyard_address, image_name, image_tag
 
-    def _create_host_config(self, docker_api, docker_args, binds, port_bindings):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-c', '--cpu-shares', type=int)
-        parser.add_argument('-m', '--memory')
-        parser.add_argument('--memory-swap')
-        parser.add_argument('--cgroup-parent')
-        args, _ = parser.parse_known_args(docker_args)
-
+    def _create_host_config(self, docker_api, resource_limits, binds, port_bindings):
         host_config = docker_api.create_host_config(
             privileged=True,
             publish_all_ports=True,
             binds=binds,
             port_bindings=port_bindings,
-            mem_limit=args.memory,
-            memswap_limit=args.memory_swap,
-            cgroup_parent=args.cgroup_parent
+            mem_limit=resource_limits.get('memory'),
+            memswap_limit=resource_limits.get('memory_swap'),
+            cgroup_parent=resource_limits.get('cgroup_parent'),
         )
-        host_config['CpuShares'] = args.cpu_shares
+        host_config['CpuShares'] = resource_limits.get('cpu_shares')
         return host_config
 
     def __prepare_dict_ports(self, post_data):
@@ -199,8 +192,8 @@ class Run(api_base.ApiCommand):
         run_command = post_data.get('run_command')
         return run_command
 
-    def __prepare_docker_args(self, post_data):
-        docker_args = post_data.get('docker_args')
+    def __prepare_resource_limits(self, post_data):
+        docker_args = post_data.get('resource_limits')
         return docker_args
 
     def POST(self):
@@ -216,7 +209,7 @@ class Run(api_base.ApiCommand):
             dict_environment = self.__prepare_dict_environment(post_data)
             dict_volumes = self.__prepare_dict_volumes(post_data)
             run_command = self.__prepare_run_command(post_data)
-            docker_args = self.__prepare_docker_args(post_data)
+            docker_args = self.__prepare_resource_limits(post_data)
         except:
             traceback.print_exc()
             return self.status_error('API Run: Invalid input data.')

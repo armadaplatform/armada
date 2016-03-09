@@ -72,8 +72,10 @@ def add_arguments(parser):
                             config_path_base=CONFIG_PATH_BASE))
 
     # Docker args
-    parser.add_argument('-D', '--docker-args', nargs=argparse.REMAINDER,
-                        help="Docker params: -c/--cpu-shares, -m/--memory, --memory-swap, --cgroup-parent")
+    parser.add_argument('--cpu-shares', help="CPU shares (relative weight)", type=int)
+    parser.add_argument('--memory', help="Memory limit")
+    parser.add_argument('--memory-swap', help="Total memory (memory + swap), '-1' to disable swap")
+    parser.add_argument('--cgroup-parent', help="Optional parent cgroup for the container")
 
 
 def warn_if_hit_crontab_environment_variable_length(env_variables_dict):
@@ -190,8 +192,16 @@ def command_run(args):
     payload['run_command'] = run_command
 
     # --- docker_args
-    if args.docker_args:
-        payload['docker_args'] = args.docker_args
+    resource_limits = {}
+    if args.cpu_shares:
+        resource_limits['cpu_shares'] = args.cpu_shares
+    if args.memory:
+        resource_limits['memory'] = args.memory
+    if args.memory_swap:
+        resource_limits['memory_swap'] = args.memory_swap
+    if args.cgroup_parent:
+        resource_limits['cgroup_parent'] = args.cgroup_parent
+    payload['resource_limits'] = resource_limits
 
     # ---
     if verbose:
