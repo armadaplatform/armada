@@ -139,7 +139,7 @@ class Run(api_base.ApiCommand):
     def _split_image_path(self, image_path):
         dockyard_address = None
         image_name = image_path
-        image_tag = None
+        image_tag = 'latest'
 
         if '/' in image_name:
             dockyard_address, image_name = image_name.split('/', 1)
