@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- Introduced resource limiting parameters to `armada run` command. These parameters accept same values as their respective docker parameters.
+    - --cpu-shares 
+    - --memory 
+    - --memory-swap 
+    - --cgroup-parent
+
 ## 0.14.1 (2016-03-07)
 
 ### Bug fixes
