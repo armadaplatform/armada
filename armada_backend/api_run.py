@@ -193,7 +193,7 @@ class Run(api_base.ApiCommand):
         return run_command
 
     def __prepare_resource_limits(self, post_data):
-        docker_args = post_data.get('resource_limits')
+        docker_args = post_data.get('resource_limits', {})
         return docker_args
 
     def POST(self):
