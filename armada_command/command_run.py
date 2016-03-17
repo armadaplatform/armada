@@ -72,6 +72,12 @@ def add_arguments(parser):
                              'If it\'s a relative path it will be mounted from {config_path_base}'.format(
                             config_path_base=CONFIG_PATH_BASE))
 
+    # Resource limit parameters
+    parser.add_argument('--cpu-shares', help="CPU shares (relative weight)", type=int)
+    parser.add_argument('--memory', help="Memory limit")
+    parser.add_argument('--memory-swap', help="Total memory (memory + swap), '-1' to disable swap")
+    parser.add_argument('--cgroup-parent', help="Optional parent cgroup for the container")
+
 
 def warn_if_hit_crontab_environment_variable_length(env_variables_dict):
     for env_key, env_value in env_variables_dict.items():
@@ -113,6 +119,7 @@ def command_run(args):
     payload.update_volumes(args.volumes)
     payload.update_microservice_name(args.rename)
     payload.update_run_command(vagrant_dev)
+    payload.update_resource_limits(args.cpu_shares, args.memory, args.memory_swap, args.cgroup_parent)
 
     if verbose:
         print('payload: {0}'.format(payload))

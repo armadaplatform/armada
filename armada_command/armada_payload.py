@@ -72,4 +72,16 @@ class RunPayload:
             run_command += ' --hidden_is_restart'
         self._payload['run_command'] = run_command
 
+    def update_resource_limits(self, cpu_shares, memory, memory_swap, cgroup_parent):
+        resource_limits = {}
+        if cpu_shares:
+            resource_limits['cpu_shares'] = cpu_shares
+        if memory:
+            resource_limits['memory'] = memory
+        if memory_swap:
+            resource_limits['memory_swap'] = memory_swap
+        if cgroup_parent:
+            resource_limits['cgroup_parent'] = cgroup_parent
+        self._payload['resource_limits'] = resource_limits
+
 
