@@ -9,6 +9,11 @@
     - --memory-swap 
     - --cgroup-parent
 
+
+### Improvements
+- `hermes` for python has been moved to `pypi` repository. It is available for download with `pip install armada` and can be imported with `from armada import hermes` command.
+- As a result built-in `hermes` has been marked as deprecated.
+
 ## 0.14.1 (2016-03-07)
 
 ### Bug fixes

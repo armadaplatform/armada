@@ -1,6 +1,10 @@
 import json
 import os
 
+import warnings
+warnings.warn("Built-in hermes is deprecated. "
+              "Up to date version can be downloaded with 'pip install armada' "
+              "and imported with 'from armada import hermes' line.")
 
 def get_config_file_path(key):
     for env in os.environ.get('CONFIG_PATH', '').split(os.pathsep):
