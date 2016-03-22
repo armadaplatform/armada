@@ -1,6 +1,7 @@
 import re
 import subprocess
 from distutils.version import LooseVersion as Version
+from urlparse import urlparse
 
 from armada_command.armada_utils import print_err
 from armada_command.consul import kv
@@ -45,7 +46,11 @@ def print_http_dockyard_unavailability_warning(address, alias, header="Warning!"
 
     if docker_version >= Version('1.8.0'):
         if address.split(':')[0] not in ['127.0.0.1', 'localhost']:
-            message = DISABLED_REMOTE_HTTP_REGISTRY.format(address=address, alias=alias, header=header)
+            if urlparse(address).scheme:
+                http_address = address
+            else:
+                http_address = 'http://' + address
+            message = DISABLED_REMOTE_HTTP_REGISTRY.format(address=http_address, alias=alias, header=header)
             print_err(message)
             return True
         return False
