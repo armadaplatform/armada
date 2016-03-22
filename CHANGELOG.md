@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.15.0 (2016-03-22)
 
 ### Features
 - Introduced resource limiting parameters to `armada run` command. These parameters accept same values as their respective docker parameters.
