@@ -12,17 +12,17 @@ def _get_all_parent_dirs(path):
     yield ''
 
 
-def _get_all_parent_dirs_with_combinations(path_A, path_B):
-    for path in _get_all_parent_dirs(os.path.join(path_A, path_B)):
+def _get_all_parent_dirs_with_combinations(path_1, path_2):
+    for path in _get_all_parent_dirs(os.path.join(path_1, path_2)):
         yield path
 
-    for path in _get_all_parent_dirs(os.path.join(path_B, path_A)):
+    for path in _get_all_parent_dirs(os.path.join(path_2, path_1)):
         yield path
 
-    for path in _get_all_parent_dirs(path_A):
+    for path in _get_all_parent_dirs(path_1):
         yield path
 
-    for path in _get_all_parent_dirs(path_B):
+    for path in _get_all_parent_dirs(path_2):
         yield path
 
 

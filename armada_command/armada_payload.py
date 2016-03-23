@@ -1,7 +1,9 @@
 import sys
+
 from armada_command.armada_utils import ArmadaCommandException
 from armada_command.command_run_hermes import process_hermes
 from armada_command.dockyard import dockyard
+
 
 class RunPayload:
     def __init__(self):
@@ -23,7 +25,8 @@ class RunPayload:
         if dockyard_alias and dockyard_alias != 'local':
             dockyard_info = dockyard.alias.get_alias(dockyard_alias)
             if not dockyard_info:
-                raise ArmadaCommandException("Couldn't read configuration for dockyard alias {0}.".format(dockyard_alias))
+                raise ArmadaCommandException(
+                    "Couldn't read configuration for dockyard alias {0}.".format(dockyard_alias))
             self._payload['dockyard_user'] = dockyard_info.get('user')
             self._payload['dockyard_password'] = dockyard_info.get('password')
 
@@ -35,9 +38,8 @@ class RunPayload:
             self._payload['volumes'][microservice_path] = microservice_path
         self._payload['environment']['ARMADA_VAGRANT_DEV'] = '1'
 
-    def update_hermes(self, image_name, env, app_id, configs,):
-        hermes_env, hermes_volumes = process_hermes(image_name, env, app_id,
-                                                    sum(configs or [], []))
+    def update_hermes(self, microservice_name, image_name, env, app_id, configs):
+        hermes_env, hermes_volumes = process_hermes(microservice_name, image_name, env, app_id, sum(configs or [], []))
         self._payload['environment'].update(hermes_env or {})
         self._payload['volumes'].update(hermes_volumes or {})
 
@@ -83,5 +85,3 @@ class RunPayload:
         if cgroup_parent:
             resource_limits['cgroup_parent'] = cgroup_parent
         self._payload['resource_limits'] = resource_limits
-
-

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+- `armada run` adds configs to `CONFIG_PATH` for the renamed microservice name in addition to image name.
+- Config directories provided with `armada run -c/--config` are additionally appended with combinations of `--env`
+and `--app_id` when generating `CONFIG_PATH`.
+
 ### Bug fixes
 - Fix bug with not recovering services run before armada 0.15.0.
 
@@ -9,9 +14,9 @@
 
 ### Features
 - Introduced resource limiting parameters to `armada run` command. These parameters accept same values as their respective docker parameters.
-    - --cpu-shares 
-    - --memory 
-    - --memory-swap 
+    - --cpu-shares
+    - --memory
+    - --memory-swap
     - --cgroup-parent
 
 
@@ -30,8 +35,8 @@
 
 ### Features
 - Support for [dockyard-v2](https://github.com/armadaplatform/dockyard-v2) (based on docker registry v2).
-- Support for HTTPS dockyards with self-signed certificates. 
-- Detect not working remote HTTP dockyards and suggest workaround. 
+- Support for HTTPS dockyards with self-signed certificates.
+- Detect not working remote HTTP dockyards and suggest workaround.
 - Added microservice_go base image.
 
 ### Improvements
@@ -42,7 +47,7 @@
 
 ### Bug fixes
 - Passing `-d local` to `armada run` in Armada vagrant box does not break detection of development environment.
-- [Vagrant](https://github.com/armadaplatform/vagrant "Armada Vagrant") origin_dockyard_address parameter works properly with local dockyards by running localhost proxy. 
+- [Vagrant](https://github.com/armadaplatform/vagrant "Armada Vagrant") origin_dockyard_address parameter works properly with local dockyards by running localhost proxy.
 
 ## 0.13.1 (2016-01-08)
 
@@ -99,7 +104,7 @@ https://github.com/hashicorp/consul/commit/f53bd94dc334c56968ac4e33e19d9ca6a2b5a
 
 ### Improvements
 - Increased size of health checks logs. (previously: 2 files up to 1MB each. now: 3 files up to 5MB each)
-- Revamped `armada ssh` command by moving `sshd` process from microservice image to Armada container. 
+- Revamped `armada ssh` command by moving `sshd` process from microservice image to Armada container.
     - `docker exec` is now used to enter a container on the same host.
     - In order to enter container on another host, ssh is used to connect to remote Armada container.
     - **Containers created with new microservice image won't be accessible without updating Armada**
@@ -164,7 +169,7 @@ Containers will no longer spawn multiple zombie processes e.g. after armada ssh 
 ## 0.7.1 (2015-08-28)
 
 #### Improvements
-- Access Consul agent from Armada commands by localhost, instead of private Docker IP, as it sometimes causes hanging requests. 
+- Access Consul agent from Armada commands by localhost, instead of private Docker IP, as it sometimes causes hanging requests.
 
 
 ## 0.7.0 (2015-08-21)
