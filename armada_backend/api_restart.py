@@ -30,7 +30,7 @@ class Restart(Run):
         dict_environment = restart_parameters.get('environment')
         dict_volumes = restart_parameters.get('volumes')
         run_command = restart_parameters.get('run_command')
-        resource_limits = restart_parameters.get('resource_limits')
+        resource_limits = restart_parameters.get('resource_limits', {})
         microservice_name = dict_environment.get('MICROSERVICE_NAME')
         dockyard_address, _, _ = self._split_image_path(image_path)
         docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)

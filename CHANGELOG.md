@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fix bug with not recovering services run before armada 0.15.0.
+
 ## 0.15.0 (2016-03-22)
 
 ### Features

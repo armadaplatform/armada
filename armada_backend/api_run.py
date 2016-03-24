@@ -149,6 +149,7 @@ class Run(api_base.ApiCommand):
         return dockyard_address, image_name, image_tag
 
     def _create_host_config(self, docker_api, resource_limits, binds, port_bindings):
+        resource_limits = resource_limits or {}
         host_config = docker_api.create_host_config(
             privileged=True,
             publish_all_ports=True,
