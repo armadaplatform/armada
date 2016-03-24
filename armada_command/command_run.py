@@ -5,12 +5,12 @@ import os
 import sys
 
 import armada_api
+from armada_command.armada_payload import RunPayload
 from armada_command.armada_utils import ArmadaCommandException
 from armada_command.docker_utils.images import ArmadaImage, select_latest_image
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default
-from armada_command.armada_payload import RunPayload
-from command_run_hermes import process_hermes, CONFIG_PATH_BASE
+from command_run_hermes import CONFIG_PATH_BASE
 
 verbose = False
 
@@ -83,9 +83,8 @@ def warn_if_hit_crontab_environment_variable_length(env_variables_dict):
     for env_key, env_value in env_variables_dict.items():
         env_declaration = '{0}="{1}"'.format(env_key, env_value)
         if len(env_declaration) >= 1000:
-            print(
-                'Warning: Environment variable {0} may have not been added to container\'s crontab because of hitting '
-                '1000 characters crontab limit.'.format(env_key), file=sys.stderr)
+            print('Warning: Environment variable {0} may have not been added to container\'s crontab because of '
+                  'hitting 1000 characters crontab limit.'.format(env_key), file=sys.stderr)
 
 
 def command_run(args):
@@ -113,7 +112,7 @@ def command_run(args):
     payload.update_dockyard(dockyard_alias)
     if vagrant_dev:
         payload.update_vagrant(args.dynamic_ports, args.use_latest_image_code, microservice_name)
-    payload.update_hermes(image.image_name, args.env, args.app_id, args.configs)
+    payload.update_hermes(args.rename, image.image_name, args.env, args.app_id, args.configs)
     payload.update_environment(args.e)
     payload.update_ports(args.publish)
     payload.update_volumes(args.volumes)
@@ -179,7 +178,6 @@ def _print_run_info(image, dockyard_alias, ship, rename):
     else:
         print('Running microservice {} from dockyard: {}{}...'.format(
             image.image_name, dockyard_string, ship_string))
-
 
 
 def _handle_result(result, is_restart):

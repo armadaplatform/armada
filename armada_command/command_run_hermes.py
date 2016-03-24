@@ -1,5 +1,5 @@
-import os
 import itertools
+import os
 
 CONFIG_PATH_BASE = '/etc/opt/'
 
@@ -42,26 +42,34 @@ def _generate_paths_from_all_combinations(*path_combinations):
     return (os.path.join(*path_elements) for path_elements in itertools.product(*path_combinations))
 
 
-def _create_service_relative_config_paths(microservice_name, app_id, environment_dirs):
+def _create_service_relative_config_paths(microservice_name, app_id, environments_dirs):
     result = []
     microservice_configs = ['{0}-config-secret'.format(microservice_name), '{0}-config'.format(microservice_name)]
     if app_id:
         app_configs = ['{0}-config-secret'.format(app_id), '{0}-config'.format(app_id)]
-        result.extend(_generate_paths_from_all_combinations(app_configs, [microservice_name], environment_dirs))
-        result.extend(_generate_paths_from_all_combinations(app_configs, environment_dirs, [microservice_name]))
-        result.extend(_generate_paths_from_all_combinations(microservice_configs, environment_dirs, [app_id]))
-        result.extend(_generate_paths_from_all_combinations(microservice_configs, [app_id], environment_dirs))
-    result.extend(_generate_paths_from_all_combinations(microservice_configs, environment_dirs))
+        result.extend(_generate_paths_from_all_combinations(app_configs, [microservice_name], environments_dirs))
+        result.extend(_generate_paths_from_all_combinations(app_configs, environments_dirs, [microservice_name]))
+        result.extend(_generate_paths_from_all_combinations(microservice_configs, environments_dirs, [app_id]))
+        result.extend(_generate_paths_from_all_combinations(microservice_configs, [app_id], environments_dirs))
+    result.extend(_generate_paths_from_all_combinations(microservice_configs, environments_dirs))
     return result
 
 
-def process_hermes(microservice_name, env, app_id, configs):
-
-    microservice_name = microservice_name.split(':', 1)[0]
-    possible_config_paths = configs or []
-
+def process_hermes(microservice_name, image_name, env, app_id, configs):
     environments_dirs = _get_environments_dirs(env or '')
-    possible_config_paths.extend(_create_service_relative_config_paths(microservice_name, app_id, environments_dirs))
+
+    possible_config_paths = []
+    if configs:
+        if app_id:
+            possible_config_paths.extend(_generate_paths_from_all_combinations(configs, environments_dirs, [app_id]))
+            possible_config_paths.extend(_generate_paths_from_all_combinations(configs, [app_id], environments_dirs))
+        possible_config_paths.extend(_generate_paths_from_all_combinations(configs, environments_dirs))
+    if microservice_name:
+        possible_config_paths.extend(_create_service_relative_config_paths(
+            microservice_name, app_id, environments_dirs))
+    if image_name:
+        possible_config_paths.extend(_create_service_relative_config_paths(
+            image_name, app_id, environments_dirs))
 
     volumes = Volumes()
     volumes.add_config_paths(possible_config_paths)
