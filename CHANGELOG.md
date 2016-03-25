@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.16.0 (2016-03-25)
 
 ### Features
 - `armada run` adds configs to `CONFIG_PATH` for the renamed microservice name in addition to image name.
