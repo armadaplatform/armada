@@ -100,7 +100,7 @@ def command_run(args):
     is_run_locally = ship is None
     dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(microservice_name, is_run_locally)
 
-    vagrant_dev = _is_vagrant_dev(args.hidden_is_restart, dockyard_alias, microservice_name)
+    vagrant_dev = _is_vagrant_dev(args.hidden_vagrant_dev, dockyard_alias, microservice_name)
 
     dockyard_alias, image = _find_dockyard_with_image(vagrant_dev, args.hidden_is_restart, dockyard_alias,
                                                       microservice_name)
