@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.16.1 (Unreleased)
+## 0.16.1 (2016-04-04)
 
 ### Bug fixes:
 - Fixed incorrect detection of dev environment during service recovery.
