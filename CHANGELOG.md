@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- Local haproxy binds both on IPv4 and IPv6.
+
 ## 0.16.1 (2016-04-04)
 
 ### Bug fixes:

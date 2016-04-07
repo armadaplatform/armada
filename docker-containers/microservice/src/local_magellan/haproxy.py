@@ -36,7 +36,7 @@ def generate_config_from_mapping(port_to_addresses):
     result = CONFIG_HEADER
     for port, addresses in port_to_addresses.items():
         result += '\tlisten service_{port}\n'.format(**locals())
-        result += '\t\tbind *:{port}\n'.format(**locals())
+        result += '\t\tbind :::{port} v4v6\n'.format(**locals())
         if not addresses:
             result += '\t\ttcp-request connection reject\n'
         else:
