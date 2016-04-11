@@ -1,8 +1,11 @@
 from __future__ import print_function
+
 import argparse
 import sys
-from armada_command.consul.consul import consul_query
+
 import requests
+
+from armada_command.consul.consul import consul_query
 
 
 def parse_args():
@@ -60,11 +63,13 @@ def get_armada_status(ship_name):
 
 def get_armada_version(address):
     url = "http://{address}/version".format(address=address)
+    version = "error"
     try:
-        result = requests.get(url)
-        version = result.text
-    except Exception:
-        version = "error"
+        result = requests.get(url, timeout=0.5)
+        if result.status_code == 200:
+            version = result.text.split()[0]
+    except:
+        pass
 
     return version
 
@@ -74,7 +79,7 @@ def command_info(args):
 
     output_header = ['Ship name', 'Ship role', 'API address', 'API status', 'Version']
     output_rows = [output_header]
-    ship_role_counts = { 'ship': 0, 'commander': 0, 'leader' : 0, '?' : 0 }
+    ship_role_counts = {'ship': 0, 'commander': 0, 'leader': 0, '?': 0}
     for consul_node in catalog_nodes_dict:
         ship_name = consul_node['Node']
         ship_ip = consul_node['Address']
@@ -93,18 +98,23 @@ def command_info(args):
         if ship_name.startswith('ship-'):
             ship_name = ship_name[5:]
 
-        output_rows.append([ship_name, ship_role, service_armada_address, service_armada_status, service_armada_version])
+        output_rows.append([ship_name, ship_role, service_armada_address, service_armada_status,
+                            service_armada_version])
 
     print_table(output_rows)
 
     if ship_role_counts['leader'] == 0:
-        print('\nERROR: There is no active leader. Armada is not working!', file = sys.stderr)
+        print('\nERROR: There is no active leader. Armada is not working!', file=sys.stderr)
     elif ship_role_counts['commander'] == 0:
-        print('\nWARNING: We cannot survive leader leaving/failure.', file = sys.stderr)
-        print('Such configuration should only be used in development environments.', file = sys.stderr)
+        print('\nWARNING: We cannot survive leader leaving/failure.', file=sys.stderr)
+        print('Such configuration should only be used in development environments.', file=sys.stderr)
     elif ship_role_counts['commander'] == 1:
-        print('\nWARNING: We can survive leaving of commander but commander failure or leader leave/failure will be fatal.', file = sys.stderr)
-        print('Such configuration should only be used in development environments.', file = sys.stderr)
+        print('\nWARNING: We can survive leaving of commander but commander failure or leader leave/failure will be '
+              'fatal.',
+              file=sys.stderr)
+        print('Such configuration should only be used in development environments.', file=sys.stderr)
     else:
         failure_tolerance = ship_role_counts['commander'] / 2
-        print('\nWe can survive failure of ' + str(failure_tolerance) + str(' commander' if failure_tolerance == 1 else ' commanders') + ' (including leader).', file = sys.stderr)
+        print('\nWe can survive failure of {0} {1} (including leader).'.format(
+            failure_tolerance, 'commander' if failure_tolerance == 1 else 'commanders'),
+            file=sys.stderr)
