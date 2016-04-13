@@ -14,7 +14,7 @@ class Volumes(object):
             self.volumes.append(volume_mapping)
 
     def get_existing_volumes(self):
-        used = set([])
+        used = set()
         for volume in self.volumes:
             if os.path.isdir(volume[0]) and volume[1] not in used:
                 used.add(volume[1])

@@ -45,7 +45,7 @@ def post(api_function, arguments=None, ship_name=None):
     arguments = arguments or {}
     try:
         result = requests.post(__get_armada_address(ship_name) + '/' + api_function, json.dumps(arguments))
-        return json.loads(result.text)
+        return result.json()
     except Exception as e:
         print("armada API exception: {exception_class} - {exception}".format(
             exception_class=type(e).__name__, exception=str(e)), file=sys.stderr)

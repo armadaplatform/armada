@@ -23,18 +23,15 @@ class Restart(Run):
             if env_key == 'RESTART_CONTAINER_PARAMETERS':
                 restart_parameters = json.loads(base64.b64decode(env_value))
 
-        image_path = restart_parameters.get('image_path')
+        image_path = restart_parameters['image_path']
         dockyard_user = restart_parameters.get('dockyard_user')
         dockyard_password = restart_parameters.get('dockyard_password')
-        dict_ports = restart_parameters.get('ports')
-        dict_environment = restart_parameters.get('environment')
-        dict_volumes = restart_parameters.get('volumes')
-        run_command = restart_parameters.get('run_command')
-        resource_limits = restart_parameters.get('resource_limits')
-        microservice_name = dict_environment.get('MICROSERVICE_NAME')
+        environment = restart_parameters.get('environment') or {}
         dockyard_address, _, _ = self._split_image_path(image_path)
         docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
 
+        microservice_name = (restart_parameters.get('microservice_name') or environment.get('MICROSERVICE_NAME') or
+                             self._split_image_path('image_path')[1])
         try:
             self._pull_latest_image(docker_api, image_path, microservice_name)
         except Exception as e:
@@ -51,5 +48,4 @@ class Restart(Run):
         except:
             traceback.print_exc()
 
-        return self.run_container(image_path, dockyard_user, dockyard_password, dict_ports, dict_environment,
-                                  dict_volumes, run_command, resource_limits)
+        return self._run_service(**restart_parameters)
