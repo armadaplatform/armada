@@ -30,7 +30,14 @@ class Run(api_base.ApiCommand):
         except:
             traceback.print_exc()
             return self.status_error('API Run: Invalid input JSON.')
-        return self._run_service(**post_data)
+
+        try:
+            return self._run_service(**post_data)
+        except Exception as e:
+            traceback.print_exc()
+            exception_msg = " Cannot run service. {exception_class} - {exception}".format(
+                exception_class=type(e).__name__, exception=str(e))
+            return self.status_error(exception_msg)
 
     def _run_service(self, image_path=None, microservice_name=None, microservice_env=None, microservice_app_id=None,
                      dockyard_user=None, dockyard_password=None, ports=None, environment=None, volumes=None,
@@ -54,7 +61,7 @@ class Run(api_base.ApiCommand):
         microservice_env = microservice_env or environment.get('MICROSERVICE_ENV')
         microservice_app_id = microservice_app_id or environment.get('MICROSERVICE_APP_ID')
 
-        # Update parameters with armada-specific values:
+        # Update environment variables with armada-specific values:
         restart_parameters = {
             'image_path': image_path,
             'microservice_name': microservice_name,
@@ -68,12 +75,13 @@ class Run(api_base.ApiCommand):
             'run_command': run_command,
             'resource_limits': resource_limits
         }
-        volumes[docker_client.DOCKER_SOCKET_PATH] = docker_client.DOCKER_SOCKET_PATH
         environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(json.dumps(restart_parameters, sort_keys=True))
         environment['ARMADA_RUN_COMMAND'] = base64.b64encode(run_command)
         environment['MICROSERVICE_NAME'] = microservice_name
         environment['MICROSERVICE_ENV'] = microservice_env
         environment['MICROSERVICE_APP_ID'] = microservice_app_id
+
+        volumes[docker_client.DOCKER_SOCKET_PATH] = docker_client.DOCKER_SOCKET_PATH
 
         try:
             short_container_id, service_endpoints = self._run_docker_container(
@@ -81,7 +89,7 @@ class Run(api_base.ApiCommand):
                 dockyard_user, dockyard_password, resource_limits)
         except Exception as e:
             traceback.print_exc()
-            exception_msg = " Cannot create requested container. {exception_class} - {exception}".format(
+            exception_msg = " Cannot run container. {exception_class} - {exception}".format(
                 exception_class=type(e).__name__, exception=str(e))
             return self.status_error(exception_msg)
 
