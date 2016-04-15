@@ -4,7 +4,7 @@ import traceback
 
 import docker_client
 from api_run import Run
-from utils import deregister_services
+from utils import deregister_services, split_image_path
 
 
 class Restart(Run):
@@ -27,11 +27,11 @@ class Restart(Run):
         dockyard_user = restart_parameters.get('dockyard_user')
         dockyard_password = restart_parameters.get('dockyard_password')
         environment = restart_parameters.get('environment') or {}
-        dockyard_address, _, _ = self._split_image_path(image_path)
+        dockyard_address = split_image_path(image_path)[0]
         docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
 
         microservice_name = (restart_parameters.get('microservice_name') or environment.get('MICROSERVICE_NAME') or
-                             self._split_image_path('image_path')[1])
+                             split_image_path('image_path')[1])
         try:
             self._pull_latest_image(docker_api, image_path, microservice_name)
         except Exception as e:

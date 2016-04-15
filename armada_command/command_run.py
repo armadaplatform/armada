@@ -4,13 +4,14 @@ import argparse
 import os
 import sys
 
+from command_run_hermes import CONFIG_PATH_BASE
+
 import armada_api
 from armada_command.armada_payload import RunPayload
 from armada_command.armada_utils import ArmadaCommandException
 from armada_command.docker_utils.images import ArmadaImage, select_latest_image
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default
-from command_run_hermes import CONFIG_PATH_BASE
 
 verbose = False
 
@@ -112,11 +113,10 @@ def command_run(args):
     payload.update_dockyard(dockyard_alias)
     if vagrant_dev:
         payload.update_vagrant(args.dynamic_ports, args.use_latest_image_code, microservice_name)
-    payload.update_hermes(args.rename, image.image_name, args.env, args.app_id, args.configs)
     payload.update_environment(args.e)
     payload.update_ports(args.publish)
     payload.update_volumes(args.volumes)
-    payload.update_microservice_name(args.rename)
+    payload.update_microservice_vars(args.rename, args.env, args.app_id)
     payload.update_run_command(vagrant_dev)
     payload.update_resource_limits(args.cpu_shares, args.memory, args.memory_swap, args.cgroup_parent)
 

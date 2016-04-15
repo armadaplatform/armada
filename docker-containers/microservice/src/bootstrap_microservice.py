@@ -34,10 +34,10 @@ def main():
     if "CONFIG_DIR" in os.environ:
         service_path = os.path.join("/opt", os.environ["MICROSERVICE_NAME"])
         config_dir = os.environ["CONFIG_DIR"]
-        env_name = os.environ.get("MICROSERVICE_ENV", '')
-        app_id = os.environ.get("MICROSERVICE_APP_ID", '')
+        microservice_env = os.environ.get("MICROSERVICE_ENV", '')
+        microservice_app_id = os.environ.get("MICROSERVICE_APP_ID", '')
 
-        config_dirs_combinations = set(_get_all_parent_dirs_with_combinations(env_name, app_id))
+        config_dirs_combinations = set(_get_all_parent_dirs_with_combinations(microservice_env, microservice_app_id))
 
         config_dirs_full_paths = [os.path.join(service_path, config_dir, path) for path in config_dirs_combinations]
         config_dirs_full_paths.sort(key=_nesting_level, reverse=True)

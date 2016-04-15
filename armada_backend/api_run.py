@@ -11,6 +11,8 @@ import web
 
 import api_base
 import docker_client
+from armada_backend.api_run_hermes import process_hermes
+from armada_backend.utils import split_image_path
 from armada_command.consul.consul import consul_query
 from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
 
@@ -41,7 +43,7 @@ class Run(api_base.ApiCommand):
 
     def _run_service(self, image_path=None, microservice_name=None, microservice_env=None, microservice_app_id=None,
                      dockyard_user=None, dockyard_password=None, ports=None, environment=None, volumes=None,
-                     run_command=None, resource_limits=None, **kwargs):
+                     run_command=None, resource_limits=None, configs=None, **kwargs):
         # Check required fields in received JSON:
         if not image_path:
             raise ValueError('Field image_path cannot be empty.')
@@ -56,8 +58,9 @@ class Run(api_base.ApiCommand):
         ports = ports or {}
         volumes = volumes or {}
         resource_limits = resource_limits or {}
-        microservice_name = (microservice_name or environment.get('MICROSERVICE_NAME') or
-                             self._split_image_path('image_path')[1])
+        configs = configs or []
+        image_name = split_image_path(image_path)[1]
+        microservice_name = microservice_name or environment.get('MICROSERVICE_NAME') or image_name
         microservice_env = microservice_env or environment.get('MICROSERVICE_ENV')
         microservice_app_id = microservice_app_id or environment.get('MICROSERVICE_APP_ID')
 
@@ -73,15 +76,23 @@ class Run(api_base.ApiCommand):
             'environment': environment,
             'volumes': volumes,
             'run_command': run_command,
-            'resource_limits': resource_limits
+            'resource_limits': resource_limits,
+            'configs': configs,
         }
         environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(json.dumps(restart_parameters, sort_keys=True))
         environment['ARMADA_RUN_COMMAND'] = base64.b64encode(run_command)
         environment['MICROSERVICE_NAME'] = microservice_name
-        environment['MICROSERVICE_ENV'] = microservice_env
-        environment['MICROSERVICE_APP_ID'] = microservice_app_id
+        if microservice_env:
+            environment['MICROSERVICE_ENV'] = microservice_env
+        if microservice_app_id:
+            environment['MICROSERVICE_APP_ID'] = microservice_app_id
+        config_path, hermes_volumes = process_hermes(microservice_name, image_name, microservice_env,
+                                                     microservice_app_id, configs)
+        if config_path:
+            environment['CONFIG_PATH'] = config_path
 
         volumes[docker_client.DOCKER_SOCKET_PATH] = docker_client.DOCKER_SOCKET_PATH
+        volumes.update(hermes_volumes or {})
 
         try:
             short_container_id, service_endpoints = self._run_docker_container(
@@ -114,7 +125,7 @@ class Run(api_base.ApiCommand):
                 (path_host, {'bind': path_container, 'ro': False}) for path_host, path_container in
                 dict_volumes.iteritems())
 
-        dockyard_address, image_name, image_tag = self._split_image_path(image_path)
+        dockyard_address, image_name, image_tag = split_image_path(image_path)
         docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
         self._pull_latest_image(docker_api, image_path, microservice_name)
 
@@ -166,7 +177,7 @@ class Run(api_base.ApiCommand):
         return docker_api
 
     def _pull_latest_image(self, docker_api, image_path, microservice_name):
-        dockyard_address, image_name, image_tag = self._split_image_path(image_path)
+        dockyard_address, image_name, image_tag = split_image_path(image_path)
         if dockyard_address:
             try:
                 docker_client.docker_pull(docker_api, dockyard_address, image_name, image_tag)
@@ -177,18 +188,6 @@ class Run(api_base.ApiCommand):
                 raise e
         else:
             docker_api.tag(image_name, microservice_name, tag=image_tag, force=True)
-
-    def _split_image_path(self, image_path):
-        dockyard_address = None
-        image_name = image_path
-        image_tag = 'latest'
-
-        if '/' in image_name:
-            dockyard_address, image_name = image_name.split('/', 1)
-        if ':' in image_name:
-            image_name, image_tag = image_name.split(':', 1)
-
-        return dockyard_address, image_name, image_tag
 
     def _create_host_config(self, docker_api, resource_limits, binds, port_bindings):
         resource_limits = resource_limits or {}

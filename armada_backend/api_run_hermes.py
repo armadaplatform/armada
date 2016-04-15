@@ -1,6 +1,7 @@
 import itertools
 import os
 
+SHIP_ROOT_DIR = '/ship_root_dir'
 CONFIG_PATH_BASE = '/etc/opt/'
 
 
@@ -16,7 +17,7 @@ class Volumes(object):
     def get_existing_volumes(self):
         used = set()
         for volume in self.volumes:
-            if os.path.isdir(volume[0]) and volume[1] not in used:
+            if os.path.isdir(os.path.join(SHIP_ROOT_DIR, volume[0].lstrip('/'))) and volume[1] not in used:
                 used.add(volume[1])
                 yield volume
 
@@ -74,20 +75,11 @@ def process_hermes(microservice_name, image_name, env, app_id, configs):
     volumes = Volumes()
     volumes.add_config_paths(possible_config_paths)
 
-    # --------------------------------------------------------------------------
-
-    hermes_env = {}
     hermes_volumes = {}
 
     config_path = os.pathsep.join(volume[1] for volume in volumes.get_existing_volumes())
-    if config_path:
-        hermes_env['CONFIG_PATH'] = config_path
-    if env:
-        hermes_env['MICROSERVICE_ENV'] = env
-    if app_id:
-        hermes_env['MICROSERVICE_APP_ID'] = app_id
 
     for volume in volumes.get_existing_volumes():
         hermes_volumes[volume[0]] = volume[1]
 
-    return hermes_env, hermes_volumes
+    return config_path, hermes_volumes
