@@ -27,11 +27,11 @@ class Restart(Run):
         dockyard_user = restart_parameters.get('dockyard_user')
         dockyard_password = restart_parameters.get('dockyard_password')
         environment = restart_parameters.get('environment') or {}
-        dockyard_address = split_image_path(image_path)[0]
+        dockyard_address, image_name, _ = split_image_path(image_path)
         docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
 
         microservice_name = (restart_parameters.get('microservice_name') or environment.get('MICROSERVICE_NAME') or
-                             split_image_path('image_path')[1])
+                             image_name)
         try:
             self._pull_latest_image(docker_api, image_path, microservice_name)
         except Exception as e:
