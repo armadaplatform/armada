@@ -81,3 +81,6 @@ class RunPayload(object):
         if cgroup_parent:
             resource_limits['cgroup_parent'] = cgroup_parent
         self._payload['resource_limits'] = resource_limits
+
+    def update_configs(self, configs):
+        self._payload['configs'] = sum(configs or [], [])

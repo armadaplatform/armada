@@ -119,6 +119,7 @@ def command_run(args):
     payload.update_microservice_vars(args.rename, args.env, args.app_id)
     payload.update_run_command(vagrant_dev)
     payload.update_resource_limits(args.cpu_shares, args.memory, args.memory_swap, args.cgroup_parent)
+    payload.update_configs(args.configs)
 
     if verbose:
         print('payload: {0}'.format(payload))
