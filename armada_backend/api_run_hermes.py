@@ -17,9 +17,29 @@ class Volumes(object):
     def get_existing_volumes(self):
         used = set()
         for volume in self.volumes:
-            if os.path.isdir(os.path.join(SHIP_ROOT_DIR, volume[0].lstrip('/'))) and volume[1] not in used:
+            if _is_directory(volume[0], root_path=SHIP_ROOT_DIR) and volume[1] not in used:
                 used.add(volume[1])
                 yield volume
+
+
+def _is_directory(path, root_path='/'):
+    """
+    Checks if given path is a directory. It is a generalized version of os.path.isdir() that can work with changed
+    root directory, even if the `path` contains symlinks.
+    """
+    path_so_far = root_path
+    for directory in path.lstrip('/').split('/'):
+        rooted_path = os.path.join(path_so_far, directory)
+        while os.path.islink(rooted_path):
+            link_destination = os.readlink(rooted_path)
+            if os.path.isabs(link_destination):
+                rooted_path = os.path.join(root_path, link_destination.lstrip('/'))
+            else:
+                rooted_path = os.path.join(rooted_path, os.path.pardir, link_destination)
+        if not os.path.isdir(rooted_path):
+            return False
+        path_so_far = rooted_path
+    return True
 
 
 def _get_all_subdirs(path):
