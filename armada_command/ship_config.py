@@ -1,7 +1,6 @@
 import os
 
 ARMADA_CONFIG_FILE_PATH = '/etc/default/armada'
-ARMADA_DEFAULT_MEMORY_PER_CONTAINER = '200M'
 
 
 def get_ship_config():

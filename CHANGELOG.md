@@ -4,9 +4,8 @@
 
 ### Features
 - Local haproxy binds both on IPv4 and IPv6.
-- Services are now run with memory (both resident and swap) limit set. The default is 200 MB. It can be customized
-per host in `/etc/default/armada` (e.g.: `ARMADA_DEFAULT_MEMORY_PER_CONTAINER=512M`), or per service by setting
-`armada run` flags `--memory`/`--memory-swap`.
+- Default memory limit (both resident and swap) for services can now be customized per host. E.g. Add line
+`DEFAULT_CONTAINER_MEMORY_LIMIT=512M` to `/etc/default/armada` on host.
 
 ## 0.16.1 (2016-04-04)
 

@@ -10,7 +10,7 @@ from armada_command.armada_utils import ArmadaCommandException
 from armada_command.docker_utils.images import ArmadaImage, select_latest_image
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default
-from armada_command.ship_config import get_ship_config, ARMADA_DEFAULT_MEMORY_PER_CONTAINER
+from armada_command.ship_config import get_ship_config
 from command_run_hermes import CONFIG_PATH_BASE
 
 verbose = False
@@ -26,8 +26,8 @@ def are_we_in_vagrant():
     return os.path.exists('/etc/vagrant_box_build_time')
 
 
-def _get_default_memory_limit():
-    return get_ship_config().get('ARMADA_DEFAULT_MEMORY_PER_CONTAINER') or ARMADA_DEFAULT_MEMORY_PER_CONTAINER
+def _get_default_container_memory_limit():
+    return get_ship_config().get('DEFAULT_CONTAINER_MEMORY_LIMIT')
 
 
 def add_arguments(parser):
@@ -79,11 +79,11 @@ def add_arguments(parser):
 
     # Resource limit parameters
     parser.add_argument('--cpu-shares', help="CPU shares (relative weight)", type=int)
-    parser.add_argument('--memory', help="Memory limit. Default: {}".format(_get_default_memory_limit()),
-                        default=_get_default_memory_limit())
+    parser.add_argument('--memory', help="Memory limit. Default: {}".format(_get_default_container_memory_limit()),
+                        default=_get_default_container_memory_limit())
     parser.add_argument('--memory-swap', help="Total memory (memory + swap), '-1' to disable swap. "
-                                              "Default: {}".format(_get_default_memory_limit()),
-                        default=_get_default_memory_limit())
+                                              "Default: {}".format(_get_default_container_memory_limit()),
+                        default=_get_default_container_memory_limit())
     parser.add_argument('--cgroup-parent', help="Optional parent cgroup for the container")
 
 
