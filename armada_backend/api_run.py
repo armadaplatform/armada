@@ -5,7 +5,6 @@ import json
 import os
 import sys
 import traceback
-import argparse
 
 import web
 
@@ -24,7 +23,6 @@ def print_err(*objs):
 
 
 class Run(api_base.ApiCommand):
-
     def run_container(self, image_path, dockyard_user, dockyard_password, dict_ports, dict_environment, dict_volumes,
                       run_command, resource_limits):
         try:
