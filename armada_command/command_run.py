@@ -5,7 +5,6 @@ import os
 import sys
 
 import armada_api
-from api_run_hermes import CONFIG_PATH_BASE
 from armada_command.armada_payload import RunPayload
 from armada_command.armada_utils import ArmadaCommandException
 from armada_command.docker_utils.images import ArmadaImage, select_latest_image
@@ -14,6 +13,8 @@ from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default
 from armada_command.ship_config import get_ship_config
 
 verbose = False
+
+CONFIG_PATH_BASE = '/etc/opt/'
 
 
 def parse_args():
@@ -74,8 +75,7 @@ def add_arguments(parser):
                              'It will be used to mount additional configs specific for that app/game.')
     parser.add_argument('-c', '--configs', nargs='*', metavar='CONFIG', action='append',
                         help='Additional paths to configs that will be mounted and added to CONFIG_PATH. '
-                             'If it\'s a relative path it will be mounted from {config_path_base}'.format(
-                            config_path_base=CONFIG_PATH_BASE))
+                             'If it\'s a relative path it will be mounted from {}'.format(CONFIG_PATH_BASE))
 
     # Resource limit parameters
     parser.add_argument('--cpu-shares', help="CPU shares (relative weight)", type=int)
