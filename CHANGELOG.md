@@ -8,6 +8,11 @@ remote runs and restarts will not work.
 
 ### Features
 - Local haproxy binds both on IPv4 and IPv6.
+- Default memory limit (both resident and swap) for services can now be customized per host. E.g. Add line
+`DEFAULT_CONTAINER_MEMORY_LIMIT=512M` to `/etc/default/armada` on host.
+
+### Improvements
+- Set 0.5s timeout for fetching armada agents' versions in `armada info`.
 
 ### Improvements
 - `$CONFIG_PATH` environment variable inside microservice (and mounted volumes for these configs) are now updated during
