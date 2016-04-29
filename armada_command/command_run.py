@@ -5,6 +5,7 @@ import os
 import sys
 
 import armada_api
+from api_run_hermes import CONFIG_PATH_BASE
 from armada_command.armada_payload import RunPayload
 from armada_command.armada_utils import ArmadaCommandException
 from armada_command.docker_utils.images import ArmadaImage, select_latest_image
