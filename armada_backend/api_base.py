@@ -1,8 +1,9 @@
 import json
+
 import web
 
-class ApiCommand(object):
 
+class ApiCommand(object):
     def get_get_parameter(self, parameter_name):
         try:
             get_data = web.input()
@@ -10,7 +11,6 @@ class ApiCommand(object):
         except:
             return None, "Invalid input data - no parameter '{0}'.".format(parameter_name)
         return result, None
-
 
     def get_post_parameter(self, parameter_name):
         try:
@@ -25,11 +25,10 @@ class ApiCommand(object):
 
         return result, None
 
-
-    def status_error(self, message = None):
+    def status_error(self, message=None):
         return json.dumps({'status': 'error', 'error': message or ''})
 
-
-    def status_ok(self, extra_result = {}):
+    def status_ok(self, extra_result=None):
+        extra_result = extra_result or {}
         extra_result['status'] = 'ok'
         return json.dumps(extra_result)

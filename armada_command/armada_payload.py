@@ -1,11 +1,10 @@
 import sys
 
 from armada_command.armada_utils import ArmadaCommandException
-from armada_command.command_run_hermes import process_hermes
 from armada_command.dockyard import dockyard
 
 
-class RunPayload:
+class RunPayload(object):
     def __init__(self):
         self._payload = {'environment': {}, 'ports': {}, 'volumes': {}}
 
@@ -38,11 +37,6 @@ class RunPayload:
             self._payload['volumes'][microservice_path] = microservice_path
         self._payload['environment']['ARMADA_VAGRANT_DEV'] = '1'
 
-    def update_hermes(self, microservice_name, image_name, env, app_id, configs):
-        hermes_env, hermes_volumes = process_hermes(microservice_name, image_name, env, app_id, sum(configs or [], []))
-        self._payload['environment'].update(hermes_env or {})
-        self._payload['volumes'].update(hermes_volumes or {})
-
     def update_environment(self, env_vars):
         for env_var in sum(env_vars or [], []):
             env_key, env_value = (env_var.strip('"').split('=', 1) + [''])[:2]
@@ -63,8 +57,10 @@ class RunPayload:
                 volume *= 2
             self._payload['volumes'][volume[0]] = volume[1]
 
-    def update_microservice_name(self, name):
+    def update_microservice_vars(self, name, env, app_id):
         self._payload['microservice_name'] = name
+        self._payload['microservice_env'] = env
+        self._payload['microservice_app_id'] = app_id
 
     def update_run_command(self, vagrant_dev):
         run_command = 'armada ' + ' '.join(sys.argv[1:])
@@ -85,3 +81,6 @@ class RunPayload:
         if cgroup_parent:
             resource_limits['cgroup_parent'] = cgroup_parent
         self._payload['resource_limits'] = resource_limits
+
+    def update_configs(self, configs):
+        self._payload['configs'] = sum(configs or [], [])

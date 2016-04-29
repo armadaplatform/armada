@@ -1,11 +1,13 @@
 import base64
 import json
-import requests
-from armada_command.consul.consul import consul_query
-from armada_command.consul.consul import consul_get
-from armada_command.consul import kv
 import traceback
+
+import requests
+
 from armada_backend import docker_client
+from armada_command.consul import kv
+from armada_command.consul.consul import consul_get
+from armada_command.consul.consul import consul_query
 
 
 def deregister_services(container_id):
@@ -81,3 +83,16 @@ def get_local_containers_ids():
     list_response = response.json()
     services_from_api = list_response['result']
     return list(set(service['container_id'] for service in services_from_api))
+
+
+def split_image_path(image_path):
+    dockyard_address = None
+    image_name = image_path
+    image_tag = 'latest'
+
+    if '/' in image_name:
+        dockyard_address, image_name = image_name.split('/', 1)
+    if ':' in image_name:
+        image_name, image_tag = image_name.split(':', 1)
+
+    return dockyard_address, image_name, image_tag

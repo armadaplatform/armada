@@ -1,6 +1,7 @@
 import itertools
 import os
 
+SHIP_ROOT_DIR = '/ship_root_dir'
 CONFIG_PATH_BASE = '/etc/opt/'
 
 
@@ -14,11 +15,31 @@ class Volumes(object):
             self.volumes.append(volume_mapping)
 
     def get_existing_volumes(self):
-        used = set([])
+        used = set()
         for volume in self.volumes:
-            if os.path.isdir(volume[0]) and volume[1] not in used:
+            if _is_directory(volume[0], root_path=SHIP_ROOT_DIR) and volume[1] not in used:
                 used.add(volume[1])
                 yield volume
+
+
+def _is_directory(path, root_path='/'):
+    """
+    Checks if given path is a directory. It is a generalized version of os.path.isdir() that can work with changed
+    root directory, even if the `path` contains symlinks.
+    """
+    path_so_far = root_path
+    for directory in path.lstrip('/').split('/'):
+        rooted_path = os.path.join(path_so_far, directory)
+        while os.path.islink(rooted_path):
+            link_destination = os.readlink(rooted_path)
+            if os.path.isabs(link_destination):
+                rooted_path = os.path.join(root_path, link_destination.lstrip('/'))
+            else:
+                rooted_path = os.path.join(rooted_path, os.path.pardir, link_destination)
+        if not os.path.isdir(rooted_path):
+            return False
+        path_so_far = rooted_path
+    return True
 
 
 def _get_all_subdirs(path):
@@ -74,20 +95,11 @@ def process_hermes(microservice_name, image_name, env, app_id, configs):
     volumes = Volumes()
     volumes.add_config_paths(possible_config_paths)
 
-    # --------------------------------------------------------------------------
-
-    hermes_env = {}
     hermes_volumes = {}
 
     config_path = os.pathsep.join(volume[1] for volume in volumes.get_existing_volumes())
-    if config_path:
-        hermes_env['CONFIG_PATH'] = config_path
-    if env:
-        hermes_env['MICROSERVICE_ENV'] = env
-    if app_id:
-        hermes_env['MICROSERVICE_APP_ID'] = app_id
 
     for volume in volumes.get_existing_volumes():
         hermes_volumes[volume[0]] = volume[1]
 
-    return hermes_env, hermes_volumes
+    return config_path, hermes_volumes

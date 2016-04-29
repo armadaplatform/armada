@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### :warning: **UPGRADE WARNING** :warning:
+Due to changes in armada internal API, all armada agents within the same cluster need to be upgraded, otherwise
+remote runs and restarts will not work.
+
 ### Features
 - Local haproxy binds both on IPv4 and IPv6.
 - Default memory limit (both resident and swap) for services can now be customized per host. E.g. Add line
@@ -9,6 +13,10 @@
 
 ### Improvements
 - Set 0.5s timeout for fetching armada agents' versions in `armada info`.
+
+### Improvements
+- `$CONFIG_PATH` environment variable inside microservice (and mounted volumes for these configs) are now updated during
+`armada restart` to pick up the new config directories.
 
 ## 0.16.1 (2016-04-04)
 
