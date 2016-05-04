@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import os
 import sys
+import traceback
 
 import api_base
 import docker_client
@@ -33,5 +34,6 @@ class Start(api_base.ApiCommand):
             service_endpoints = self._start_container(long_container_id)
             return self.status_ok({'endpoints': service_endpoints})
         except Exception as e:
+            traceback.print_exc()
             return self.status_exception("Cannot start service's container", e)
 
