@@ -1,13 +1,4 @@
 import web
-import api_info
-import api_list
-import api_recover
-import api_restart
-import api_run
-import api_ship
-import api_ssh
-import api_stop
-
 
 class Health(object):
     def GET(self):
@@ -23,6 +14,8 @@ def main():
         '/promote', 'api_ship.Promote',
         '/shutdown', 'api_ship.Shutdown',
 
+        '/create', 'api_create.Create',
+        '/start', 'api_start.Start',
         '/run', 'api_run.Run',
         '/stop', 'api_stop.Stop',
         '/restart', 'api_restart.Restart',
