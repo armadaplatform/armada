@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.17.0 (2016-04-29)
 
 ### :warning: **UPGRADE WARNING** :warning:
 Due to changes in armada internal API, all armada agents within the same cluster need to be upgraded, otherwise
