@@ -1,0 +1,21 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:           armada
+# Required-Start:     $remote_fs $network
+# Required-Stop:      $remote_fs $network
+# Should-Start:       docker docker.io
+# Should-Stop:        docker docker.io
+# Default-Start:      2 3 4 5
+# Default-Stop:       0 1 6
+# Short-Description:  Run and manage armada of ships running containers.
+# Description:
+#   Armada helps you manage your microservices architecture.
+### END INIT INFO
+
+BASE=$(basename $0)
+ARMADA_RUNNER=/usr/local/bin/armada-runner
+
+$ARMADA_RUNNER "$1" $BASE
+
+exit $?

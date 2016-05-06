@@ -1,0 +1,14 @@
+[Unit]
+Description=armada
+After=docker.service
+Requires=docker.service
+
+[Service]
+#wait_timeout from armada-runner +5s
+TimeoutStartSec=35
+Type=oneshot
+ExecStart=/usr/local/bin/armada-runner start
+ExecStop=/usr/local/bin/armada-runner stop
+
+[Install]
+WantedBy=multi-user.target

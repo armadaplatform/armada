@@ -1,0 +1,207 @@
+#!/bin/bash
+
+BASE=armada
+
+# modify these in /etc/default/$BASE (/etc/default/armada)
+ARMADA_CONTAINERID_FILE=/var/run/$BASE.pid
+ARMADA_LOGFILE=/var/log/$BASE.log
+ARMADA_LOCK_FILE=/var/lock/subsys/$BASE
+ARMADA_DESC="armada"
+ARMADA_PORT=8900
+
+PATH=$PATH:/usr/local/bin
+
+log_message()
+{
+    current_time=`date "+%Y-%m-%d %H:%M:%S"`
+    echo $1
+    echo [${current_time}] $1 >> ${ARMADA_LOGFILE}
+}
+
+if [ -f /etc/default/$BASE ]; then
+    . /etc/default/$BASE
+fi
+
+set_external_ip() {
+    if [ ! -n "${default_interface}" ]; then
+        default_interface=`route | grep ^default | awk '{print $8}'`
+        if [ -f /etc/vagrant_box_build_time ]; then
+            default_interface=eth1
+        fi
+    fi
+    external_ip=`ifconfig ${default_interface} | grep 'inet ' | awk '{print $2}' | cut -d: -f2 | head -1`
+}
+
+# Check if docker is present and available.
+fail_unless_can_run_docker() {
+    if [ "$(id -u)" != '0' ]; then
+        log_message "${ARMADA_DESC} must be run as root"
+        exit 1
+    fi
+
+    docker info > /dev/null 2>&1
+    if [ $? != 0 ]; then
+        log_message "Cannot run 'docker' command. Is docker installed and running?"
+        exit 1
+    fi
+}
+
+fail_if_armada_is_running() {
+    armada_containerid=`cat "${ARMADA_CONTAINERID_FILE}" 2>/dev/null`
+    if [ -n "${armada_containerid}" ]; then
+        docker inspect ${armada_containerid} > /dev/null 2>&1
+        if [ "$?" == "0" ]; then
+            echo "Container ID file found: ${ARMADA_CONTAINERID_FILE}. Remove it before restarting armada."
+            exit 1
+        fi
+    fi
+    rm -f "${ARMADA_CONTAINERID_FILE}" 2>/dev/null
+}
+
+wait_for_armada_running() {
+    echo "Waiting for ${ARMADA_DESC} running state..."
+    set_external_ip
+    wait_timeout=30
+    is_armada_running=0
+    while [ ${is_armada_running} != "1" ] && [ ${wait_timeout} -gt 0 ]; do
+        sleep 1
+        is_armada_running=$(armada info 2>/dev/null | grep passing | awk '{split($3,a,":"); print a[1]}' | grep "^${external_ip}$" | wc -l)
+        wait_timeout=$[wait_timeout - 1]
+    done
+
+    if [ ${wait_timeout} -le 0 ]; then
+        echo "Waiting for ${ARMADA_DESC} running state timed out :("
+        exit 1
+    fi
+
+    touch ${ARMADA_LOCK_FILE} 2>/dev/null
+    echo ${ARMADA_DESC} is running.
+}
+
+stop_armada() {
+    armada_containerid=$(cat "${ARMADA_CONTAINERID_FILE}" 2>/dev/null)
+    [ -n "${armada_containerid}" ] \
+        && docker inspect ${armada_containerid} > /dev/null 2>&1 \
+        && armada shutdown \
+        && docker rm -f ${armada_containerid}
+    rm -f "${ARMADA_CONTAINERID_FILE}" 2>/dev/null
+    rm -f "${ARMADA_LOCK_FILE}" 2>/dev/null
+}
+
+docker_server_version() {
+    echo $(docker version | grep -i server -A1 | grep -i version | head -n1 | cut -d: -f2)
+}
+
+get_static_docker_client_if_missing() {
+    if [ ! -d "/opt/armada-docker-client" ]; then
+        mkdir /opt/armada-docker-client
+    fi
+    docker_version=$(docker_server_version)
+    if [ ! -f "/opt/armada-docker-client/docker-$docker_version" ]; then
+        log_message "Fetching static docker client v$docker_version.";
+        curl -sSL https://get.docker.com/builds/Linux/x86_64/docker-$docker_version -o /opt/armada-docker-client/docker-$docker_version
+        chmod +x /opt/armada-docker-client/docker-$docker_version
+    fi
+}
+
+case "$1" in
+    start)
+        fail_unless_can_run_docker
+
+        touch "${ARMADA_LOGFILE}"
+        log_message "Starting ${ARMADA_DESC}..."
+
+        fail_if_armada_is_running
+
+        docker rm -f `docker ps -a | grep "8300->8300" | awk '{print $1}'` 2>/dev/null
+
+        set_external_ip
+
+        # We take earliest start time of all docker processes
+        docker_start_timestamp=$(python2 -c "import os; print(min(map(lambda x: int(os.path.getctime('/proc/' + x)),'$(pidof docker)'.split())))")
+
+        get_static_docker_client_if_missing
+
+        docker_version=$(docker_server_version)
+
+        docker run -d \
+            --privileged=true \
+            --cidfile "${ARMADA_CONTAINERID_FILE}" \
+            -p 2201:22 \
+            -p ${ARMADA_PORT}:80 \
+            -p 8300:8300 -p 8301:8301 -p 8301:8301/udp \
+            -p 8400:8400 -p 8500:8500 \
+            -v /opt/armada:/opt/armada \
+            -v /etc/opt:/etc/opt \
+            -v /opt/armada-docker-client/docker-$docker_version:/usr/bin/docker \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v /:/ship_root_dir:ro \
+            -e SHIP_EXTERNAL_IP=${external_ip} \
+            -e MICROSERVICE_NAME=armada \
+            -e DOCKER_START_TIMESTAMP=${docker_start_timestamp} \
+            armada \
+            >> "${ARMADA_LOGFILE}" 2>&1
+        if [ $? != 0 ]; then
+            echo "Error! Couldn't start Armada's container. Check ${ARMADA_LOGFILE} for details."
+            exit 1
+        fi
+
+        # Fix for unreliable UDP connection among ships. https://github.com/hashicorp/consul/issues/352
+        conntrack -F
+
+        wait_for_armada_running
+        ;;
+
+    stop)
+        fail_unless_can_run_docker
+        log_message "Stopping ${ARMADA_DESC}..."
+        stop_armada
+        ;;
+
+    shutdown)
+        fail_unless_can_run_docker
+        log_message "Stopping ${ARMADA_DESC}..."
+        stop_armada
+
+        rm -f /opt/armada/runtime_settings.json
+        ;;
+
+    restart)
+        fail_unless_can_run_docker
+        log_message "Stopping ${ARMADA_DESC}..."
+        stop_armada
+
+        $0 start
+        if [ $? != 0 ]; then
+            exit $?
+        fi
+        ;;
+
+    force-reload)
+        fail_unless_can_run_docker
+        $0 restart
+        ;;
+
+    status)
+        armada_containerid=`cat "${ARMADA_CONTAINERID_FILE}" 2>/dev/null`
+        if [ ! -n "${armada_containerid}" ]; then
+            echo ${ARMADA_DESC} is not running.
+            exit 1
+        fi
+
+        docker inspect ${armada_containerid} > /dev/null 2>&1
+        if [ $? != 0 ]; then
+            echo ${ARMADA_DESC} is not running. Wrong container id in file ${ARMADA_CONTAINERID_FILE}.
+            exit 1
+        fi
+
+        echo ${ARMADA_DESC} is running.
+        ;;
+
+    *)
+        echo "Usage: $0 {start|stop|restart|status|shutdown}"
+        exit 1
+        ;;
+esac
+
+exit 0
