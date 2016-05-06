@@ -15,8 +15,6 @@ import docker_client
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
-LENGTH_OF_SHORT_CONTAINER_ID = 12
-
 
 def print_err(*objs):
     print(*objs, file=sys.stderr)

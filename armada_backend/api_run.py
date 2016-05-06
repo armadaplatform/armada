@@ -33,10 +33,3 @@ class Run(Create, Start):
         short_container_id = long_container_id[:self.LENGTH_OF_SHORT_CONTAINER_ID]
         service_endpoints = self._start_container(long_container_id)
         return short_container_id, service_endpoints
-
-
-
-
-
-
-
