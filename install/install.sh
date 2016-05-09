@@ -7,7 +7,7 @@ else
     tag_or_branch="master"
 fi
 
-ARMADA_BASE_URL="https://raw.githubusercontent.com/labuzm/armada/${tag_or_branch}/install/"
+ARMADA_BASE_URL="https://raw.githubusercontent.com/armadaplatform/armada/${tag_or_branch}/install/"
 ARMADA_REPOSITORY=dockyard.armada.sh
 
 command_exists() {
