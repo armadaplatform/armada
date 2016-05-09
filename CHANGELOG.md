@@ -5,7 +5,10 @@
 - Services can now be moved between ships in a cluster with `armada restart` command using `--ship` parameter.
 E.g.: `armada restart myservice --ship 10.0.0.2`
 If moved service contains mounted volumes or statically assigned ports, restart will fail unless `-f \ --force` flag is provided.
-:warning: Use `--force` with caution. Mounted volumes **will not** be moved to another ship. Static ports collision will result in service being stopped, and not restarted.
+:warning: Use `--force` with caution. Mounted volumes **will not** be moved to another ship. Static ports collision will result in service being stopped, and **not restarted**.
+
+### Improvements
+- Nicified `armada restart` warning/error output.
 
 ## 0.17.0 (2016-04-29)
 
