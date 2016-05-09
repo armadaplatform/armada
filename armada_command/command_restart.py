@@ -20,6 +20,10 @@ def add_arguments(parser):
                              'If not provided it will use MICROSERVICE_NAME env variable.')
     parser.add_argument('-a', '--all', action='store_true', default=False,
                         help='Restart all matching services. By default only one instance is allowed to be restarted.')
+
+    parser.add_argument('--ship', metavar="SHIP_NAME", help="Restart on another ship.", default=None)
+    parser.add_argument('-f', '--force', default=False, action='store_true',
+                        help="Force restarting on another ship despite mounted volumes or static ports.")
     parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
 
 
@@ -55,6 +59,10 @@ def command_restart(args):
             is_run_locally = armada_utils.is_local_container(container_id)
 
             payload = {'container_id': container_id}
+            if args.ship:
+                payload['target_ship'] = args.ship
+                payload['force'] = args.force
+
             print('Checking if there is new image version. May take few minutes if download is needed...')
             result = armada_api.post('restart', payload, ship_name=instance['Node'])
 
@@ -67,7 +75,10 @@ def command_restart(args):
                 if instances_count > 1:
                     print()
             else:
-                raise armada_utils.ArmadaCommandException('ERROR: {0}'.format(result['error']))
+                raise armada_utils.ArmadaCommandException(result['error'])
+        except armada_utils.ArmadaCommandException as e:
+            print("ArmadaCommandException: {0}".format(str(e)))
+            were_errors = True
         except:
             traceback.print_exc()
             were_errors = True

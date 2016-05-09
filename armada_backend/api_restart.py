@@ -1,20 +1,32 @@
 import base64
 import json
 import traceback
+from armada_command import armada_api
+from armada_backend.api_stop import Stop
 
 import docker_client
 from api_run import Run
-from utils import deregister_services, split_image_path
 
 
-class Restart(Run):
+class Restart(Run, Stop):
     def POST(self):
         container_id, error = self.get_post_parameter('container_id')
+        target_ship, _ = self.get_post_parameter('target_ship')
+        force_restart, _ = self.get_post_parameter('force')
+
         if error:
             return self.status_error(error)
 
-        docker_api = docker_client.api()
+        try:
+            new_container_id, service_endpoints = self._restart_service(container_id, target_ship, force_restart)
+            short_container_id = new_container_id[:self.LENGTH_OF_SHORT_CONTAINER_ID]
+            return self.status_ok({'container_id': short_container_id, 'endpoints': service_endpoints})
+        except Exception as e:
+            traceback.print_exc()
+            return self.status_exception("Unable to restart service", e)
 
+    def _restart_service(self, container_id, target_ship=None, force_restart=False):
+        docker_api = docker_client.api()
         docker_inspect = docker_api.inspect_container(container_id)
 
         restart_parameters = {}
@@ -23,29 +35,44 @@ class Restart(Run):
             if env_key == 'RESTART_CONTAINER_PARAMETERS':
                 restart_parameters = json.loads(base64.b64decode(env_value))
 
-        image_path = restart_parameters['image_path']
-        dockyard_user = restart_parameters.get('dockyard_user')
-        dockyard_password = restart_parameters.get('dockyard_password')
-        environment = restart_parameters.get('environment') or {}
-        dockyard_address, image_name, _ = split_image_path(image_path)
-        docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
+        if target_ship:
+            return self._restart_service_remote(container_id, restart_parameters,
+                                                target_ship, force_restart)
+        else:
+            return self._restart_service_local(container_id, restart_parameters)
 
-        microservice_name = (restart_parameters.get('microservice_name') or environment.get('MICROSERVICE_NAME') or
-                             image_name)
-        try:
-            self._pull_latest_image(docker_api, image_path, microservice_name)
-        except Exception as e:
-            return self.status_error("Failed to pull image's newest version. {exception_class} - {exception}".format(
-                exception_class=type(e).__name__, exception=str(e)))
-        try:
-            docker_api.stop(container_id)
-        except Exception as e:
-            return self.status_error("Cannot stop requested container. {exception_class} - {exception}".format(
-                exception_class=type(e).__name__, exception=str(e)))
+    def _restart_service_local(self, container_id, restart_parameters):
+        new_container_id = self._create_service(**restart_parameters)
+        self._stop_service(container_id)
+        service_endpoints = self._start_container(new_container_id)
+        return new_container_id, service_endpoints
 
-        try:
-            deregister_services(container_id)
-        except:
-            traceback.print_exc()
+    def _restart_service_remote(self, container_id, restart_parameters, target_ship, force_restart):
+        mounted_volumes = restart_parameters.get('volumes')
+        static_ports = restart_parameters.get('ports')
 
-        return self._run_service(**restart_parameters)
+        if (mounted_volumes or static_ports) and not force_restart:
+            error = "Cannot restart service on another host. Mounted volumes or static ports detected. \n" \
+                    "\tVolumes: {0}\n" \
+                    "\tPorts: {1}\n" \
+                    "Use --force to restart anyway.".format(mounted_volumes, static_ports)
+            raise Exception(error)
+
+        new_container_id = self.__create_service_remote(restart_parameters, target_ship)
+        self._stop_service(container_id)
+        service_endpoints = self.__start_service_remote(new_container_id, target_ship)
+
+        return new_container_id, service_endpoints
+
+    def __create_service_remote(self, restart_parameters, target_ship):
+        result = armada_api.post('create', restart_parameters, ship_name=target_ship)
+        if result['status'] != "ok":
+            raise Exception(result['error'])
+        return result['long_container_id']
+
+    def __start_service_remote(self, container_id, target_ship):
+        start_payload = {'long_container_id': container_id}
+        start_result = armada_api.post('start', start_payload, ship_name=target_ship)
+        if start_result['status'] != "ok":
+            raise Exception(start_result['error'])
+        return start_result['endpoints']

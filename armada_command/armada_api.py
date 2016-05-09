@@ -29,6 +29,10 @@ def __get_armada_address(ship_name=None):
 
     raise ValueError('Cannot find ship: {ship_name}.'.format(ship_name=ship_name))
 
+def __exception_to_status(e):
+    error_msg = "armada API exception: {exception_class} - {exception}".format(
+        exception_class=type(e).__name__, exception=str(e))
+    return {"status": "error", "error": error_msg}
 
 def get(api_function, arguments=None, ship_name=None):
     arguments = arguments or {}
@@ -36,10 +40,7 @@ def get(api_function, arguments=None, ship_name=None):
         result = requests.get(__get_armada_address(ship_name) + '/' + api_function + '?' + urllib.urlencode(arguments))
         return result.text
     except Exception as e:
-        print("armada API exception: {exception_class} - {exception}".format(
-            exception_class=type(e).__name__, exception=str(e)), file=sys.stderr)
-    return None
-
+        return __exception_to_status(e)
 
 def post(api_function, arguments=None, ship_name=None):
     arguments = arguments or {}
@@ -47,6 +48,4 @@ def post(api_function, arguments=None, ship_name=None):
         result = requests.post(__get_armada_address(ship_name) + '/' + api_function, json.dumps(arguments))
         return result.json()
     except Exception as e:
-        print("armada API exception: {exception_class} - {exception}".format(
-            exception_class=type(e).__name__, exception=str(e)), file=sys.stderr)
-    return None
+        return __exception_to_status(e)
