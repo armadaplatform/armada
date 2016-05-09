@@ -1,13 +1,13 @@
 #!/bin/bash
 
-#
-# This script is meant for quick & easy install/upgrade via:
-#   bash <(curl -sL http://armada.sh/install)
-# or:
-#   bash <(wget -qO- http://armada.sh/install)
-#
+latest_tag=$1
+if [ ${latest_tag} ]; then
+    tag_or_branch=$1
+else
+    tag_or_branch="master"
+fi
 
-ARMADA_BASE_URL='http://armada.sh/install/'
+ARMADA_BASE_URL="https://raw.githubusercontent.com/labuzm/armada/${tag_or_branch}/install/"
 ARMADA_REPOSITORY=dockyard.armada.sh
 
 command_exists() {
