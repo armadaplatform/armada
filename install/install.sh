@@ -2,7 +2,7 @@
 
 latest_tag=$1
 if [ ${latest_tag} ]; then
-    tag_or_branch=$1
+    tag_or_branch=${latest_tag}
 else
     tag_or_branch="master"
 fi
