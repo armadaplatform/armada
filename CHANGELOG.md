@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- In vagrant for armada development (`Vagrantfile` in armada repository), the code used for armada CLI is now
+mounted from local workstation.
+
 ## 0.18.0 (2016-05-09)
 ### Features
 - Services can now be moved between ships in a cluster with `armada restart` command using `--ship` parameter.
