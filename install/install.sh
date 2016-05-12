@@ -14,12 +14,20 @@ command_exists() {
     command -v "$@" > /dev/null 2>&1
 }
 
-start_using_initd() {
-    download_file ${ARMADA_BASE_URL}initd_armada /tmp/initd_armada
+setup_daemon(){
+    service_file=$1
+    service_dest=$2
     download_file ${ARMADA_BASE_URL}armada-runner /tmp/armada-runner
-    $sh_c "mv -f /tmp/initd_armada /etc/init.d/armada"
     $sh_c "mv -f /tmp/armada-runner /usr/local/bin/armada-runner"
-    $sh_c "chmod +x /etc/init.d/armada /usr/local/bin/armada-runner"
+    $sh_c "chmod +x /usr/local/bin/armada-runner"
+
+    download_file ${ARMADA_BASE_URL}$service_file /tmp/armada_service
+    $sh_c "mv -f /tmp/armada_service $service_dest"
+}
+
+start_using_initd() {
+    setup_daemon initd_armada /etc/init.d/armada
+    $sh_c "chmod +x /etc/init.d/armada"
 
     if command_exists update-rc.d; then
         $sh_c "update-rc.d armada start 90 2 3 4 5 . stop 10 0 1 6 ."
@@ -31,13 +39,15 @@ start_using_initd() {
 }
 
 start_using_systemd() {
-    download_file ${ARMADA_BASE_URL}systemd_armada /tmp/systemd_armada
-    download_file ${ARMADA_BASE_URL}armada-runner /tmp/armada-runner
-    $sh_c "mv -f /tmp/systemd_armada /etc/systemd/system/armada.service"
-    $sh_c "mv -f /tmp/armada-runner /usr/local/bin/armada-runner"
-    $sh_c "chmod +x /usr/local/bin/armada-runner"
+    setup_daemon systemd_armada /etc/systemd/system/armada.service
     $sh_c "systemctl enable armada.service"
     $sh_c "systemctl restart armada.service"
+}
+
++start_using_openrc() {
+    setup_daemon openrc_armada /etc/init.d/armada
+    $sh_c "chmod +x /etc/init.d/armada"
+    $sh_c "rc-update add armada default"
 }
 
 case "$(uname -m)" in
@@ -144,7 +154,9 @@ $sh_c "docker tag -f ${ARMADA_REPOSITORY}/armada armada"
 if command_exists update-rc.d || command_exists chkconfig; then
     start_using_initd
 elif command_exists systemctl; then
-    start_using_systemd;
+    start_using_systemd
+elif command_exists rc-status; then
+    +start_using_openrc
 else
     echo "No initd or systemd installed."
     exit 1
