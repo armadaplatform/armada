@@ -5,6 +5,8 @@
 ### Improvements
 - In vagrant for armada development (`Vagrantfile` in armada repository), the code used for armada CLI is now
 mounted from local workstation.
+- Moved armada installation script from [armada-website](https://github.com/armadaplatform/armada-website) repository to armada repository.
+- Added OpenRC support (Contributed by [ryneeverett](https://github.com/ryneeverett)).
 
 ## 0.18.0 (2016-05-09)
 ### Features
