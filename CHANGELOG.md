@@ -8,6 +8,9 @@ mounted from local workstation.
 - Moved armada installation script from [armada-website](https://github.com/armadaplatform/armada-website) repository to armada repository.
 - Added OpenRC support (Contributed by [ryneeverett](https://github.com/ryneeverett)).
 
+### Bug fixes
+- Fixed issue with passing arguments to `armada ssh`.
+
 ## 0.18.0 (2016-05-09)
 ### Features
 - Services can now be moved between ships in a cluster with `armada restart` command using `--ship` parameter.
