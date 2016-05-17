@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fixed checking for newest local image of service on restart in vagrant development environment.
+
+
 ## 0.19.0 (2016-05-17)
 
 ### Improvements
