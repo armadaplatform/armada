@@ -151,9 +151,11 @@ def _is_vagrant_dev(hidden_vagrant_dev, dockyard_alias, microservice_name):
 def _find_dockyard_with_image(vagrant_dev, is_restart, dockyard_alias, microservice_name):
     image = ArmadaImage(microservice_name, dockyard_alias)
 
-    if is_restart:
+    if vagrant_dev and is_restart:
         local_image = ArmadaImage(image.image_name, 'local')
         image = select_latest_image(image, local_image)
+        if image == local_image:
+            dockyard_alias = 'local'
 
     if vagrant_dev and not image.exists():
         print('Image {image} not found. Searching in default dockyard...'.format(**locals()))
