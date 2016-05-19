@@ -1,7 +1,7 @@
 FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
-ENV ARMADA_APT_GET_UPDATE_DATE 2016-05-05
+ENV ARMADA_APT_GET_UPDATE_DATE 2016-05-18
 
 RUN apt-get update && apt-get install -y python python-dev python-pip unzip rsync openssh-server libffi-dev libssl-dev
 RUN pip install -U paramiko web.py docker-py==1.7.1

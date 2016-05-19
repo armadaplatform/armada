@@ -1,23 +1,15 @@
-from __future__ import print_function
 import base64
 import json
 import logging
-import web
-import os
-import sys
 import traceback
 
+import web
+
 import api_base
+import docker_client
 from armada_backend.api_run_hermes import process_hermes
 from armada_backend.utils import split_image_path
 from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
-import docker_client
-
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
-
-
-def print_err(*objs):
-    print(*objs, file=sys.stderr)
 
 
 class Create(api_base.ApiCommand):
@@ -129,7 +121,7 @@ class Create(api_base.ApiCommand):
                     login_exceptions.append(e)
             if not logged_in:
                 for e in login_exceptions:
-                    print_err(e)
+                    traceback.print_tb(e.__traceback__)
                 raise login_exceptions[0]
 
     def _get_docker_api(self, dockyard_address, dockyard_user, dockyard_password):

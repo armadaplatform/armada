@@ -65,9 +65,10 @@ def _generate_paths_from_all_combinations(*path_combinations):
 
 def _create_service_relative_config_paths(microservice_name, app_id, environments_dirs):
     result = []
-    microservice_configs = ['{0}-config-secret'.format(microservice_name), '{0}-config'.format(microservice_name)]
+    microservice_configs = ['{0}-config-secret'.format(microservice_name), '{0}-config'.format(microservice_name),
+                            microservice_name]
     if app_id:
-        app_configs = ['{0}-config-secret'.format(app_id), '{0}-config'.format(app_id)]
+        app_configs = ['{0}-config-secret'.format(app_id), '{0}-config'.format(app_id), app_id]
         result.extend(_generate_paths_from_all_combinations(app_configs, [microservice_name], environments_dirs))
         result.extend(_generate_paths_from_all_combinations(app_configs, environments_dirs, [microservice_name]))
         result.extend(_generate_paths_from_all_combinations(microservice_configs, environments_dirs, [app_id]))

@@ -1,9 +1,9 @@
 from __future__ import print_function
 
 import argparse
-import shlex
-import pipes
 import os
+import pipes
+import shlex
 
 import armada_utils
 from armada_command.consul.consul import consul_query
@@ -37,8 +37,8 @@ def command_ssh(args):
     instances_count = len(instances)
     if instances_count > 1:
         raise armada_utils.ArmadaCommandException(
-                'There are too many ({instances_count}) matching containers. '
-                'Provide more specific container_id or microservice name.'.format(**locals()))
+            'There are too many ({instances_count}) matching containers. '
+            'Provide more specific container_id or microservice name.'.format(**locals()))
     instance = instances[0]
 
     service_id = instance['ServiceID']
@@ -71,7 +71,7 @@ def command_ssh(args):
     else:
         ssh_host = instance['Address']
         docker_key_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
-        remote_ssh_chunk = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host}'\
+        remote_ssh_chunk = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host}' \
             .format(**locals())
         ssh_args = shlex.split(remote_ssh_chunk)
         ssh_args.extend(('sudo', docker_command))
