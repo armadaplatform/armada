@@ -9,6 +9,7 @@
 ### Bug fixes
 - Hold version of python requests package to 2.9.1 in microservice image.
 - Fixed checking for newest local image of service on restart in vagrant development environment.
+- Fix import errors in couple of backend scripts.
 
 
 ## 0.19.0 (2016-05-17)
