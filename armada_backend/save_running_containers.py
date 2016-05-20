@@ -8,7 +8,7 @@ import traceback
 
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.recover_saved_containers import RECOVERY_COMPLETED_PATH
-from armada_backend.utils import get_container_parameters, get_ship_name
+from armada_backend.utils import get_container_parameters, get_ship_name, initialize_logger
 from armada_backend.utils import get_local_containers_ids
 from armada_command.consul import kv
 
@@ -45,7 +45,7 @@ def _is_recovery_completed():
 
 
 def main():
-    logging.basicConfig(level=logging.INFO)
+    initialize_logger()
     args = _parse_args()
     if not args.force and not _is_recovery_completed():
         logging.warning('Recovery is not completed. Aborting saving running containers.')

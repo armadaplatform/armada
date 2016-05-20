@@ -1,19 +1,18 @@
-from __future__ import print_function
-
 import json
 import os
 import sys
 import traceback
 
 import web
+
 from armada_backend.api_create import Create
 from armada_backend.api_start import Start
+from armada_backend.utils import shorten_container_id
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
-class Run(Create, Start):
-    LENGTH_OF_SHORT_CONTAINER_ID = 12
 
+class Run(Create, Start):
     def POST(self):
         try:
             post_data = json.loads(web.data())
@@ -30,6 +29,6 @@ class Run(Create, Start):
 
     def _run_service(self, run_parameters):
         long_container_id = self._create_service(**run_parameters)
-        short_container_id = long_container_id[:self.LENGTH_OF_SHORT_CONTAINER_ID]
         service_endpoints = self._start_container(long_container_id)
+        short_container_id = shorten_container_id(long_container_id)
         return short_container_id, service_endpoints

@@ -8,7 +8,7 @@ from collections import Counter
 from time import sleep
 
 from armada_backend.api_ship import wait_for_consul_ready
-from armada_backend.utils import get_container_parameters, get_local_containers_ids
+from armada_backend.utils import get_container_parameters, get_local_containers_ids, initialize_logger
 from armada_command import armada_api
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
@@ -89,7 +89,7 @@ def _check_if_we_should_recover(saved_containers_path):
 
 
 def main():
-    logging.basicConfig(level=logging.INFO)
+    initialize_logger()
     try:
         args = _parse_args()
         if args.force or _check_if_we_should_recover(args.saved_containers_path):

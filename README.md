@@ -27,3 +27,9 @@ your platform more service oriented.
 
 * [microservice_templates/](microservice_templates/) - Templates that can serve as a base for creating new
     Armada microservices. This repository is used by `armada create` command.
+
+# Running tests
+
+In the root directory of the repository run:
+
+    python -m tests.unit_tests

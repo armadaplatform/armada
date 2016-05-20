@@ -1,6 +1,7 @@
+import os
+
 import api_base
 import docker_client
-import os
 
 
 class GetEnv(api_base.ApiCommand):
@@ -25,5 +26,5 @@ class GetEnv(api_base.ApiCommand):
 
 class GetVersion(api_base.ApiCommand):
     def GET(self):
-        version = os.environ["ARMADA_VERSION"] or "none"
+        version = os.environ.get("ARMADA_VERSION") or "none"
         return version

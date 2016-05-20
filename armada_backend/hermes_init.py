@@ -1,29 +1,20 @@
-from __future__ import print_function
-
 import json
+import logging
 import socket
-import sys
 import time
 
 import requests
 
-from armada_backend.utils import get_container_ssh_address
-from armada_command.consul.consul import consul_query, ConsulException
+from armada_backend.utils import get_container_ssh_address, initialize_logger
+from armada_command.consul.consul import consul_query
 
 HERMES_DIRECTORY = '/etc/opt'
 
 
-def _print_err(*objs):
-    print(*objs, file=sys.stderr)
-
-
 def _consul_discover(service_name):
     service_addresses = set()
-    try:
-        query = 'health/service/{service_name}'.format(service_name=service_name)
-        instances = consul_query(query)
-    except ConsulException:
-        pass
+    query = 'health/service/{service_name}'.format(service_name=service_name)
+    instances = consul_query(query)
 
     for instance in instances:
         service_checks_statuses = (check['Status'] for check in instance['Checks'])
@@ -53,7 +44,7 @@ def _wait_for_armada_start():
         except:
             pass
     if not armada_is_running:
-        _print_err('Could not connect to armada.')
+        logging.error('Could not connect to armada.')
         return
 
 
@@ -72,7 +63,7 @@ def _get_courier_addresses():
         except:
             pass
     if not courier_is_running:
-        print('No running couriers found.')
+        logging.info('No running couriers found.')
     return courier_addresses
 
 
@@ -84,10 +75,11 @@ def _fetch_hermes_from_couriers(courier_addresses):
             payload = {'ssh': my_ssh_address, 'path': HERMES_DIRECTORY}
             requests.post(courier_url, json.dumps(payload))
         except Exception as e:
-            _print_err('Fetching all sources from courier {courier_address} failed: {e}'.format(**locals()))
+            logging.error('Fetching all sources from courier {courier_address} failed: {e}'.format(**locals()))
 
 
-if __name__ == '__main__':
+def main():
+    initialize_logger()
     _wait_for_armada_start()
 
     # We fetch data from courier as soon as possible to cover most common case of 1 courier running.
@@ -98,3 +90,7 @@ if __name__ == '__main__':
     time.sleep(11)
     new_courier_addresses = _get_courier_addresses() - courier_addresses
     _fetch_hermes_from_couriers(new_courier_addresses)
+
+
+if __name__ == '__main__':
+    main()

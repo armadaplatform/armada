@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import traceback
 
 import requests
@@ -8,6 +9,15 @@ from armada_backend import docker_client
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_get
 from armada_command.consul.consul import consul_query
+
+
+def shorten_container_id(long_container_id):
+    return long_container_id[:12]
+
+
+def initialize_logger():
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger("requests").setLevel(logging.WARNING)
 
 
 def deregister_services(container_id):

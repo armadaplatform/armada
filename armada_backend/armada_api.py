@@ -1,11 +1,15 @@
 import web
 
+from armada_backend.utils import initialize_logger
+
+
 class Health(object):
     def GET(self):
         return 'ok'
 
 
 def main():
+    initialize_logger()
     urls = (
         '/health', Health.__name__,
 

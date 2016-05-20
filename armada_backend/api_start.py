@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import os
 import sys
 import traceback
@@ -9,6 +7,7 @@ import docker_client
 from armada_command.consul.consul import consul_query
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+
 
 class Start(api_base.ApiCommand):
     def _start_container(self, long_container_id):
@@ -36,4 +35,3 @@ class Start(api_base.ApiCommand):
         except Exception as e:
             traceback.print_exc()
             return self.status_exception("Cannot start service's container", e)
-

@@ -1,7 +1,7 @@
 from __future__ import print_function
+
 import json
 import os
-import sys
 import urllib
 
 import requests
@@ -29,10 +29,12 @@ def __get_armada_address(ship_name=None):
 
     raise ValueError('Cannot find ship: {ship_name}.'.format(ship_name=ship_name))
 
+
 def __exception_to_status(e):
     error_msg = "armada API exception: {exception_class} - {exception}".format(
         exception_class=type(e).__name__, exception=str(e))
     return {"status": "error", "error": error_msg}
+
 
 def get(api_function, arguments=None, ship_name=None):
     arguments = arguments or {}
@@ -41,6 +43,7 @@ def get(api_function, arguments=None, ship_name=None):
         return result.text
     except Exception as e:
         return __exception_to_status(e)
+
 
 def post(api_function, arguments=None, ship_name=None):
     arguments = arguments or {}

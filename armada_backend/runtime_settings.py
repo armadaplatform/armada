@@ -1,7 +1,8 @@
 import json
 
 import consul_config
-from armada_backend.utils import get_ship_name, get_other_ship_ips, get_current_datacenter, is_ship_commander
+from armada_backend.utils import get_ship_name, get_other_ship_ips, get_current_datacenter, is_ship_commander, \
+    initialize_logger
 from armada_command.dockyard import alias
 
 
@@ -55,10 +56,14 @@ def _init_dockyards():
         alias.set_default(default_alias)
 
 
-if __name__ == '__main__':
-
+def main():
+    initialize_logger()
     if not alias.get_initialized():
         _init_dockyards()
         alias.set_initialized()
 
     _save_runtime_settings()
+
+
+if __name__ == '__main__':
+    main()
