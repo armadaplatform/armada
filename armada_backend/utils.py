@@ -16,7 +16,7 @@ def shorten_container_id(long_container_id):
 
 
 def initialize_logger():
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)s [%(levelname)s] - %(message)s')
     logging.getLogger("requests").setLevel(logging.WARNING)
 
 
