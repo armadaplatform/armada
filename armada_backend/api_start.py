@@ -1,12 +1,8 @@
-import os
-import sys
 import traceback
 
 import api_base
 import docker_client
 from armada_command.consul.consul import consul_query
-
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
 
 class Start(api_base.ApiCommand):

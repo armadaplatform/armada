@@ -1,8 +1,10 @@
 from __future__ import print_function
+
 import argparse
-from armada_command.consul.consul import consul_query
-from armada_command.consul import kv
 import datetime
+
+from armada_command.consul import kv
+from armada_command.consul.consul import consul_query
 
 
 def parse_args():
@@ -79,7 +81,8 @@ def command_list(args):
                 if args.quiet:
                     print(str(container_id))
                 else:
-                    output_row = (service_name, service_address, container_id, service_computed_status, service_tags_pretty)
+                    output_row = (service_name, service_address, container_id, service_computed_status,
+                                  service_tags_pretty)
                     if args.uptime:
                         try:
                             start_timestamp = kv.get("start_timestamp/" + container_id)

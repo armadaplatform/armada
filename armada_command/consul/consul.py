@@ -11,8 +11,9 @@ class ConsulException(Exception):
         self.url = url
 
     def __str__(self):
-        return 'ERROR: Local Armada agent is not working properly. Try restarting armada and/or join with previously connected ships.\n' \
-               'Failing url: {url}'.format(url=self.url)
+        return ('ERROR: Local Armada agent is not working properly. '
+                'Try restarting armada and/or join with previously connected ships.\n'
+                'Failing url: {url}').format(url=self.url)
 
 
 def __get_consul_url(query, consul_address=None):

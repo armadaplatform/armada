@@ -2,7 +2,7 @@ import random
 import time
 
 from armada_backend import docker_client
-from armada_backend.utils import deregister_services, shorten_container_id, initialize_logger
+from armada_backend.utils import deregister_services, shorten_container_id
 from armada_command.consul.consul import consul_query
 
 
@@ -26,7 +26,6 @@ def deregister_not_running_services():
 
 
 def main():
-    initialize_logger()
     while True:
         deregister_not_running_services()
         time.sleep(60 + random.uniform(-5, 5))

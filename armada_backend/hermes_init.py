@@ -1,11 +1,10 @@
 import json
-import logging
 import socket
 import time
 
 import requests
 
-from armada_backend.utils import get_container_ssh_address, initialize_logger
+from armada_backend.utils import get_container_ssh_address, get_logger
 from armada_command.consul.consul import consul_query
 
 HERMES_DIRECTORY = '/etc/opt'
@@ -44,7 +43,7 @@ def _wait_for_armada_start():
         except:
             pass
     if not armada_is_running:
-        logging.error('Could not connect to armada.')
+        get_logger().error('Could not connect to armada.')
         return
 
 
@@ -53,17 +52,22 @@ def _get_courier_addresses():
     courier_is_running = False
 
     timeout_expiration = time.time() + 30
+    last_exception = None
     while time.time() < timeout_expiration:
         time.sleep(1)
         try:
             courier_addresses = _consul_discover('courier')
+            last_exception = None
             if courier_addresses:
                 courier_is_running = True
                 break
-        except:
-            pass
-    if not courier_is_running:
-        logging.info('No running couriers found.')
+        except Exception as e:
+            last_exception = e
+    if last_exception is not None:
+        get_logger().error('Could not determine if courier is running:')
+        get_logger().exception(last_exception)
+    elif not courier_is_running:
+        get_logger().info('No running couriers found.')
     return courier_addresses
 
 
@@ -75,11 +79,11 @@ def _fetch_hermes_from_couriers(courier_addresses):
             payload = {'ssh': my_ssh_address, 'path': HERMES_DIRECTORY}
             requests.post(courier_url, json.dumps(payload))
         except Exception as e:
-            logging.error('Fetching all sources from courier {courier_address} failed: {e}'.format(**locals()))
+            get_logger().error('Fetching all sources from courier {courier_address} failed:'.format(**locals()))
+            get_logger().exception(e)
 
 
 def main():
-    initialize_logger()
     _wait_for_armada_start()
 
     # We fetch data from courier as soon as possible to cover most common case of 1 courier running.

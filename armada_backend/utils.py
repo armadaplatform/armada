@@ -15,9 +15,19 @@ def shorten_container_id(long_container_id):
     return long_container_id[:12]
 
 
-def initialize_logger():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)s [%(levelname)s] - %(message)s')
-    logging.getLogger("requests").setLevel(logging.WARNING)
+def get_logger():
+    try:
+        return get_logger.logger
+    except AttributeError:
+        pass
+    logger = logging.getLogger('armada_backend')
+    logger.setLevel(logging.INFO)
+    ch = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s %(name)s [%(levelname)s] - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    get_logger.logger = logger
+    return logger
 
 
 def deregister_services(container_id):

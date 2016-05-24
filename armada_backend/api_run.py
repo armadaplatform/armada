@@ -1,6 +1,4 @@
 import json
-import os
-import sys
 import traceback
 
 import web
@@ -8,8 +6,6 @@ import web
 from armada_backend.api_create import Create
 from armada_backend.api_start import Start
 from armada_backend.utils import shorten_container_id
-
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
 
 class Run(Create, Start):

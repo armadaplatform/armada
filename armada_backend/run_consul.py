@@ -1,11 +1,10 @@
 import json
-import logging
 import os
 import random
 import shutil
 
 import consul_config
-from utils import initialize_logger
+from utils import get_logger
 
 
 def _get_runtime_settings():
@@ -44,7 +43,6 @@ def _get_runtime_settings():
 
 
 def main():
-    initialize_logger()
     ship_name, consul_mode, ship_ips, datacenter = _get_runtime_settings()
     ship_external_ip = os.environ.get('SHIP_EXTERNAL_IP', '')
     consul_config_content = consul_config.get_consul_config(**locals())
@@ -53,7 +51,7 @@ def main():
         config_file.write(consul_config_content)
 
     command = '/usr/local/bin/consul agent -config-file {config_path}'.format(config_path=consul_config.CONFIG_PATH)
-    logging.info('RUNNING: {}'.format(command))
+    get_logger().info('RUNNING: {}'.format(command))
 
     args = command.split()
     os.execv(args[0], args)

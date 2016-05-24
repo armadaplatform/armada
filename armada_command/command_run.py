@@ -64,7 +64,8 @@ def add_arguments(parser):
         parser.add_argument('-P', '--dynamic_ports', action='store_true',
                             help='Assign dynamic ports, even if run from inside of the vagrant.')
         parser.add_argument('--use_latest_image_code', action='store_true',
-                            help='Use code from docker image instead of code from mounted dev directory (vagrant only).')
+                            help='Use code from docker image instead of code from mounted dev directory '
+                                 '(vagrant only).')
 
     # hermes parameters
     parser.add_argument('--env',

@@ -1,6 +1,5 @@
 import base64
 import json
-import logging
 import traceback
 
 import web
@@ -8,7 +7,7 @@ import web
 import api_base
 import docker_client
 from armada_backend.api_run_hermes import process_hermes
-from armada_backend.utils import split_image_path
+from armada_backend.utils import split_image_path, get_logger
 from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
 
 
@@ -23,7 +22,7 @@ class Create(api_base.ApiCommand):
             raise ValueError('Field run_command cannot be empty.')
 
         if kwargs:
-            logging.warning('JSON data sent to API contains unrecognized keys: {}'.format(list(kwargs.keys())))
+            get_logger().warning('JSON data sent to API contains unrecognized keys: {}'.format(list(kwargs.keys())))
 
         # Set default values:
         environment = environment or {}
