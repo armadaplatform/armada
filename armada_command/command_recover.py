@@ -1,8 +1,8 @@
 from __future__ import print_function
+
 import argparse
 import json
 import sys
-from time import sleep
 
 import armada_api
 

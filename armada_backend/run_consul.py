@@ -29,10 +29,10 @@ def _get_runtime_settings():
 
     ship_ips = runtime_settings.get('ships', [])
     consul_mode = consul_config.ConsulMode.BOOTSTRAP
-    if runtime_settings.get('is_commander') == True:
+    if runtime_settings.get('is_commander') is True:
         if ship_ips and len(ship_ips) > 0:
             consul_mode = consul_config.ConsulMode.SERVER
-    if runtime_settings.get('is_commander') == False:
+    if runtime_settings.get('is_commander') is False:
         consul_mode = consul_config.ConsulMode.CLIENT
 
     if runtime_settings.get('datacenter'):
