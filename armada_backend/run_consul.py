@@ -45,7 +45,8 @@ def _get_runtime_settings():
 def main():
     ship_name, consul_mode, ship_ips, datacenter = _get_runtime_settings()
     ship_external_ip = os.environ.get('SHIP_EXTERNAL_IP', '')
-    consul_config_content = consul_config.get_consul_config(**locals())
+    consul_config_content = consul_config.get_consul_config(consul_mode, ship_ips, datacenter, ship_name,
+                                                            ship_external_ip)
 
     with open(consul_config.CONFIG_PATH, 'w') as config_file:
         config_file.write(consul_config_content)
