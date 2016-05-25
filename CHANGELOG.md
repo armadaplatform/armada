@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.19.1 (2016-05-25)
 
 ### Improvements
 - Update haproxy in microservice image (used by local magellan), from 1.5 to 1.6.
