@@ -1,7 +1,9 @@
 from __future__ import print_function
+
 import os
-import sys
 import subprocess
+import sys
+
 from armada_command.consul.consul import consul_query
 
 
@@ -24,8 +26,8 @@ def get_matched_containers(microservice_name_or_container_id_prefix):
     matched_containers_by_id = []
 
     for service_name in service_names:
+        query = 'catalog/service/{service_name}'.format(**locals())
         try:
-            query = 'catalog/service/{service_name}'.format(**locals())
             instances = consul_query(query)
         except Exception as e:
             print_err('WARNING: query "{query}" failed ({exception_class}: {exception})'.format(

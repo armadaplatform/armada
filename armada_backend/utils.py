@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import traceback
 
 import requests
@@ -8,6 +9,25 @@ from armada_backend import docker_client
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_get
 from armada_command.consul.consul import consul_query
+
+
+def shorten_container_id(long_container_id):
+    return long_container_id[:12]
+
+
+def get_logger():
+    try:
+        return get_logger.logger
+    except AttributeError:
+        pass
+    logger = logging.getLogger('armada_backend')
+    logger.setLevel(logging.INFO)
+    ch = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s %(name)s [%(levelname)s] - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    get_logger.logger = logger
+    return logger
 
 
 def deregister_services(container_id):

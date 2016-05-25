@@ -104,7 +104,7 @@ def _run_health_checks(services_data, timeout):
 
     pids = []
     for process_group in process_groups.values():
-        pids += [process.pid for process in process_group.values()]
+        pids += [p.pid for p in process_group.values()]
 
     timer = threading.Timer(timeout, _terminate_processes, [pids])
     timer.start()

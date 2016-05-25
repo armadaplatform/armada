@@ -13,7 +13,6 @@ from utils import get_ship_name, get_other_ship_ips, get_current_datacenter
 
 
 def _get_current_consul_mode():
-    consul_config_data = None
     with open(consul_config.CONFIG_PATH) as consul_config_json:
         consul_config_data = json.load(consul_config_json)
 

@@ -10,8 +10,9 @@ class Recover(api_base.ApiCommand):
         try:
             not_recovered_containers = recover_saved_containers(saved_containers)
             if not_recovered_containers:
-                return self.status_error("Failed to recover following containers: {containers}"
-                                         .format(containers=[container['environment'] for container in not_recovered_containers]))
+                return self.status_error(
+                    "Failed to recover following containers: {containers}".format(
+                        containers=[container['environment'] for container in not_recovered_containers]))
         except Exception as e:
             return self.status_error("Error during containers recovery. {exception_class} - {exception}"
                                      .format(exception_class=type(e).__name__, exception=str(e)))

@@ -49,16 +49,19 @@ def _init_dockyards():
         dockyard_alias = info.get('name')
         if dockyard_alias and not alias.get_alias(dockyard_alias):
             alias.set_alias(dockyard_alias, info.get('address'), info.get('user'), info.get('password'))
-            if info.get('is_default') == True:
+            if info.get('is_default'):
                 default_alias = dockyard_alias
     if default_alias:
         alias.set_default(default_alias)
 
 
-if __name__ == '__main__':
-
+def main():
     if not alias.get_initialized():
         _init_dockyards()
         alias.set_initialized()
 
     _save_runtime_settings()
+
+
+if __name__ == '__main__':
+    main()

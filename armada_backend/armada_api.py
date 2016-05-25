@@ -1,5 +1,6 @@
 import web
 
+
 class Health(object):
     def GET(self):
         return 'ok'

@@ -1,11 +1,12 @@
 import base64
 import json
 import traceback
-from armada_command import armada_api
-from armada_backend.api_stop import Stop
 
 import docker_client
 from api_run import Run
+from armada_backend.api_stop import Stop
+from armada_backend.utils import shorten_container_id
+from armada_command import armada_api
 
 
 class Restart(Run, Stop):
@@ -19,7 +20,7 @@ class Restart(Run, Stop):
 
         try:
             new_container_id, service_endpoints = self._restart_service(container_id, target_ship, force_restart)
-            short_container_id = new_container_id[:self.LENGTH_OF_SHORT_CONTAINER_ID]
+            short_container_id = shorten_container_id(new_container_id)
             return self.status_ok({'container_id': short_container_id, 'endpoints': service_endpoints})
         except Exception as e:
             traceback.print_exc()

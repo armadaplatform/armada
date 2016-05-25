@@ -1,7 +1,9 @@
 import traceback
+
 import api_base
 import docker_client
 from utils import deregister_services
+
 
 class Stop(api_base.ApiCommand):
     def POST(self):
@@ -19,5 +21,5 @@ class Stop(api_base.ApiCommand):
         docker_api.stop(container_id)
         try:
             deregister_services(container_id)
-        except Exception as e:
+        except:
             traceback.print_exc()

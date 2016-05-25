@@ -2,8 +2,14 @@
 
 ## Unreleased
 
+### Improvements
+- Update haproxy in microservice image (used by local magellan), from 1.5 to 1.6.
+- Increase timeout to docker api from 7s to 11s.
+
 ### Bug fixes
+- Hold version of python requests package to 2.9.1 in microservice image.
 - Fixed checking for newest local image of service on restart in vagrant development environment.
+- Fix import errors in couple of backend scripts.
 
 
 ## 0.19.0 (2016-05-17)

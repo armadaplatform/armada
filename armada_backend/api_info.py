@@ -1,6 +1,7 @@
+import os
+
 import api_base
 import docker_client
-import os
 
 
 class GetEnv(api_base.ApiCommand):
@@ -17,7 +18,7 @@ class GetEnv(api_base.ApiCommand):
 
             if value is None:
                 return self.status_error('Requested environment variable "{key}" does not exist.'.format(**locals()))
-            return self.status_ok({'value': '{value}'.format(**locals())})
+            return self.status_ok({'value': str(value)})
         except Exception as e:
             return self.status_error("Cannot inspect requested container. {exception_class} - {exception}".format(
                 exception_class=type(e).__name__, exception=str(e)))
@@ -25,5 +26,4 @@ class GetEnv(api_base.ApiCommand):
 
 class GetVersion(api_base.ApiCommand):
     def GET(self):
-        version = os.environ["ARMADA_VERSION"] or "none"
-        return version
+        return os.environ.get("ARMADA_VERSION", "none")

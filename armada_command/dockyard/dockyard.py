@@ -8,7 +8,7 @@ from urlparse import urlparse
 import requests
 from requests.exceptions import SSLError
 
-import alias
+from armada_command.dockyard import alias
 from armada_command import armada_api
 
 
