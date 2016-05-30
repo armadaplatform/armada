@@ -2,7 +2,7 @@ import traceback
 
 import api_base
 import docker_client
-from utils import deregister_services, get_logger
+from utils import deregister_services
 
 
 class Stop(api_base.ApiCommand):
@@ -26,7 +26,7 @@ class Stop(api_base.ApiCommand):
             except Exception as e:
                 last_exception = e
                 traceback.print_exc()
-        if last_exception:
+        else:
             raise last_exception
         try:
             deregister_services(container_id)
