@@ -61,13 +61,13 @@ def main():
                     containers_parameters_list.append(container_parameters)
             except:
                 errors_count += 1
-                get_logger().error('ERROR on getting container parameters for {container_id}:'.format(**locals()))
+                get_logger().error('ERROR on getting container parameters for {}:'.format(container_id))
                 traceback.print_exc()
         containers_parameters_list.sort()
         # Don't overwrite saved containers' list if it would become empty because of errors.
         if containers_parameters_list or not errors_count:
             _save_containers_parameters_list_in_file(containers_parameters_list, saved_containers_path)
-            get_logger().info('Containers have been saved to {saved_containers_path}.'.format(**locals()))
+            get_logger().info('Containers have been saved to {}.'.format(saved_containers_path))
             try:
                 _save_containers_parameters_list_in_kv_store(containers_parameters_list)
                 get_logger().info('Containers have been saved to kv store.')

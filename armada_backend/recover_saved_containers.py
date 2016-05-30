@@ -65,13 +65,13 @@ def _recover_saved_containers_from_path(saved_containers_path):
         saved_containers = _load_saved_containers_parameters_list(saved_containers_path)
         not_recovered = recover_saved_containers(saved_containers)
         if not_recovered:
-            get_logger().error('Following containers were not recovered: ', not_recovered)
+            get_logger().error('Following containers were not recovered: {}'.format(not_recovered))
             return False
         else:
             return True
     except:
         traceback.print_exc()
-        get_logger().error('Unable to recover from {saved_containers_path}.'.format(**locals()))
+        get_logger().error('Unable to recover from {}.'.format(saved_containers_path))
     return False
 
 

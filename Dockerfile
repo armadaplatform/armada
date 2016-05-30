@@ -1,10 +1,10 @@
 FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
-ENV ARMADA_APT_GET_UPDATE_DATE 2016-05-18
+ENV ARMADA_APT_GET_UPDATE_DATE 2016-05-30
 
 RUN apt-get update && apt-get install -y python python-dev python-pip unzip rsync openssh-server libffi-dev libssl-dev
-RUN pip install -U paramiko web.py docker-py==1.7.1
+RUN pip install paramiko web.py docker-py==1.7.1
 
 # Consul
 RUN wget https://releases.hashicorp.com/consul/0.6.3/consul_0.6.3_linux_amd64.zip -O consul.zip
