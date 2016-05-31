@@ -1,9 +1,10 @@
 from __future__ import print_function
+
 import json
 import os
 import random
-import time
 import sys
+import time
 
 import haproxy
 
@@ -21,7 +22,11 @@ def print_err(*objs):
 
 def save_magellan_config(magellan_config):
     if not os.path.exists(LOCAL_MAGELLAN_CONFIG_DIR_PATH):
-        os.makedirs(LOCAL_MAGELLAN_CONFIG_DIR_PATH)
+        try:
+            os.makedirs(LOCAL_MAGELLAN_CONFIG_DIR_PATH)
+        except OSError as e:
+            if not os.path.exists(LOCAL_MAGELLAN_CONFIG_DIR_PATH):
+                raise e
     port = list(magellan_config)[0]
     config_file_name = '{0}.json'.format(port)
     config_file_path = os.path.join(LOCAL_MAGELLAN_CONFIG_DIR_PATH, config_file_name)

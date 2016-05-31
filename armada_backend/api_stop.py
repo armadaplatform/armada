@@ -21,7 +21,7 @@ class Stop(api_base.ApiCommand):
         last_exception = None
         for i in range(3):
             try:
-                docker_api.stop(container_id)
+                docker_api.stop(container_id, timeout=15)
                 break
             except Exception as e:
                 last_exception = e
