@@ -21,12 +21,11 @@ def print_err(*objs):
 
 
 def save_magellan_config(magellan_config):
-    if not os.path.exists(LOCAL_MAGELLAN_CONFIG_DIR_PATH):
-        try:
-            os.makedirs(LOCAL_MAGELLAN_CONFIG_DIR_PATH)
-        except OSError as e:
-            if not os.path.exists(LOCAL_MAGELLAN_CONFIG_DIR_PATH):
-                raise e
+    try:
+        os.makedirs(LOCAL_MAGELLAN_CONFIG_DIR_PATH)
+    except OSError:
+        if not os.path.isdir(LOCAL_MAGELLAN_CONFIG_DIR_PATH):
+            raise
     port = list(magellan_config)[0]
     config_file_name = '{0}.json'.format(port)
     config_file_path = os.path.join(LOCAL_MAGELLAN_CONFIG_DIR_PATH, config_file_name)
