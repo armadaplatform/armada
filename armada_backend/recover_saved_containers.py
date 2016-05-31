@@ -28,13 +28,23 @@ def _load_saved_containers_parameters_list(running_containers_parameters_path):
 
 
 def _get_local_running_containers():
-    return [get_container_parameters(container_id) for container_id in get_local_containers_ids()]
+    result = []
+    for container_id in get_local_containers_ids():
+        container_parameters = get_container_parameters(container_id)
+        if container_parameters:
+            result.append(container_parameters)
+    return result
 
 
 def _recover_container(container_parameters):
     get_logger().info('Recovering: {}...\n'.format(json.dumps(container_parameters)))
     recovery_result = armada_api.post('run', container_parameters)
-    get_logger().info('Recovered container: {}'.format(json.dumps(recovery_result)))
+    if recovery_result.get('status') == 'ok':
+        get_logger().info('Recovered container: {}'.format(json.dumps(recovery_result)))
+        return True
+    else:
+        get_logger().error('Could not recover container: {}'.format(json.dumps(recovery_result)))
+        return False
 
 
 def _multiset_difference(a, b):
@@ -51,11 +61,13 @@ def recover_saved_containers(saved_containers):
     recovery_retry_count = 0
     while containers_to_be_recovered and recovery_retry_count < RECOVERY_RETRY_LIMIT:
         get_logger().info("Recovering containers: {}".format(json.dumps(containers_to_be_recovered)))
+        containers_not_recovered = []
         for container_parameters in containers_to_be_recovered:
-            _recover_container(container_parameters)
+            if not _recover_container(container_parameters):
+                containers_not_recovered.append(container_parameters)
         sleep(DELAY_BETWEEN_RECOVER_RETRY_SECONDS)
         running_containers = _get_local_running_containers()
-        containers_to_be_recovered = _multiset_difference(saved_containers, running_containers)
+        containers_to_be_recovered = _multiset_difference(containers_not_recovered, running_containers)
         recovery_retry_count += 1
     return containers_to_be_recovered
 
@@ -65,13 +77,13 @@ def _recover_saved_containers_from_path(saved_containers_path):
         saved_containers = _load_saved_containers_parameters_list(saved_containers_path)
         not_recovered = recover_saved_containers(saved_containers)
         if not_recovered:
-            get_logger().error('Following containers were not recovered: ', not_recovered)
+            get_logger().error('Following containers were not recovered: {}'.format(not_recovered))
             return False
         else:
             return True
     except:
         traceback.print_exc()
-        get_logger().error('Unable to recover from {saved_containers_path}.'.format(**locals()))
+        get_logger().error('Unable to recover from {}.'.format(saved_containers_path))
     return False
 
 

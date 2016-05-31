@@ -90,16 +90,17 @@ def get_container_ssh_address(container_id):
 def get_container_parameters(container_id):
     url = 'http://localhost/env/{container_id}/RESTART_CONTAINER_PARAMETERS'.format(**locals())
     response = requests.get(url)
-    if response.status_code == requests.codes.ok:
-        output = response.json()
-        if output['status'] == 'ok':
-            container_parameters = json.loads(base64.b64decode(output['value']))
-            return container_parameters
+    response.raise_for_status()
+    output = response.json()
+    if output['status'] == 'ok':
+        container_parameters = json.loads(base64.b64decode(output['value']))
+        return container_parameters
+    return None
 
 
 def get_local_containers_ids():
     response = requests.get('http://localhost/list?local=1')
-    assert response.status_code == requests.codes.ok
+    response.raise_for_status()
     list_response = response.json()
     services_from_api = list_response['result']
     return list(set(service['container_id'] for service in services_from_api))
@@ -116,3 +117,12 @@ def split_image_path(image_path):
         image_name, image_tag = image_name.split(':', 1)
 
     return dockyard_address, image_name, image_tag
+
+
+def is_container_running(container_id):
+    docker_api = docker_client.api()
+    try:
+        inspect = docker_api.inspect_container(container_id)
+        return inspect['State']['Running']
+    except:
+        return False

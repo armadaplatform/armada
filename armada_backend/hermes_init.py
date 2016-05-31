@@ -79,7 +79,7 @@ def _fetch_hermes_from_couriers(courier_addresses):
             payload = {'ssh': my_ssh_address, 'path': HERMES_DIRECTORY}
             requests.post(courier_url, json.dumps(payload))
         except Exception as e:
-            get_logger().error('Fetching all sources from courier {courier_address} failed:'.format(**locals()))
+            get_logger().error('Fetching all sources from courier {} failed:'.format(courier_address))
             get_logger().exception(e)
 
 

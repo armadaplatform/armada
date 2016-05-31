@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Retry after failure during stopping of Docker container.
+
+### Bug fixes
+- Fix bug with recovering multiple copies of the same service.
+- Fix detection of Docker daemon start time, which could cause unnecessary recovery.
+- Make sure python requests package is not updated in Armada service.
+- Fix race condition in require_service.py, causing not registering service in local magellan.
+
+
 ## 0.19.1 (2016-05-25)
 
 ### Improvements

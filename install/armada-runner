@@ -104,6 +104,11 @@ get_static_docker_client_if_missing() {
     fi
 }
 
+get_docker_start_timestamp() {
+    # We take earliest start time of all docker processes
+    echo -n $(ps $(pidof docker | xargs -n1 echo -n " -p") -o lstart= | xargs -n1 -I@ date -d @ +'%s' | sort -n | head -n1)
+}
+
 case "$1" in
     start)
         fail_unless_can_run_docker
@@ -117,8 +122,7 @@ case "$1" in
 
         set_external_ip
 
-        # We take earliest start time of all docker processes
-        docker_start_timestamp=$(python2 -c "import os; print(min(map(lambda x: int(os.path.getctime('/proc/' + x)),'$(pidof docker)'.split())))")
+        docker_start_timestamp=$(get_docker_start_timestamp)
 
         get_static_docker_client_if_missing
 
