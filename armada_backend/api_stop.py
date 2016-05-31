@@ -2,7 +2,7 @@ import traceback
 
 import api_base
 import docker_client
-from utils import deregister_services
+from utils import deregister_services, is_container_running, get_logger
 
 
 class Stop(api_base.ApiCommand):
@@ -22,11 +22,13 @@ class Stop(api_base.ApiCommand):
         for i in range(3):
             try:
                 docker_api.stop(container_id, timeout=15)
-                break
             except Exception as e:
                 last_exception = e
                 traceback.print_exc()
-        else:
+            if not is_container_running(container_id):
+                break
+        if is_container_running(container_id):
+            get_logger().error('Could not stop container: {}'.format(container_id))
             raise last_exception
         try:
             deregister_services(container_id)
