@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.19.2 (2016-05-31)
 
 ### Improvements
 - Retry after failure during stopping of Docker container.
