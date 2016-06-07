@@ -1,5 +1,11 @@
 # Changelog
 
+## Unrealeased
+
+### Bug fixes
+- Fix build of `microservice_python3.5` base image.
+
+
 ## 0.19.2 (2016-05-31)
 
 ### Improvements
