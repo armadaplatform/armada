@@ -2,6 +2,12 @@
 
 ## Unrealeased
 
+### Improvements
+- Upgrade Consul from version 0.6.0 to 0.6.3.
+- Store names of Armada ships in Consul's kv store. `armada name` does not restart Armada service anymore and is much
+faster.
+
+
 ### Bug fixes
 - Fix build of `microservice_python3.5` base image.
 

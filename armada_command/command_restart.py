@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 import argparse
 import base64
 import json
@@ -30,9 +31,6 @@ def add_arguments(parser):
 
 
 def command_restart(args):
-    if args.verbose:
-        global verbose
-        verbose = True
     microservice_handle = args.microservice_handle or os.environ['MICROSERVICE_NAME']
     if not microservice_handle:
         raise ValueError('No microservice name or container id supplied.')
@@ -78,7 +76,8 @@ def command_restart(args):
                     payload['force'] = args.force
 
                 print('Checking if there is new image version. May take few minutes if download is needed...')
-                result = armada_api.post('restart', payload, ship_name=instance['Node'])
+                ship_name = armada_utils.ship_ip_to_name(instance['Address'])
+                result = armada_api.post('restart', payload, ship_name=ship_name)
 
                 if result['status'] == 'ok':
                     new_container_id = result['container_id']

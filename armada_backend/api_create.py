@@ -166,7 +166,4 @@ class Create(api_base.ApiCommand):
             long_container_id = self._create_service(**post_data)
             return self.status_ok({'long_container_id': long_container_id})
         except Exception as e:
-            traceback.print_exc()
-            exception_msg = " Cannot create service's container. {exception_class} - {exception}".format(
-                exception_class=type(e).__name__, exception=str(e))
-            return self.status_error(exception_msg)
+            return self.status_exception("Cannot create service's container.", e)

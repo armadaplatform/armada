@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from armada_command.armada_utils import print_err
+from armada_command.armada_utils import print_err, print_table
 from armada_command.dockyard.alias import print_http_dockyard_unavailability_warning
 from armada_command.dockyard.dockyard import dockyard_factory, DockyardFactoryException, DockyardDetectionException
 from dockyard import alias
@@ -49,12 +49,6 @@ def command_dockyard_set(args):
             print_http_dockyard_unavailability_warning(args.address, args.name, warning_header)
     except (DockyardFactoryException, DockyardDetectionException) as e:
         print_err('{}\n{}'.format(warning_header, e))
-
-
-def print_table(rows):
-    widths = [max(len(str(val)) for val in col) for col in zip(*rows)]
-    for row in rows:
-        print('  '.join((str(val).ljust(width) for val, width in zip(row, widths))))
 
 
 def command_dockyard_list(args):

@@ -1,6 +1,6 @@
 import argparse
-import requests
-from armada_command.consul.consul import consul_query
+
+import armada_api
 
 
 def parse_args():
@@ -9,20 +9,9 @@ def parse_args():
 
 
 def add_arguments(parser):
-    pass
+    parser.add_argument('-v', '--verbose', action='store_true', help='Increase output verbosity.')
 
 
 def command_version(args):
-    version = "none"
-    agent_services_dict = consul_query('agent/services')
-    for service in agent_services_dict.values():
-        if service['Service'] == 'armada':
-            port = service['Port']
-            url = "http://localhost:{port}/version".format(**locals())
-            result = requests.get(url)
-            try:
-                version = result.text
-            except AttributeError:
-                version = "error"
-            break
+    version = armada_api.get('version')
     print(version)

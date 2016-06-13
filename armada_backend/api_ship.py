@@ -1,12 +1,14 @@
 import json
+import logging
 import os
-import random
 import time
 from socket import gethostname
 
+import requests
+
 import api_base
 import consul_config
-from armada_backend.utils import deregister_services
+from armada_backend.utils import deregister_services, set_ship_name
 from armada_command.consul.consul import consul_query, consul_put
 from runtime_settings import override_runtime_settings
 from utils import get_ship_name, get_other_ship_ips, get_current_datacenter
@@ -36,19 +38,24 @@ def _get_armada_size():
 
 def wait_for_consul_ready(timeout_seconds=60):
     timeout_expiration = time.time() + timeout_seconds
+    last_exception = None
     while time.time() < timeout_expiration:
         time.sleep(1)
         try:
-            agent_self_dict = consul_query('agent/self')
-            ship_name = agent_self_dict['Config']['NodeName']
-
-            health_service_armada = consul_query('health/service/armada')
-            for health_armada in health_service_armada:
-                if health_armada['Node']['Node'] == ship_name:
-                    if all(check['Status'] == 'passing' for check in health_armada['Checks']):
-                        return True
-        except:
-            pass
+            url = 'http://127.0.0.1/list'
+            params = {
+                'local': 'true',
+                'microservice_name': 'armada',
+            }
+            response = requests.get(url, params=params)
+            response.raise_for_status()
+            list_response = response.json()
+            if list_response['result'][0]['status'] == 'passing':
+                return True
+        except Exception as e:
+            last_exception = e
+    if last_exception:
+        logging.exception(last_exception)
     return False
 
 
@@ -72,22 +79,9 @@ class Name(api_base.ApiCommand):
         if error:
             return self.status_error(error)
         if not ship_name or ship_name == 'None':
-            try:
-                ship_name = get_ship_name()
-            except:
-                ship_name = str(random.randrange(1000000))
-
-        current_consul_mode = _get_current_consul_mode()
-        if current_consul_mode == consul_config.ConsulMode.BOOTSTRAP:
-            override_runtime_settings(ship_name=ship_name,
-                                      ship_ips=[],
-                                      datacenter='dc-' + str(random.randrange(1000000)))
-        else:
-            override_runtime_settings(ship_name=ship_name)
-
-        if _restart_consul():
-            return self.status_ok()
-        return self.status_error('Waiting for armada restart timed out.')
+            return self.status_error('Incorrect ship name: {}'.format(ship_name))
+        set_ship_name(ship_name)
+        return self.status_ok()
 
 
 class Join(api_base.ApiCommand):
@@ -99,10 +93,10 @@ class Join(api_base.ApiCommand):
         armada_size = _get_armada_size()
         if armada_size > 1:
             return self.status_error('Currently only single ship armadas can join the others. '
-                                     'Your armada has size: {armada_size}.'.format(armada_size=armada_size))
+                                     'Your armada has size: {0}.'.format(armada_size))
 
         try:
-            agent_self_dict = consul_query('agent/self', consul_address='{consul_host}:8500'.format(**locals()))
+            agent_self_dict = consul_query('agent/self', consul_address='{0}:8500'.format(consul_host))
             datacenter = agent_self_dict['Config']['Datacenter']
         except:
             return self.status_error('Could not read remote host datacenter address.')
