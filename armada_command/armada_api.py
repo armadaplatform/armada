@@ -11,6 +11,10 @@ from armada_command.consul.consul import consul_query
 from armada_utils import is_verbose, print_err, ship_name_to_ip
 
 
+class ArmadaApiException(Exception):
+    pass
+
+
 def __are_we_in_armada_container():
     return os.environ.get('MICROSERVICE_NAME') == 'armada' and os.path.isfile('/.dockerinit')
 
@@ -50,6 +54,17 @@ def get(api_function, arguments=None, ship_name=None):
         if is_verbose():
             traceback.print_exc()
         return __exception_to_status(e)
+
+
+def get_json(api_function, arguments=None, ship_name=None):
+    arguments = arguments or {}
+    url = __get_armada_address(ship_name) + '/' + api_function
+    response = requests.get(url, params=arguments)
+    response.raise_for_status()
+    result = response.json()
+    if result['status'] != 'ok':
+        raise ArmadaApiException('Armada API did not return correct status: {0}'.format(result))
+    return result['result']
 
 
 def post(api_function, arguments=None, ship_name=None):

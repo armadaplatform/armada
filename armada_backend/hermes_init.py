@@ -5,46 +5,32 @@ import time
 import requests
 
 from armada_backend.utils import get_container_ssh_address, get_logger
-from armada_command.consul.consul import consul_query
+from armada_command import armada_api
 
 HERMES_DIRECTORY = '/etc/opt'
 
 
 def _consul_discover(service_name):
+    params = {'microservice_name': service_name}
+    services = armada_api.get_json('list', params)
     service_addresses = set()
-    query = 'health/service/{service_name}'.format(service_name=service_name)
-    instances = consul_query(query)
-
-    for instance in instances:
-        service_checks_statuses = (check['Status'] for check in instance['Checks'])
-        if any(status == 'critical' for status in service_checks_statuses):
-            continue
-
-        service_ip = instance['Node']['Address']
-        service_port = instance['Service']['Port']
-        service_address = '{service_ip}:{service_port}'.format(
-            service_ip=service_ip, service_port=service_port)
-
-        service_addresses.add(service_address)
+    for service in services:
+        if service['status'] != 'critical':
+            service_addresses.add(service['address'])
     return service_addresses
 
 
 def _wait_for_armada_start():
-    armada_is_running = False
-
     timeout_expiration = time.time() + 30
     while time.time() < timeout_expiration:
         time.sleep(1)
         try:
             health_status = requests.get('http://localhost/health').text
             if health_status == 'ok':
-                armada_is_running = True
-                break
+                return
         except:
             pass
-    if not armada_is_running:
-        get_logger().error('Could not connect to armada.')
-        return
+    get_logger().error('Could not connect to armada.')
 
 
 def _get_courier_addresses():
@@ -77,7 +63,10 @@ def _fetch_hermes_from_couriers(courier_addresses):
         courier_url = 'http://{courier_address}/update_hermes'.format(**locals())
         try:
             payload = {'ssh': my_ssh_address, 'path': HERMES_DIRECTORY}
-            requests.post(courier_url, json.dumps(payload))
+            response = requests.post(courier_url, json.dumps(payload))
+            response.raise_for_status()
+            if response.text.strip() != 'ok':
+                raise Exception('Error response from courier:\n{}'.format(response.text))
         except Exception as e:
             get_logger().error('Fetching all sources from courier {} failed:'.format(courier_address))
             get_logger().exception(e)

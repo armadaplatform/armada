@@ -1,12 +1,11 @@
 from __future__ import print_function
 
 import argparse
-import json
 import sys
 from collections import Counter
 
 import armada_api
-from armada_utils import print_err, print_table
+from armada_utils import print_table
 
 
 def parse_args():
@@ -20,11 +19,7 @@ def add_arguments(parser):
 
 
 def command_info(args):
-    info_response = json.loads(armada_api.get('info'))
-    if info_response['status'] != 'ok':
-        print_err(json.dumps(info_response))
-        sys.exit(1)
-    info = info_response['result']
+    info = armada_api.get_json('info')
 
     output_header = ['Ship name', 'Ship role', 'API address', 'API status', 'Version']
     output_rows = [output_header]

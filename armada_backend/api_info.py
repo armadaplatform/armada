@@ -1,5 +1,3 @@
-import json
-
 import requests
 
 import api_base
@@ -35,7 +33,7 @@ def get_armada_version(address):
 
 
 def _get_running_armada_services():
-    return json.loads(armada_api.get('list', {'microservice_name': 'armada'}))['result']
+    return armada_api.get_json('list', {'microservice_name': 'armada'})
 
 
 def _create_ip_to_service(services):

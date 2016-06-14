@@ -2,10 +2,15 @@
 
 ## Unrealeased
 
+### :warning: **UPGRADE WARNING** :warning:
+Due to internal changes in Armada, all Armada agents within the same cluster need to be upgraded, otherwise
+remote runs and restarts will not work, and `armada info` may contain incorrect names.
+
 ### Improvements
 - Upgrade Consul from version 0.6.0 to 0.6.3.
 - Store names of Armada ships in Consul's kv store. `armada name` does not restart Armada service anymore and is much
 faster.
+- After joining Armada agent to cluster, Armada will detect running Couriers there and fetch configuration from them. 
 
 
 ### Bug fixes

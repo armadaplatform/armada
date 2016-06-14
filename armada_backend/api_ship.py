@@ -4,11 +4,10 @@ import os
 import time
 from socket import gethostname
 
-import requests
-
 import api_base
 import consul_config
 from armada_backend.utils import deregister_services, set_ship_name
+from armada_command import armada_api
 from armada_command.consul.consul import consul_query, consul_put
 from runtime_settings import override_runtime_settings
 from utils import get_ship_name, get_other_ship_ips, get_current_datacenter
@@ -42,15 +41,9 @@ def wait_for_consul_ready(timeout_seconds=60):
     while time.time() < timeout_expiration:
         time.sleep(1)
         try:
-            url = 'http://127.0.0.1/list'
-            params = {
-                'local': 'true',
-                'microservice_name': 'armada',
-            }
-            response = requests.get(url, params=params)
-            response.raise_for_status()
-            list_response = response.json()
-            if list_response['result'][0]['status'] == 'passing':
+            params = {'local': 'true', 'microservice_name': 'armada'}
+            armada_instances = armada_api.get_json('list', params)
+            if armada_instances[0]['status'] == 'passing':
                 return True
         except Exception as e:
             last_exception = e
@@ -111,6 +104,7 @@ class Join(api_base.ApiCommand):
                                       datacenter=datacenter)
 
         if _restart_consul():
+            os.system('supervisorctl start hermes_init')
             return self.status_ok()
         return self.status_error('Waiting for armada restart timed out.')
 
