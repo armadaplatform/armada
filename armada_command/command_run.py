@@ -6,7 +6,7 @@ import sys
 
 import armada_api
 from armada_command.armada_payload import RunPayload
-from armada_command.armada_utils import ArmadaCommandException, is_verbose
+from armada_command.armada_utils import ArmadaCommandException, is_verbose, InvalidImagePathException, ensure_valid_image_path
 from armada_command.docker_utils.images import ArmadaImage, select_latest_image
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default
@@ -32,7 +32,6 @@ def _get_default_container_memory_limit():
 def add_arguments(parser):
     parser.add_argument('microservice_name',
                         nargs='?',
-                        default=os.environ.get('MICROSERVICE_NAME'),
                         help='Name of the microservice to be run. '
                              'If not provided it will use MICROSERVICE_NAME env variable. '
                              'You can also override default registry address, by passing full image path, '
@@ -95,8 +94,9 @@ def warn_if_hit_crontab_environment_variable_length(env_variables_dict):
 
 
 def command_run(args):
-    microservice_name = args.microservice_name
-    if not microservice_name:
+    try:
+        microservice_name = ensure_valid_image_path(args.microservice_name, os.environ.get('MICROSERVICE_NAME'))
+    except InvalidImagePathException:
         raise ArmadaCommandException('ERROR: Please specify microservice_name argument'
                                      ' or set MICROSERVICE_NAME environment variable')
 
@@ -112,7 +112,7 @@ def command_run(args):
     _print_run_info(image, dockyard_alias, ship, args.rename)
 
     payload = RunPayload()
-    payload.update_image_path(image.image_path)
+    payload.update_image_path(image.image_path_with_tag)
     payload.update_dockyard(dockyard_alias)
     if vagrant_dev:
         payload.update_vagrant(args.dynamic_ports, args.use_latest_image_code, microservice_name)
@@ -148,7 +148,7 @@ def _find_dockyard_with_image(vagrant_dev, is_restart, dockyard_alias, microserv
     image = ArmadaImage(microservice_name, dockyard_alias)
 
     if vagrant_dev and is_restart:
-        local_image = ArmadaImage(image.image_name, 'local')
+        local_image = ArmadaImage(image.image_name_with_tag, 'local')
         image = select_latest_image(image, local_image)
         if image == local_image:
             dockyard_alias = 'local'
@@ -180,10 +180,10 @@ def _print_run_info(image, dockyard_alias, ship, rename):
     ship_string = ' on remote ship: {ship}'.format(**locals()) if ship else ' locally'
     if rename:
         print('Running microservice {} (from image {}) from dockyard: {}{}...'.format(
-            rename, image.image_name, dockyard_string, ship_string))
+            rename, image.image_name_with_tag, dockyard_string, ship_string))
     else:
         print('Running microservice {} from dockyard: {}{}...'.format(
-            image.image_name, dockyard_string, ship_string))
+            image.image_name_with_tag, dockyard_string, ship_string))
 
 
 def _handle_result(result, is_restart):

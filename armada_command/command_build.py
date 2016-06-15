@@ -4,7 +4,7 @@ import argparse
 import os
 import sys
 
-from armada_command.armada_utils import execute_local_command, is_verbose
+from armada_command.armada_utils import execute_local_command, is_verbose, InvalidImagePathException, ensure_valid_image_path
 from armada_command.docker_utils.images import ArmadaImage
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, print_http_dockyard_unavailability_warning
@@ -35,9 +35,14 @@ def _get_base_image_name():
 
 
 def command_build(args):
-    microservice_name = args.microservice_name or os.environ.get('MICROSERVICE_NAME')
-    if not microservice_name:
+    try:
+        microservice_name = ensure_valid_image_path(args.microservice_name, os.environ.get('MICROSERVICE_NAME'))
+    except InvalidImagePathException:
         raise ValueError('No microservice name supplied.')
+    base_image_name = _get_base_image_name()
+    dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(base_image_name, is_run_locally=True)
+    image = ArmadaImage(microservice_name, dockyard_alias)
+
     if not os.path.exists('Dockerfile'):
         print('ERROR: Dockerfile not found in current directory', file=sys.stderr)
         return
@@ -81,5 +86,5 @@ def command_build(args):
             tag_command = 'docker tag -f {base_image_path} {base_image_name}'.format(**locals())
             assert execute_local_command(tag_command, stream_output=True, retries=1)[0] == 0
 
-    build_command = 'docker build -t {microservice_name} .'.format(**locals())
+    build_command = 'docker build -t {} .'.format(image.image_name_with_tag)
     assert execute_local_command(build_command, stream_output=True)[0] == 0

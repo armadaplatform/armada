@@ -23,6 +23,7 @@ import command_stop
 import command_version
 from _version import __version__
 from armada_utils import set_verbose, is_verbose
+from armada_command.scripts.update import version_check
 
 
 def parse_args():
@@ -138,6 +139,7 @@ def command_shutdown(args):
 
 # ===================================================================================================
 
+@version_check
 def main():
     # https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
     # We don't want Insecure Platform Warning to pop up everytime HTTPS request is sent.

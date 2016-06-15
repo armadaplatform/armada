@@ -115,3 +115,38 @@ def ship_name_to_ip(name):
 
 def ship_ip_to_name(ip):
     return kv.get('ships/{}/name'.format(ip))
+
+
+def split_image_path(image_path):
+    dockyard_address = None
+    image_name = image_path
+    image_tag = 'latest'
+
+    if '/' in image_name:
+        dockyard_address, image_name = image_name.split('/', 1)
+    if ':' in image_name:
+        image_name, image_tag = image_name.split(':', 1)
+
+    return dockyard_address, image_name, image_tag
+
+
+class InvalidImagePathException(Exception):
+    pass
+
+
+def ensure_valid_image_path(image_path, fallback_microservice_name=None):
+    if not image_path and fallback_microservice_name:
+        return fallback_microservice_name
+    if not image_path:
+        raise InvalidImagePathException
+    dockyard_address, image_name, image_tag = split_image_path(image_path)
+    if not image_name:
+        if fallback_microservice_name:
+            image_name = fallback_microservice_name
+        else:
+            raise InvalidImagePathException
+    if dockyard_address:
+        image_name = '{}/{}'.format(dockyard_address, image_name)
+    if image_tag:
+        image_name = '{}:{}'.format(image_name, image_tag)
+    return image_name

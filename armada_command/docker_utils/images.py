@@ -1,12 +1,12 @@
-from armada_command.armada_utils import ArmadaCommandException
+from armada_command.armada_utils import ArmadaCommandException, split_image_path
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.dockyard import dockyard_factory
 
 
 class ArmadaImage(object):
-    def __init__(self, image_path, dockyard_alias=None):
+    def __init__(self, image_path, dockyard_alias):
         self.dockyard = None
-        dockyard_address, self.image_name, self.image_tag = ArmadaImage.__split_image_path(image_path)
+        dockyard_address, self.image_name, self.image_tag = split_image_path(image_path)
         dockyard_dict = {}
 
         if dockyard_address:
@@ -18,12 +18,27 @@ class ArmadaImage(object):
         else:
             dockyard_dict = dockyard.get_dockyard_dict(dockyard_alias)
             dockyard_address = dockyard_dict['address']
-            image_path = dockyard_address + '/' + self.image_name + ':' + self.image_tag
 
+        image_path = self.image_name
+        if dockyard_address:
+            image_path = '{}/{}'.format(dockyard_address, image_path)
         self.image_path = image_path
+        self.dockyard_address = dockyard_address
         self.dockyard = dockyard_factory(dockyard_address,
                                          dockyard_dict.get('user'),
                                          dockyard_dict.get('password'))
+
+    @property
+    def image_name_with_tag(self):
+        if self.image_tag:
+            return '{}:{}'.format(self.image_name, self.image_tag)
+        return self.image_name
+
+    @property
+    def image_path_with_tag(self):
+        if self.image_tag:
+            return '{}:{}'.format(self.image_path, self.image_tag)
+        return self.image_path
 
     def is_remote(self):
         return self.dockyard.is_remote()
@@ -36,18 +51,6 @@ class ArmadaImage(object):
 
     def exists(self):
         return self.get_image_creation_time() is not None
-
-    @staticmethod
-    def __split_image_path(image_path):
-        image_name = image_path
-        image_tag = 'latest'
-        dockyard_address = None
-
-        if '/' in image_path:
-            dockyard_address, image_name = image_path.split('/', 1)
-        if ':' in image_name:
-            image_name, image_tag = image_name.split(':', 1)
-        return dockyard_address, image_name, image_tag
 
 
 def select_latest_image(*armada_images):
