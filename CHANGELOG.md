@@ -15,6 +15,8 @@ faster.
 - After joining Armada agent to cluster, Armada will detect running Couriers there and fetch configuration from them.
 - Support for image versions (e.g.: `mysql:5.7`) in `armada build` command.
 - Allow verbose output for `armada build` command.
+- Added images versioning. Since now it's possible to build, push and run services using `service_name:tag` notation or `:tag` notation if the `MICROSERVICE_NAME` env is provided.
+- Added warning about using outdated armada version. It can be disabled by adding the `check_updates=0` line to the `/etc/default/armada` config file.
 
 ### Bug fixes
 - Fix build of `microservice_python3.5` base image.
