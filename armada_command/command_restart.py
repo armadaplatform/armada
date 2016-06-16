@@ -9,6 +9,7 @@ import traceback
 
 import armada_api
 import armada_utils
+from scripts.update import suppress_version_check
 
 
 def parse_args():
@@ -63,8 +64,9 @@ def command_restart(args):
                 if result['status'] == 'ok':
                     stop_command = 'armada stop {container_id}'.format(**locals())
                     run_command = base64.b64decode(result['value'])
-                    assert armada_utils.execute_local_command(stop_command, stream_output=True, retries=3)[0] == 0
-                    assert armada_utils.execute_local_command(run_command, stream_output=True, retries=5)[0] == 0
+                    with suppress_version_check():
+                        assert armada_utils.execute_local_command(stop_command, stream_output=True, retries=3)[0] == 0
+                        assert armada_utils.execute_local_command(run_command, stream_output=True, retries=5)[0] == 0
                     if instances_count > 1:
                         print()
                 else:

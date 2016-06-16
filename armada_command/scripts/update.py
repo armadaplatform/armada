@@ -7,6 +7,7 @@ import json
 import logging
 from functools import wraps
 from subprocess import Popen
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 
 from armada_command import armada_api
@@ -35,6 +36,13 @@ def suppress_exception(logger):
                 logger.exception('An error occurred while checking for new version of armada.')
         return wrapper
     return decorator
+
+
+@contextmanager
+def suppress_version_check():
+    os.environ['SUPPRESS_VERSION_CHECK'] = '1'
+    yield
+    del os.environ['SUPPRESS_VERSION_CHECK']
 
 
 @suppress_exception(logger)
@@ -84,17 +92,20 @@ def _version_check():
         json.dump(data, f)
 
 
-config = get_ship_config()
-try:
-    check_for_updates = int(config.get('check_updates', 1))
-except ValueError:
-    check_for_updates = 1
+def _check_for_updates():
+    config = get_ship_config()
+    try:
+        return int(config.get('check_updates', 1))
+    except ValueError:
+        return 1
+
+_suppress_check = 'SUPPRESS_VERSION_CHECK' in os.environ
 
 
 def version_check(fun):
     @wraps(fun)
     def wrapper():
         fun()
-        if check_for_updates and _valid_lock():
+        if not _suppress_check and _check_for_updates() and _valid_lock():
             _version_check()
     return wrapper
