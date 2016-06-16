@@ -46,8 +46,6 @@ def command_build(args):
     if not os.path.exists('Dockerfile'):
         print('ERROR: Dockerfile not found in current directory', file=sys.stderr)
         return
-    base_image_name = _get_base_image_name()
-    dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(base_image_name, is_run_locally=True)
 
     base_image = ArmadaImage(base_image_name, dockyard_alias)
 
