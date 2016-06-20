@@ -4,26 +4,32 @@ import os
 import sys
 import time
 import json
+import fcntl
 import logging
 from functools import wraps
 from subprocess import Popen
+from datetime import timedelta
 from contextlib import contextmanager
-from datetime import datetime, timedelta
 
 from armada_command import armada_api
 from armada_command.ship_config import get_ship_config
 
-SYNC_INTERVAL = timedelta(days=1)
-DISPLAY_INTERVAL = timedelta(hours=1)
-LOCK_FILE_PATH = '/var/tmp/armada-version'
-LOG_FILENAME = '/var/tmp/armada-version.log'
+SYNC_INTERVAL = timedelta(days=1).total_seconds()
+DISPLAY_INTERVAL = timedelta(hours=1).total_seconds()
+LOG_FILE_PATH = '/var/tmp/armada-version.log'
+VERSION_CACHE_FILE_PATH = '/var/tmp/armada-version'
 
-logging.basicConfig(filename=LOG_FILENAME)
+logging.basicConfig(filename=LOG_FILE_PATH)
 logger = logging.getLogger(__file__)
 
 
-def to_timestamp(dt_obj):
-    return time.mktime(dt_obj.timetuple())
+def lock_file(f, exclusive=False):
+    lock_type = fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH
+    fcntl.lockf(f.fileno(), lock_type)
+
+
+def unlock_file(f):
+    fcntl.lockf(f.fileno(), fcntl.LOCK_UN)
 
 
 def suppress_exception(logger):
@@ -46,39 +52,41 @@ def suppress_version_check():
 
 
 @suppress_exception(logger)
-def _valid_lock():
-    if not _lock_exists() or _lock_outdated():
-        _sync_lock()
+def _valid_cache():
+    if _cache_outdated_or_invalid():
+        _sync_cache()
         return False
     return True
 
 
-def _sync_lock():
+def _sync_cache():
     current_dir = os.path.dirname(__file__)
     with open(os.devnull) as dnull:
         Popen(['python', os.path.join(current_dir, 'sync_version.py')],
               env=dict(PYTHONPATH='/opt/armada'), stderr=dnull, stdout=dnull)
 
 
-def _lock_exists():
-    return os.path.isfile(LOCK_FILE_PATH)
-
-
-def _lock_outdated():
-    with open(LOCK_FILE_PATH, 'r') as f:
-        data = json.load(f)
+def _cache_outdated_or_invalid():
+    try:
+        with open(VERSION_CACHE_FILE_PATH, 'r') as f:
+            lock_file(f)
+            data = json.load(f)
+            unlock_file(f)
+    except (IOError, ValueError):
+        return True
 
     synced_timestamp = data['synced']
-    return to_timestamp(datetime.utcnow() - SYNC_INTERVAL) > synced_timestamp
+    return time.time() - SYNC_INTERVAL > synced_timestamp
 
 
 @suppress_exception(logger)
 def _version_check():
-    with open(LOCK_FILE_PATH, 'r+') as f:
+    with open(VERSION_CACHE_FILE_PATH, 'r+') as f:
+        lock_file(f, exclusive=True)
         data = json.load(f)
         displayed_timestamp = data['displayed']
 
-        if not data['is_newer'] or to_timestamp(datetime.utcnow() - DISPLAY_INTERVAL) < displayed_timestamp:
+        if not data['is_newer'] or time.time() - DISPLAY_INTERVAL < displayed_timestamp:
             return
 
         message = 'You are using armada version {}, however version {} is available. ' \
@@ -86,10 +94,11 @@ def _version_check():
                   .format(armada_api.get('version'), data['latest_version'])
         print('\n' + message, file=sys.stderr)
 
-        data['displayed'] = to_timestamp(datetime.utcnow())
-        f.truncate()
+        data['displayed'] = time.time()
         f.seek(0)
+        f.truncate()
         json.dump(data, f)
+        unlock_file(f)
 
 
 def _check_for_updates():
@@ -106,6 +115,6 @@ def version_check(fun):
     @wraps(fun)
     def wrapper():
         fun()
-        if not _suppress_check and _check_for_updates() and _valid_lock():
+        if not _suppress_check and _check_for_updates() and _valid_cache():
             _version_check()
     return wrapper

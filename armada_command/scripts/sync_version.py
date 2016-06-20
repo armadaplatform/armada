@@ -1,11 +1,11 @@
 import json
+import time
 import logging
-from datetime import datetime
 
 import requests
 
 from armada_command import armada_api
-from armada_command.scripts.update import LOCK_FILE_PATH, suppress_exception, to_timestamp
+from armada_command.scripts.update import VERSION_CACHE_FILE_PATH, suppress_exception, lock_file, unlock_file
 
 
 logger = logging.getLogger(__file__)
@@ -18,11 +18,12 @@ def main():
     data = r.json()
     data.update({
         'displayed': 0,
-        'synced': to_timestamp(datetime.utcnow()),
+        'synced': time.time(),
     })
-    with open(LOCK_FILE_PATH, 'w') as f:
+    with open(VERSION_CACHE_FILE_PATH, 'w') as f:
+        lock_file(f, exclusive=True)
         json.dump(data, f)
-
+        unlock_file(f)
 
 if __name__ == '__main__':
     main()

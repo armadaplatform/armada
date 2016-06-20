@@ -128,25 +128,3 @@ def split_image_path(image_path):
         image_name, image_tag = image_name.split(':', 1)
 
     return dockyard_address, image_name, image_tag
-
-
-class InvalidImagePathException(Exception):
-    pass
-
-
-def ensure_valid_image_path(image_path, fallback_microservice_name=None):
-    if not image_path and fallback_microservice_name:
-        return fallback_microservice_name
-    if not image_path:
-        raise InvalidImagePathException
-    dockyard_address, image_name, image_tag = split_image_path(image_path)
-    if not image_name:
-        if fallback_microservice_name:
-            image_name = fallback_microservice_name
-        else:
-            raise InvalidImagePathException
-    if dockyard_address:
-        image_name = '{}/{}'.format(dockyard_address, image_name)
-    if image_tag:
-        image_name = '{}:{}'.format(image_name, image_tag)
-    return image_name
