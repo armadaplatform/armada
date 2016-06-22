@@ -6,12 +6,13 @@ from armada_command.dockyard import alias
 
 
 def _save_runtime_settings():
-    consul_settings = {}
-    consul_settings['is_commander'] = is_ship_commander()
-    consul_settings['name'] = get_ship_name()
-    consul_settings['ships'] = get_other_ship_ips()
-    consul_settings['datacenter'] = get_current_datacenter()
-    consul_settings['dockyards'] = alias.get_list()
+    consul_settings = {
+        'is_commander': is_ship_commander(),
+        'name': get_ship_name(),
+        'ships': get_other_ship_ips(),
+        'datacenter': get_current_datacenter(),
+        'dockyards': alias.get_list(),
+    }
 
     with open(consul_config.RUNTIME_SETTINGS_PATH, 'w') as runtime_settings:
         runtime_settings.write(json.dumps(consul_settings, sort_keys=True, indent=4))

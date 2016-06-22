@@ -67,5 +67,4 @@ class List(api_base.ApiCommand):
 
             return self.status_ok({'result': result})
         except Exception as e:
-            return self.status_error("Cannot get the list of services. {exception_class} - {exception}".format(
-                exception_class=type(e).__name__, exception=str(e)))
+            return self.status_exception("Cannot get the list of services.", e)

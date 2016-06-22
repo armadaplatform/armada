@@ -19,21 +19,21 @@ def enum(**enums):
 ConsulMode = enum(BOOTSTRAP=0, SERVER=1, CLIENT=2)
 
 
-def get_consul_config(consul_mode, ship_ips, datacenter, ship_name, ship_external_ip):
-    config = {}
+def get_consul_config(consul_mode, ship_ips, datacenter, ship_external_ip):
+    is_server = (consul_mode != ConsulMode.CLIENT)
+    config = {
+        'server': is_server,
+        'start_join': ship_ips,
+        'datacenter': str(datacenter),
+        'node_name': 'ship-{0}'.format(ship_external_ip),
+        'advertise_addr': str(ship_external_ip),
+        'client_addr': '0.0.0.0',
+        'data_dir': '/var/opt/consul-{datacenter}-{consul_mode}'.format(**locals()),
+        'leave_on_terminate': True,
+    }
 
-    config['server'] = (consul_mode != ConsulMode.CLIENT)
     if consul_mode == ConsulMode.BOOTSTRAP:
         config['bootstrap_expect'] = 1
-    config['start_join'] = ship_ips
-
-    config['datacenter'] = str(datacenter)
-    config['node_name'] = 'ship-{0}'.format(ship_name)
-    config['advertise_addr'] = str(ship_external_ip)
-
-    config['client_addr'] = '0.0.0.0'
-    config['data_dir'] = '/var/opt/consul-{datacenter}-{consul_mode}'.format(**locals())
-    config['leave_on_terminate'] = True
 
     env_pythonpath = 'PYTHONPATH=/opt/armada-docker:$PYTHONPATH'
 

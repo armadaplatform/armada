@@ -6,13 +6,11 @@ import sys
 
 import armada_api
 from armada_command.armada_payload import RunPayload
-from armada_command.armada_utils import ArmadaCommandException
+from armada_command.armada_utils import ArmadaCommandException, is_verbose
 from armada_command.docker_utils.images import ArmadaImage, select_latest_image
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default
 from armada_command.ship_config import get_ship_config
-
-verbose = False
 
 CONFIG_PATH_BASE = '/etc/opt/'
 
@@ -97,9 +95,6 @@ def warn_if_hit_crontab_environment_variable_length(env_variables_dict):
 
 
 def command_run(args):
-    if args.verbose:
-        global verbose
-        verbose = True
     microservice_name = args.microservice_name
     if not microservice_name:
         raise ArmadaCommandException('ERROR: Please specify microservice_name argument'
@@ -129,7 +124,7 @@ def command_run(args):
     payload.update_resource_limits(args.cpu_shares, args.memory, args.memory_swap, args.cgroup_parent)
     payload.update_configs(args.configs)
 
-    if verbose:
+    if is_verbose():
         print('payload: {0}'.format(payload))
 
     warn_if_hit_crontab_environment_variable_length(payload.get('environment'))

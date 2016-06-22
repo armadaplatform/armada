@@ -1,25 +1,28 @@
 from __future__ import print_function
-import argparse
-import traceback
-import sys
 
-import armada_api
-import command_create
-import command_info
-import command_list
-import command_run
-import command_stop
-import command_recover
-import command_restart
-import command_ssh
-import command_dockyard
-import command_build
-import command_push
-import command_version
-import command_diagnose
-from _version import __version__
+import argparse
+import sys
+import traceback
 
 from requests.packages import urllib3
+
+import armada_api
+import command_build
+import command_create
+import command_diagnose
+import command_dockyard
+import command_info
+import command_list
+import command_name
+import command_push
+import command_recover
+import command_restart
+import command_run
+import command_ssh
+import command_stop
+import command_version
+from _version import __version__
+from armada_utils import set_verbose, is_verbose
 
 
 def parse_args():
@@ -30,8 +33,8 @@ def parse_args():
 
     parser_name_help = 'get/set name for this ship'
     parser_name = subparsers.add_parser('name', help=parser_name_help, description=parser_name_help)
-    parser_name.add_argument('name', help='New name for the ship', nargs='?', default='')
-    parser_name.set_defaults(func=command_name)
+    command_name.add_arguments(parser_name)
+    parser_name.set_defaults(func=command_name.command_name)
 
     parser_join_help = 'join another armada'
     parser_join = subparsers.add_parser('join', help=parser_join_help, description=parser_join_help)
@@ -118,27 +121,19 @@ def parse_args():
 # ===================================================================================================
 
 
-def command_name(args):
-    if args.name:
-        result = armada_api.post('name', {'name': args.name})
-    else:
-        result = armada_api.get('name')
-    print(result)
-
-
 def command_join(args):
     result = armada_api.post('join', {'host': args.address})
-    print(result)
+    armada_api.print_result_from_armada_api(result)
 
 
 def command_promote(args):
     result = armada_api.post('promote')
-    print(result)
+    armada_api.print_result_from_armada_api(result)
 
 
 def command_shutdown(args):
     result = armada_api.post('shutdown')
-    print(result)
+    armada_api.print_result_from_armada_api(result)
 
 
 # ===================================================================================================
@@ -148,19 +143,19 @@ def main():
     # We don't want Insecure Platform Warning to pop up everytime HTTPS request is sent.
     urllib3.disable_warnings()
 
+    args = parse_args()
     try:
-        args = parse_args()
+        if args.verbose:
+            set_verbose()
+    except AttributeError:
+        pass
+    try:
         args.func(args)
     except Exception as e:
         print('Command failed: {exception_class} - {exception}'.format(
             exception_class=type(e).__name__,
             exception=str(e)))
-        verbose = False
-        try:
-            verbose = args.verbose
-        except AttributeError:
-            pass
-        if verbose:
+        if is_verbose():
             traceback.print_exc()
         sys.exit(1)
 
