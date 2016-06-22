@@ -13,7 +13,8 @@ remote runs and restarts will not work, and `armada info` may contain incorrect 
 - Store names of Armada ships in Consul's kv store. `armada name` does not restart Armada service anymore and is much
 faster.
 - After joining Armada agent to cluster, Armada will detect running Couriers there and fetch configuration from them. 
-
+- Support for image versions (e.g.: mysql:5.7) in `armad build` command.
+- Allow verbose output for `armada build` command.
 
 ### Bug fixes
 - Fix build of `microservice_python3.5` base image.
