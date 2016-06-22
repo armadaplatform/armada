@@ -24,6 +24,7 @@ def add_arguments(parser):
     parser.add_argument('-d', '--dockyard',
                         help='Build from image from dockyard with this alias. '
                              "Use 'local' to force using local repository.")
+    parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
 
 
 def _get_base_image_name():
@@ -68,10 +69,15 @@ def command_build(args):
             )
         retries = 0 if did_print else 3
         base_image_path = base_image.image_path
+        if args.verbose:
+            print('Fetching base image: "{base_image_path}".\n'.format(**locals()))
+
         pull_command = 'docker pull {base_image_path}'.format(**locals())
 
         assert execute_local_command(pull_command, stream_output=True, retries=retries)[0] == 0
         if base_image_path != base_image_name:
+            if args.verbose:
+                print('Tagging "{base_image_path}" as "{base_image_name}"\n'.format(**locals()))
             tag_command = 'docker tag -f {base_image_path} {base_image_name}'.format(**locals())
             assert execute_local_command(tag_command, stream_output=True, retries=1)[0] == 0
 
