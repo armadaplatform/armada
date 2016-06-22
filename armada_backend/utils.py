@@ -22,10 +22,10 @@ def get_logger():
         pass
     logger = logging.getLogger('armada_backend')
     logger.setLevel(logging.INFO)
-    ch = logging.StreamHandler()
+    stream_handler = logging.StreamHandler()
     formatter = logging.Formatter('%(asctime)s %(name)s [%(levelname)s] - %(message)s')
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
     get_logger.logger = logger
     return logger
 
@@ -41,12 +41,22 @@ def deregister_services(container_id):
                 traceback.print_exc()
 
 
-def get_ship_name():
+def get_ship_ip():
     agent_self_dict = consul_query('agent/self')
-    ship_name = agent_self_dict['Config']['NodeName']
-    if ship_name.startswith('ship-'):
-        ship_name = ship_name[5:]
+    return agent_self_dict['Config']['AdvertiseAddr']
+
+
+def get_ship_name(ship_ip=None):
+    if ship_ip is None:
+        ship_ip = get_ship_ip()
+    ship_name = kv.get('ships/{}/name'.format(ship_ip)) or ship_ip
     return ship_name
+
+
+def set_ship_name(name):
+    ship_ip = get_ship_ip()
+    kv.set('ships/{}/name'.format(ship_ip), name)
+    kv.set('ships/{}/ip'.format(name), ship_ip)
 
 
 def get_other_ship_ips():
@@ -54,10 +64,9 @@ def get_other_ship_ips():
         catalog_nodes_dict = consul_query('catalog/nodes')
         ship_ips = list(consul_node['Address'] for consul_node in catalog_nodes_dict)
 
-        agent_self_dict = consul_query('agent/self')
-        service_ip = agent_self_dict['Config']['AdvertiseAddr']
-        if service_ip in ship_ips:
-            ship_ips.remove(service_ip)
+        my_ship_ip = get_ship_ip()
+        if my_ship_ip in ship_ips:
+            ship_ips.remove(my_ship_ip)
         return ship_ips
     except:
         return []

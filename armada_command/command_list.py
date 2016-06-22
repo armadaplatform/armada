@@ -5,6 +5,7 @@ import datetime
 
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
+from armada_utils import print_table
 
 
 def parse_args():
@@ -27,12 +28,6 @@ def add_arguments(parser):
     parser.add_argument('-q', '--quiet', action='store_true', help='Show only container ids.')
 
 
-def print_table(rows):
-    widths = [max(len(str(val)) for val in col) for col in zip(*rows)]
-    for row in rows:
-        print('  '.join((str(val).ljust(width) for val, width in zip(row, widths))))
-
-
 def epoch_to_iso(unix_timestamp):
     return datetime.datetime.utcfromtimestamp(
         int(unix_timestamp)).strftime('%Y-%m-%d %H:%M')
@@ -44,9 +39,11 @@ def command_list(args):
     else:
         service_names = list(consul_query('catalog/services').keys())
 
+    local_ids = None
     if args.local:
         local_ids = set(consul_query('agent/services').keys())
 
+    output_rows = None
     if not args.quiet:
         output_header = ('Name', 'Address', 'ID', 'Status', 'Tags')
         if args.uptime:

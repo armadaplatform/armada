@@ -1,12 +1,13 @@
 from __future__ import print_function
+
 import argparse
 import os
 import sys
 import traceback
 
 import armada_api
-from armada_command.armada_utils import ArmadaCommandException
 import armada_utils
+from armada_command.armada_utils import ArmadaCommandException
 
 
 def parse_args():
@@ -49,7 +50,8 @@ def command_stop(args):
                 print('[{0}/{1}]'.format(i + 1, instances_count))
             container_id = instance['ServiceID'].split(':')[0]
             payload = {'container_id': container_id}
-            result = armada_api.post('stop', payload, ship_name=instance['Node'])
+            ship_name = armada_utils.ship_ip_to_name(instance['Address'])
+            result = armada_api.post('stop', payload, ship_name=ship_name)
 
             if result['status'] == 'ok':
                 print('Service {container_id} has been stopped.'.format(**locals()))

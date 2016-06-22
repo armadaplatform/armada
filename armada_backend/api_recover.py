@@ -14,6 +14,5 @@ class Recover(api_base.ApiCommand):
                     "Failed to recover following containers: {containers}".format(
                         containers=[container['environment'] for container in not_recovered_containers]))
         except Exception as e:
-            return self.status_error("Error during containers recovery. {exception_class} - {exception}"
-                                     .format(exception_class=type(e).__name__, exception=str(e)))
+            return self.status_exception("Error during containers recovery.", e)
         return self.status_ok()

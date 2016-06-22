@@ -33,16 +33,17 @@ class ApiCommand(object):
 
     def status_error(self, message=None):
         get_logger().error('API error: {}'.format(message))
+        web.header('Content-Type', 'application/json')
         return _create_response_with_error(message)
 
     def status_exception(self, message, exception):
         get_logger().exception(exception)
-        error_msg = "{0}. {1} - {2}".format(message,
-                                            type(exception).__name__,
-                                            str(exception))
+        error_msg = "API exception: {0}. {1} - {2}".format(message, type(exception).__name__, str(exception))
+        web.header('Content-Type', 'application/json')
         return _create_response_with_error(error_msg)
 
     def status_ok(self, extra_result=None):
         extra_result = extra_result or {}
         extra_result['status'] = 'ok'
-        return json.dumps(extra_result)
+        web.header('Content-Type', 'application/json')
+        return json.dumps(extra_result, indent=4, sort_keys=True)

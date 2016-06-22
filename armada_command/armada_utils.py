@@ -5,6 +5,7 @@ import subprocess
 import sys
 
 from armada_command.consul.consul import consul_query
+from consul import kv
 
 
 class ArmadaCommandException(Exception):
@@ -68,6 +69,7 @@ def get_matched_containers(microservice_name_or_container_id_prefix):
 
 
 def execute_local_command(command, stream_output=False, retries=0):
+    code, out, err = None, None, None
     for i in range(retries + 1):
         if i > 0:
             print_err('Retrying... ({i} of {retries})'.format(**locals()))
@@ -88,3 +90,28 @@ def execute_local_command(command, stream_output=False, retries=0):
         else:
             print_err('Command failed: {command}'.format(**locals()))
     return code, out, err
+
+
+def is_verbose():
+    try:
+        return is_verbose.verbose
+    except AttributeError:
+        return False
+
+
+def set_verbose():
+    is_verbose.verbose = True
+
+
+def print_table(rows):
+    widths = [max(len(str(val)) for val in col) for col in zip(*rows)]
+    for row in rows:
+        print('  '.join((str(val).ljust(width) for val, width in zip(row, widths))))
+
+
+def ship_name_to_ip(name):
+    return kv.get('ships/{}/ip'.format(name))
+
+
+def ship_ip_to_name(ip):
+    return kv.get('ships/{}/name'.format(ip))
