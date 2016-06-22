@@ -42,31 +42,34 @@ def _create_ip_to_service(services):
 
 class Info(api_base.ApiCommand):
     def GET(self):
-        catalog_nodes_dict = consul_query('catalog/nodes')
+        try:
+            catalog_nodes_dict = consul_query('catalog/nodes')
 
-        result = []
-        running_armada_services = _get_running_armada_services()
-        ship_ip_to_armada = _create_ip_to_service(running_armada_services)
-        for consul_node in catalog_nodes_dict:
-            ship_ip = consul_node['Address']
-            ship_name = get_ship_name(ship_ip)
-            armada_service = ship_ip_to_armada.get(ship_ip, {})
+            result = []
+            running_armada_services = _get_running_armada_services()
+            ship_ip_to_armada = _create_ip_to_service(running_armada_services)
+            for consul_node in catalog_nodes_dict:
+                ship_ip = consul_node['Address']
+                ship_name = get_ship_name(ship_ip)
+                armada_service = ship_ip_to_armada.get(ship_ip, {})
 
-            service_armada_address = armada_service.get('address', ship_ip)
-            service_armada_status = armada_service.get('status', '?')
-            service_armada_version = get_armada_version(service_armada_address)
-            try:
-                ship_role = get_ship_role(ship_ip)
-            except:
-                ship_role = '?'
+                service_armada_address = armada_service.get('address', ship_ip)
+                service_armada_status = armada_service.get('status', '?')
+                service_armada_version = get_armada_version(service_armada_address)
+                try:
+                    ship_role = get_ship_role(ship_ip)
+                except:
+                    ship_role = '?'
 
-            armada_instance = {
-                'name': ship_name,
-                'role': ship_role,
-                'address': service_armada_address,
-                'status': service_armada_status,
-                'version': service_armada_version,
-                'microservice_id': armada_service.get('microservice_id')
-            }
-            result.append(armada_instance)
+                armada_instance = {
+                    'name': ship_name,
+                    'role': ship_role,
+                    'address': service_armada_address,
+                    'status': service_armada_status,
+                    'version': service_armada_version,
+                    'microservice_id': armada_service.get('microservice_id')
+                }
+                result.append(armada_instance)
+        except Exception as e:
+            return self.status_exception('Could not get armada info.', e)
         return self.status_ok({'result': result})

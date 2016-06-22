@@ -107,7 +107,7 @@ class Join(api_base.ApiCommand):
         if _restart_consul():
             supervisor_server = xmlrpclib.Server('http://localhost:9001/RPC2')
             hermes_init_output = supervisor_server.supervisor.startProcessGroup('hermes_init')
-            get_logger().info('hermes_init: {}'.format(hermes_init_output))
+            get_logger().info('hermes_init start: {}'.format(hermes_init_output))
             return self.status_ok()
         return self.status_error('Waiting for armada restart timed out.')
 
