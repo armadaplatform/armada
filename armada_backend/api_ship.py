@@ -2,11 +2,12 @@ import json
 import logging
 import os
 import time
+import xmlrpclib
 from socket import gethostname
 
 import api_base
 import consul_config
-from armada_backend.utils import deregister_services, set_ship_name
+from armada_backend.utils import deregister_services, set_ship_name, get_logger
 from armada_command import armada_api
 from armada_command.consul.consul import consul_query, consul_put
 from runtime_settings import override_runtime_settings
@@ -104,7 +105,9 @@ class Join(api_base.ApiCommand):
                                       datacenter=datacenter)
 
         if _restart_consul():
-            os.system('supervisorctl start hermes_init')
+            supervisor_server = xmlrpclib.Server('http://localhost:9001/RPC2')
+            hermes_init_output = supervisor_server.supervisor.startProcessGroup('hermes_init')
+            get_logger().info('hermes_init: {}'.format(hermes_init_output))
             return self.status_ok()
         return self.status_error('Waiting for armada restart timed out.')
 
@@ -128,14 +131,13 @@ class Promote(api_base.ApiCommand):
 
 class Shutdown(api_base.ApiCommand):
     def POST(self):
-
-        # Wpisujemy 'startsecs=0', zeby ubicie consula przez 'consul leave' nie spowodowalo jego restartu.
+        # 'startsecs=0' is to avoid restarting consul after `consul leave`.
         os.system('sed -i \'/autorestart=true/cautorestart=false\' /etc/supervisor/conf.d/consul.conf')
         os.system('echo startsecs=0 >> /etc/supervisor/conf.d/consul.conf')
 
         os.system('supervisorctl update consul')
 
-        # 'supervisorctl update' zrestartuje consula. Czekamy az wystartuje na nowo.
+        # As 'supervisorctl update' will restart Consul, we have to wait for it to be running.
         while True:
             try:
                 get_current_datacenter()

@@ -15,7 +15,7 @@ def parse_args():
 
 
 def add_arguments(parser):
-    parser.add_argument('-v', '--verbose', action='store_true', help='Increase output verbosity.')
+    parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
 
 
 def command_info(args):
@@ -39,8 +39,7 @@ def command_info(args):
         print('Such configuration should only be used in development environments.', file=sys.stderr)
     elif ship_role_counts['commander'] == 1:
         print('\nWARNING: We can survive leaving of commander but commander failure or leader leave/failure will be '
-              'fatal.',
-              file=sys.stderr)
+              'fatal.', file=sys.stderr)
         print('Such configuration should only be used in development environments.', file=sys.stderr)
     else:
         failure_tolerance = ship_role_counts['commander'] / 2

@@ -1,7 +1,9 @@
 from __future__ import print_function
+
 import argparse
 import os
 import sys
+import xmlrpclib
 
 import local_magellan
 
@@ -49,7 +51,10 @@ def main():
     if app_id is None:
         app_id = os.environ.get('MICROSERVICE_APP_ID')
     create_magellan_config(args.port, args.microservice_name, env, app_id)
-    os.system('supervisorctl start local_magellan')
+
+    supervisor_server = xmlrpclib.Server('http://localhost:9001/RPC2')
+    local_magellan_start_output = supervisor_server.supervisor.startProcessGroup('local_magellan')
+    print_err('local_magellan start: {}'.format(local_magellan_start_output))
 
 
 if __name__ == '__main__':

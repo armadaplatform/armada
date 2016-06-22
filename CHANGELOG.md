@@ -7,7 +7,7 @@ Due to internal changes in Armada, all Armada agents within the same cluster nee
 remote runs and restarts will not work, and `armada info` may contain incorrect names.
 
 ### Improvements
-- Upgrade Consul from version 0.6.0 to 0.6.3.
+- Upgrade Consul from version 0.6.3 to 0.6.4.
 - Store names of Armada ships in Consul's kv store. `armada name` does not restart Armada service anymore and is much
 faster.
 - After joining Armada agent to cluster, Armada will detect running Couriers there and fetch configuration from them. 

@@ -9,7 +9,7 @@ def parse_args():
 
 
 def add_arguments(parser):
-    parser.add_argument('-v', '--verbose', action='store_true', help='Increase output verbosity.')
+    parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
 
 
 def command_version(args):
