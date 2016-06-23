@@ -95,7 +95,7 @@ def warn_if_hit_crontab_environment_variable_length(env_variables_dict):
 
 def command_run(args):
     try:
-        image = ArmadaImageFactory(args.microservice_name, os.environ.get('MICROSERVICE_NAME'))
+        image = ArmadaImageFactory(args.microservice_name, 'local', os.environ.get('MICROSERVICE_NAME'))
     except InvalidImagePathException:
         raise ArmadaCommandException('ERROR: Please specify microservice_name argument'
                                      ' or set MICROSERVICE_NAME environment variable')

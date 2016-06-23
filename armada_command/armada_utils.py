@@ -122,9 +122,10 @@ def split_image_path(image_path):
     image_name = image_path
     image_tag = 'latest'
 
-    if '/' in image_name:
-        dockyard_address, image_name = image_name.split('/', 1)
-    if ':' in image_name:
-        image_name, image_tag = image_name.split(':', 1)
+    if image_path:
+        if '/' in image_name:
+            dockyard_address, image_name = image_name.split('/', 1)
+        if ':' in image_name:
+            image_name, image_tag = image_name.split(':', 1)
 
     return dockyard_address, image_name, image_tag
