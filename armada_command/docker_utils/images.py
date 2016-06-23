@@ -6,7 +6,7 @@ from armada_command.dockyard.dockyard import dockyard_factory
 class ArmadaImage(object):
     def __init__(self, image_path, dockyard_alias=None):
         self.dockyard = None
-        dockyard_address, self.image_name = ArmadaImage.__split_image_path(image_path)
+        dockyard_address, self.image_name, self.image_tag = ArmadaImage.__split_image_path(image_path)
         dockyard_dict = {}
 
         if dockyard_address:
@@ -18,7 +18,7 @@ class ArmadaImage(object):
         else:
             dockyard_dict = dockyard.get_dockyard_dict(dockyard_alias)
             dockyard_address = dockyard_dict['address']
-            image_path = dockyard_address + '/' + self.image_name
+            image_path = dockyard_address + '/' + self.image_name + ':' + self.image_tag
 
         self.image_path = image_path
         self.dockyard = dockyard_factory(dockyard_address,
@@ -32,16 +32,22 @@ class ArmadaImage(object):
         return self.image_path
 
     def get_image_creation_time(self):
-        return self.dockyard.get_image_creation_time(self.image_name)
+        return self.dockyard.get_image_creation_time(self.image_name, self.image_tag)
 
     def exists(self):
         return self.get_image_creation_time() is not None
 
     @staticmethod
     def __split_image_path(image_path):
+        image_name = image_path
+        image_tag = 'latest'
+        dockyard_address = None
+
         if '/' in image_path:
-            return image_path.split('/', 1)
-        return None, image_path
+            dockyard_address, image_name = image_path.split('/', 1)
+        if ':' in image_name:
+            image_name, image_tag = image_name.split(':', 1)
+        return dockyard_address, image_name, image_tag
 
 
 def select_latest_image(*armada_images):
