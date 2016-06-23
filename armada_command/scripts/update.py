@@ -2,9 +2,12 @@ from __future__ import print_function
 
 import os
 import sys
+import grp
 import time
+import stat
 import json
 import fcntl
+import getpass
 import logging
 from functools import wraps
 from subprocess import Popen
@@ -17,10 +20,26 @@ from armada_command.ship_config import get_ship_config
 SYNC_INTERVAL = timedelta(days=1).total_seconds()
 DISPLAY_INTERVAL = timedelta(hours=1).total_seconds()
 LOG_FILE_PATH = '/var/tmp/armada-version.log'
-VERSION_CACHE_FILE_PATH = '/var/tmp/armada-version'
+VERSION_CACHE_FILE_PATH = '/var/tmp/{}-armada-version'.format(getpass.getuser())
 
-logging.basicConfig(filename=LOG_FILE_PATH)
-logger = logging.getLogger(__file__)
+
+def _owned_file_handler(filename, mode='a', owner_group='docker'):
+    gid = grp.getgrnam(owner_group).gr_gid
+    if not os.path.exists(filename):
+        open(filename, 'a').close()
+        os.chown(filename, -1, gid)
+        # -rw-rw-r--
+        os.chmod(filename, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH)
+    return logging.FileHandler(filename, mode)
+
+
+def get_logger(name):
+    l = logging.getLogger(name)
+    l.addHandler(_owned_file_handler(LOG_FILE_PATH))
+    return l
+
+
+logger = get_logger(__file__)
 
 
 def lock_file(f, exclusive=False):

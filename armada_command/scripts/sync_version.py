@@ -1,14 +1,14 @@
 import json
 import time
-import logging
 
 import requests
 
 from armada_command import armada_api
-from armada_command.scripts.update import VERSION_CACHE_FILE_PATH, suppress_exception, lock_file, unlock_file
+from armada_command.scripts.update import VERSION_CACHE_FILE_PATH, suppress_exception, lock_file,\
+    unlock_file, get_logger
 
 
-logger = logging.getLogger(__file__)
+logger = get_logger(__name__)
 
 
 @suppress_exception(logger)
