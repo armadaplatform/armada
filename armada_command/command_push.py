@@ -56,7 +56,7 @@ def command_push(args):
     dockyard_alias = args.dockyard
     if not source_image.dockyard_address:
         if not source_image.exists():
-            raise Exception('Image {} does not exist. Typo?'.format(source_image.image_name))
+            raise Exception('Image {} does not exist. Typo?'.format(source_image.image_name_with_tag))
         destination_image = ArmadaImageFactory(source_image.image_name_with_tag, dockyard_alias)
         dockyard_string = destination_image.dockyard.url or ''
         dockyard_string += ' (alias: {})'.format(dockyard_alias) if dockyard_alias else ''

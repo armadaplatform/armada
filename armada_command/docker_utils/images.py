@@ -8,7 +8,11 @@ class InvalidImagePathException(Exception):
 
 class ArmadaImageFactory(object):
     def __new__(cls, image_path, dockyard_alias=None, fallback_service_name=None):
-        dockyard_address, image_name, image_tag = cls.split_image_path(image_path, fallback_service_name)
+        dockyard_address, image_name, image_tag = split_image_path(image_path)
+        image_name = image_name or fallback_service_name
+
+        if not image_name:
+            raise InvalidImagePathException
 
         if dockyard_alias == 'local':
             return LocalArmadaImage(dockyard_address, image_name, image_tag)
@@ -18,16 +22,6 @@ class ArmadaImageFactory(object):
                                          'or dockyard_hostname[:port]/image_name')
 
         return RemoteArmadaImage(dockyard_address, image_name, image_tag, dockyard_alias)
-
-    @staticmethod
-    def split_image_path(image_path, fallback_service_name):
-        dockyard_address, image_name, image_tag = split_image_path(image_path)
-        image_name = image_name or fallback_service_name
-
-        if not image_name:
-            raise InvalidImagePathException
-
-        return dockyard_address, image_name, image_tag
 
 
 class LocalArmadaImage(object):

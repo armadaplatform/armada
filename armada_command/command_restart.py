@@ -9,7 +9,7 @@ import traceback
 
 import armada_api
 import armada_utils
-from scripts.update import suppress_version_check
+from scripts.utils import suppress_version_check
 
 
 def parse_args():
