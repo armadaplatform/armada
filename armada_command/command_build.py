@@ -5,7 +5,7 @@ import os
 import sys
 
 from armada_command.armada_utils import execute_local_command, is_verbose
-from armada_command.docker_utils.images import ArmadaImage
+from armada_command.docker_utils.images import ArmadaImageFactory, InvalidImagePathException
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, print_http_dockyard_unavailability_warning
 from armada_command.dockyard.dockyard import dockyard_factory
@@ -35,17 +35,19 @@ def _get_base_image_name():
 
 
 def command_build(args):
-    microservice_name = args.microservice_name or os.environ.get('MICROSERVICE_NAME')
-    if not microservice_name:
-        raise ValueError('No microservice name supplied.')
-    if not os.path.exists('Dockerfile'):
-        print('ERROR: Dockerfile not found in current directory', file=sys.stderr)
-        return
     base_image_name = _get_base_image_name()
     dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(base_image_name, is_run_locally=True)
 
-    base_image = ArmadaImage(base_image_name, dockyard_alias)
+    try:
+        image = ArmadaImageFactory(args.microservice_name, dockyard_alias, os.environ.get('MICROSERVICE_NAME'))
+    except InvalidImagePathException:
+        raise ValueError('No microservice name supplied.')
 
+    if not os.path.exists('Dockerfile'):
+        print('ERROR: Dockerfile not found in current directory', file=sys.stderr)
+        return
+
+    base_image = ArmadaImageFactory(base_image_name, dockyard_alias)
     if base_image.is_remote():
         if not base_image.exists():
             if dockyard_alias == DOCKYARD_FALLBACK_ALIAS:
@@ -53,7 +55,7 @@ def command_build(args):
             else:
                 print('Base image {base_image} not found. Searching in official Armada dockyard...'.format(**locals()))
                 dockyard_alias = DOCKYARD_FALLBACK_ALIAS
-                base_image = ArmadaImage(base_image_name, dockyard_alias)
+                base_image = ArmadaImageFactory(base_image_name, dockyard_alias)
                 was_fallback_dockyard = False
             if was_fallback_dockyard or not base_image.exists():
                 print('Base image {base_image} not found. Aborting.'.format(**locals()))
@@ -81,5 +83,5 @@ def command_build(args):
             tag_command = 'docker tag -f {base_image_path} {base_image_name}'.format(**locals())
             assert execute_local_command(tag_command, stream_output=True, retries=1)[0] == 0
 
-    build_command = 'docker build -t {microservice_name} .'.format(**locals())
+    build_command = 'docker build -t {} .'.format(image.image_name_with_tag)
     assert execute_local_command(build_command, stream_output=True)[0] == 0

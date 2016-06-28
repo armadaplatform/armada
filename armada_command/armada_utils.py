@@ -115,3 +115,17 @@ def ship_name_to_ip(name):
 
 def ship_ip_to_name(ip):
     return kv.get('ships/{}/name'.format(ip))
+
+
+def split_image_path(image_path):
+    dockyard_address = None
+    image_name = image_path
+    image_tag = 'latest'
+
+    if image_path:
+        if '/' in image_name:
+            dockyard_address, image_name = image_name.split('/', 1)
+        if ':' in image_name:
+            image_name, image_tag = image_name.split(':', 1)
+
+    return dockyard_address, image_name, image_tag

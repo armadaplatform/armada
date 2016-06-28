@@ -7,7 +7,7 @@ import sys
 import armada_api
 from armada_command.armada_payload import RunPayload
 from armada_command.armada_utils import ArmadaCommandException, is_verbose
-from armada_command.docker_utils.images import ArmadaImage, select_latest_image
+from armada_command.docker_utils.images import ArmadaImageFactory, select_latest_image, InvalidImagePathException
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default
 from armada_command.ship_config import get_ship_config
@@ -32,7 +32,6 @@ def _get_default_container_memory_limit():
 def add_arguments(parser):
     parser.add_argument('microservice_name',
                         nargs='?',
-                        default=os.environ.get('MICROSERVICE_NAME'),
                         help='Name of the microservice to be run. '
                              'If not provided it will use MICROSERVICE_NAME env variable. '
                              'You can also override default registry address, by passing full image path, '
@@ -95,27 +94,27 @@ def warn_if_hit_crontab_environment_variable_length(env_variables_dict):
 
 
 def command_run(args):
-    microservice_name = args.microservice_name
-    if not microservice_name:
+    try:
+        image = ArmadaImageFactory(args.microservice_name, 'local', os.environ.get('MICROSERVICE_NAME'))
+    except InvalidImagePathException:
         raise ArmadaCommandException('ERROR: Please specify microservice_name argument'
                                      ' or set MICROSERVICE_NAME environment variable')
-
     ship = args.ship
     is_run_locally = ship is None
-    dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(microservice_name, is_run_locally)
+    dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(image.image_name, is_run_locally)
 
-    vagrant_dev = _is_vagrant_dev(args.hidden_vagrant_dev, dockyard_alias, microservice_name)
+    vagrant_dev = _is_vagrant_dev(args.hidden_vagrant_dev, dockyard_alias, image.image_name)
 
     dockyard_alias, image = _find_dockyard_with_image(vagrant_dev, args.hidden_is_restart, dockyard_alias,
-                                                      microservice_name)
+                                                      image.image_name_with_tag)
 
     _print_run_info(image, dockyard_alias, ship, args.rename)
 
     payload = RunPayload()
-    payload.update_image_path(image.image_path)
+    payload.update_image_path(image.image_path_with_tag)
     payload.update_dockyard(dockyard_alias)
     if vagrant_dev:
-        payload.update_vagrant(args.dynamic_ports, args.use_latest_image_code, microservice_name)
+        payload.update_vagrant(args.dynamic_ports, args.use_latest_image_code, image.image_name)
     payload.update_environment(args.e)
     payload.update_ports(args.publish)
     payload.update_volumes(args.volumes)
@@ -145,10 +144,10 @@ def _is_vagrant_dev(hidden_vagrant_dev, dockyard_alias, microservice_name):
 
 
 def _find_dockyard_with_image(vagrant_dev, is_restart, dockyard_alias, microservice_name):
-    image = ArmadaImage(microservice_name, dockyard_alias)
+    image = ArmadaImageFactory(microservice_name, dockyard_alias)
 
     if vagrant_dev and is_restart:
-        local_image = ArmadaImage(image.image_name, 'local')
+        local_image = ArmadaImageFactory(image.image_name_with_tag, 'local')
         image = select_latest_image(image, local_image)
         if image == local_image:
             dockyard_alias = 'local'
@@ -156,18 +155,18 @@ def _find_dockyard_with_image(vagrant_dev, is_restart, dockyard_alias, microserv
     if vagrant_dev and not image.exists():
         print('Image {image} not found. Searching in default dockyard...'.format(**locals()))
         dockyard_alias = get_default()
-        image = ArmadaImage(microservice_name, dockyard_alias)
+        image = ArmadaImageFactory(image.image_name_with_tag, dockyard_alias)
 
     if not image.exists():
         if dockyard_alias == DOCKYARD_FALLBACK_ALIAS:
             was_fallback_dockyard = True
         else:
-            print('Image {image} not found. Searching in official Armada dockyard...'.format(**locals()))
+            print('Image {} not found. Searching in official Armada dockyard...'.format(image.image_name_with_tag))
             dockyard_alias = DOCKYARD_FALLBACK_ALIAS
-            image = ArmadaImage(microservice_name, dockyard_alias)
+            image = ArmadaImageFactory(image.image_name_with_tag, dockyard_alias)
             was_fallback_dockyard = False
         if was_fallback_dockyard or not image.exists():
-            raise ArmadaCommandException('Image {image} not found. Aborting.'.format(**locals()))
+            raise ArmadaCommandException('Image {} not found. Aborting.'.format(image.image_path_with_tag))
 
     return dockyard_alias, image
 
@@ -180,10 +179,10 @@ def _print_run_info(image, dockyard_alias, ship, rename):
     ship_string = ' on remote ship: {ship}'.format(**locals()) if ship else ' locally'
     if rename:
         print('Running microservice {} (from image {}) from dockyard: {}{}...'.format(
-            rename, image.image_name, dockyard_string, ship_string))
+            rename, image.image_name_with_tag, dockyard_string, ship_string))
     else:
         print('Running microservice {} from dockyard: {}{}...'.format(
-            image.image_name, dockyard_string, ship_string))
+            image.image_name_with_tag, dockyard_string, ship_string))
 
 
 def _handle_result(result, is_restart):

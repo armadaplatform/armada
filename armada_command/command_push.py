@@ -6,7 +6,7 @@ import pwd
 import socket
 
 from armada_command.armada_utils import ArmadaCommandException, execute_local_command
-from armada_command.docker_utils.images import ArmadaImage
+from armada_command.docker_utils.images import ArmadaImageFactory, InvalidImagePathException
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import print_http_dockyard_unavailability_warning
 from armada_command.dockyard.dockyard import dockyard_factory
@@ -21,7 +21,6 @@ def parse_args():
 def add_arguments(parser):
     parser.add_argument('image_path',
                         nargs='?',
-                        default=os.environ.get('MICROSERVICE_NAME'),
                         help='Name of the image to be pushed. '
                              'If not provided it will use MICROSERVICE_NAME env variable.'
                              'You can also override default registry address, by passing full image path,  '
@@ -49,24 +48,28 @@ def login_to_dockyard(dockyard_alias):
 
 
 def command_push(args):
-    if not args.image_path:
+    try:
+        source_image = ArmadaImageFactory(args.image_path, 'local', os.environ.get('MICROSERVICE_NAME'))
+    except InvalidImagePathException:
         raise ArmadaCommandException('ERROR: Please specify image_path argument'
                                      ' or set MICROSERVICE_NAME environment variable')
     dockyard_alias = args.dockyard
-    image = ArmadaImage(args.image_path, dockyard_alias)
-
-    if '/' not in args.image_path:
-        if not ArmadaImage(image.image_name, 'local').exists():
-            raise Exception('Image {} does not exist. Typo?'.format(image.image_name))
-        dockyard_string = image.dockyard.url or ''
+    if not source_image.dockyard_address:
+        if not source_image.exists():
+            raise Exception('Image {} does not exist. Typo?'.format(source_image.image_name_with_tag))
+        destination_image = ArmadaImageFactory(source_image.image_name_with_tag, dockyard_alias)
+        dockyard_string = destination_image.dockyard.url or ''
         dockyard_string += ' (alias: {})'.format(dockyard_alias) if dockyard_alias else ''
-        print('Pushing image {} to dockyard: {}...'.format(image.image_name, dockyard_string))
-        tag_command = 'docker tag -f {} {}'.format(image.image_name, image.image_path)
+        print('Pushing image {} to dockyard: {}...'.format(source_image.image_name_with_tag, dockyard_string))
+        tag_command = 'docker tag -f {} {}'.format(source_image.image_name_with_tag,
+                                                   destination_image.image_path_with_tag)
+        print(tag_command)
         assert execute_local_command(tag_command, stream_output=True, retries=1)[0] == 0
     else:
         # If command was called with [docker_registry_address]/[image_name] and no -d/--dockyard, then simply
         # mimic 'docker push' behavior (without tagging).
-        print('Pushing image {}...'.format(image))
+        print('Pushing image {}...'.format(source_image.image_path_with_tag))
+        destination_image = source_image
 
     dockyard_dict = dockyard.get_dockyard_dict(dockyard_alias)
     did_print = False
@@ -80,5 +83,5 @@ def command_push(args):
 
     retries = 0 if did_print else 3
     login_to_dockyard(dockyard_alias)
-    push_command = 'docker push {}'.format(image.image_path)
+    push_command = 'docker push {}'.format(destination_image.image_path_with_tag)
     assert execute_local_command(push_command, stream_output=True, retries=retries)[0] == 0

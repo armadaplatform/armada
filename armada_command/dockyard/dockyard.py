@@ -39,8 +39,6 @@ def get_default_alias():
 def get_dockyard_alias(microservice_name, is_run_locally):
     if is_run_locally and microservice_name == os.environ.get('MICROSERVICE_NAME'):
         return 'local'
-    if '/' not in microservice_name:
-        return get_default_alias()
     return None
 
 
@@ -129,10 +127,7 @@ class DockyardFactoryException(Exception):
     pass
 
 
-def dockyard_factory(url, user=None, password=None):
-    if not url:
-        return LocalDockyard()
-
+def remote_dockyard_factory(url, user=None, password=None):
     if bool(user) != bool(password):
         raise DockyardFactoryException('user and password have to be both present, or both absent.')
     auth = (user, password) if user and password else None
@@ -166,6 +161,12 @@ def dockyard_factory(url, user=None, password=None):
     if api_version == 'v2':
         return DockyardV2(url, auth)
     raise DockyardFactoryException('Unknown dockyard API version: {}'.format(api_version))
+
+
+def dockyard_factory(url, user=None, password=None):
+    if not url:
+        return LocalDockyard()
+    return remote_dockyard_factory(url, user, password)
 
 
 class Dockyard(object):

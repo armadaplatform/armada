@@ -6,8 +6,9 @@ import web
 
 import api_base
 import docker_client
+from armada_backend.utils import get_logger
 from armada_backend.api_run_hermes import process_hermes
-from armada_backend.utils import split_image_path, get_logger
+from armada_command.armada_utils import split_image_path
 from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
 
 
@@ -90,10 +91,10 @@ class Create(api_base.ApiCommand):
 
         dockyard_address, image_name, image_tag = split_image_path(image_path)
         docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
-        self._pull_latest_image(docker_api, image_path, microservice_name)
+        self._pull_latest_image(docker_api, image_path)
 
         host_config = self._create_host_config(docker_api, resource_limits, volume_bindings, port_bindings)
-        container_info = docker_api.create_container(microservice_name,
+        container_info = docker_api.create_container(image_path,
                                                      ports=ports,
                                                      environment=environment,
                                                      volumes=volumes,
@@ -128,18 +129,15 @@ class Create(api_base.ApiCommand):
         self._login_to_dockyard(docker_api, dockyard_address, dockyard_user, dockyard_password)
         return docker_api
 
-    def _pull_latest_image(self, docker_api, image_path, microservice_name):
+    def _pull_latest_image(self, docker_api, image_path):
         dockyard_address, image_name, image_tag = split_image_path(image_path)
         if dockyard_address:
             try:
                 docker_client.docker_pull(docker_api, dockyard_address, image_name, image_tag)
-                docker_api.tag(dockyard_address + '/' + image_name, microservice_name, tag=image_tag, force=True)
             except Exception as e:
                 if "ping attempt failed" in str(e):
                     raise RuntimeError(INSECURE_REGISTRY_ERROR_MSG.format(header="ERROR!", address=dockyard_address))
                 raise e
-        else:
-            docker_api.tag(image_name, microservice_name, tag=image_tag, force=True)
 
     def _create_host_config(self, docker_api, resource_limits, binds, port_bindings):
         resource_limits = resource_limits or {}

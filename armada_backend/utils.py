@@ -115,19 +115,6 @@ def get_local_containers_ids():
     return list(set(service['container_id'] for service in services_from_api))
 
 
-def split_image_path(image_path):
-    dockyard_address = None
-    image_name = image_path
-    image_tag = 'latest'
-
-    if '/' in image_name:
-        dockyard_address, image_name = image_name.split('/', 1)
-    if ':' in image_name:
-        image_name, image_tag = image_name.split(':', 1)
-
-    return dockyard_address, image_name, image_tag
-
-
 def is_container_running(container_id):
     docker_api = docker_client.api()
     try:
