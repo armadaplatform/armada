@@ -1,6 +1,6 @@
 # Changelog
 
-## Unrealeased
+## 0.20.0 (2016-06-28)
 
 We do best effort to support docker versions 1.6.0 - 1.10.3 with this release.
 
@@ -8,15 +8,16 @@ We do best effort to support docker versions 1.6.0 - 1.10.3 with this release.
 Due to internal changes in Armada, all Armada agents within the same cluster need to be upgraded, otherwise
 remote runs and restarts will not work, and `armada info` may contain incorrect names.
 
+### Features
+- Allow verbose output for `armada build` command.
+- Added images versioning. Since now it's possible to build, push and run services using `service_name:tag` notation or `:tag` notation if the `MICROSERVICE_NAME` env is provided.
+- Added warning about using outdated armada version. It can be disabled by adding the `check_updates=0` line to the `/etc/default/armada` config file.
+
 ### Improvements
 - Upgrade Consul from version 0.6.3 to 0.6.4.
 - Store names of Armada ships in Consul's kv store. `armada name` does not restart Armada service anymore and is much
 faster.
 - After joining Armada agent to cluster, Armada will detect running Couriers there and fetch configuration from them.
-- Support for image versions (e.g.: `mysql:5.7`) in `armada build` command.
-- Allow verbose output for `armada build` command.
-- Added images versioning. Since now it's possible to build, push and run services using `service_name:tag` notation or `:tag` notation if the `MICROSERVICE_NAME` env is provided.
-- Added warning about using outdated armada version. It can be disabled by adding the `check_updates=0` line to the `/etc/default/armada` config file.
 
 ### Bug fixes
 - Fix build of `microservice_python3.5` base image.
