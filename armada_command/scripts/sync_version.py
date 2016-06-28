@@ -13,7 +13,7 @@ logger = get_logger(__file__)
 @suppress_exception(logger)
 def main():
     version = armada_api.get('version')
-    r = requests.get('http://192.168.2.245:4999/version_check/', data=dict(version=version), timeout=3)
+    r = requests.get('http://version.armada.sh/version_check', data=dict(version=version), timeout=3)
     r.raise_for_status()
     data = r.json()
     data.update({
