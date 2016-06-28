@@ -6,6 +6,7 @@ import time
 import json
 from functools import wraps
 from subprocess import Popen
+from distutils.version import StrictVersion
 
 from armada_command import armada_api
 from armada_command.ship_config import get_ship_config
@@ -47,7 +48,9 @@ def _version_check():
         data = json.load(f)
         displayed_timestamp = data['displayed']
 
-        if not data['is_newer'] or time.time() - DISPLAY_INTERVAL < displayed_timestamp:
+        cache_version = data['latest_version']
+        current_is_newer = StrictVersion(armada_api.get('version')) >= StrictVersion(cache_version)
+        if current_is_newer or time.time() - DISPLAY_INTERVAL < displayed_timestamp:
             return
 
         message = 'You are using armada version {}, however version {} is available. ' \
