@@ -4,6 +4,7 @@
 
 ### Bug fixes
 - Do not use local restart if --ship parameter is provided.
+- Fix issue with fallback to the default dockyard alias if the -d options is not provided.
 
 ## 0.20.1 (2016-06-28)
 
