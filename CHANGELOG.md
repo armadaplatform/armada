@@ -14,7 +14,7 @@ We do best effort to support docker versions 1.6.0 - 1.10.3 with this release.
 
 ### :warning: **UPGRADE WARNING** :warning:
 Due to internal changes in Armada, all Armada agents within the same cluster need to be upgraded, otherwise
-remote runs and restarts will not work, and `armada info` may contain incorrect names.
+remote runs and restarts will not work, and `armada info` may contain incorrect names. Ships' names will have to be set once again using `armada name` command.
 
 ### Features
 - Allow verbose output for `armada build` command.
