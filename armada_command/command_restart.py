@@ -57,7 +57,7 @@ def command_restart(args):
             if instances_count > 1:
                 print('[{0}/{1}]'.format(i + 1, instances_count))
             container_id = instance['ServiceID'].split(':')[0]
-            is_run_locally = armada_utils.is_local_container(container_id)
+            is_run_locally = armada_utils.is_local_container(container_id) and not args.ship
 
             if is_run_locally:
                 result = json.loads(armada_api.get('env/{container_id}/ARMADA_RUN_COMMAND'.format(**locals())))
