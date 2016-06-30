@@ -36,10 +36,10 @@ def get_default_alias():
     return alias_list[0]['name']
 
 
-def get_dockyard_alias(microservice_name, is_run_locally):
-    if is_run_locally and microservice_name == os.environ.get('MICROSERVICE_NAME'):
+def get_dockyard_alias(image_name, is_run_locally):
+    if is_run_locally and image_name == os.environ.get('MICROSERVICE_NAME'):
         return 'local'
-    return None
+    return get_default_alias()
 
 
 def get_dockyard_dict(alias_name=None):
