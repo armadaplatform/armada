@@ -19,8 +19,13 @@ def _owned_file_handler(filename, mode='a', owner_group='docker'):
 
 def get_logger(name):
     l = logging.getLogger(name)
-    l.addHandler(_owned_file_handler(LOG_FILE_PATH))
-    return l
+    try:
+        l.addHandler(_owned_file_handler(LOG_FILE_PATH))
+    except IOError:
+        # current user has no permissions to write to log file
+        return
+    else:
+        return l
 
 
 class SyncOpen:
@@ -50,8 +55,9 @@ def suppress_exception(logger):
         def wrapper(*args, **kwargs):
             try:
                 return fun(*args, **kwargs)
-            except Exception:
-                logger.exception('An error occurred while checking for new version of armada.')
+            except Exception as e:
+                if logger is not None:
+                    logger.exception('An error occurred while checking for new version of armada: {}.'.format(e))
         return wrapper
     return decorator
 
