@@ -155,6 +155,8 @@ def _service_id_to_service_name(service_id, services_data):
 def main():
     # We give register_in_service_discovery.py script time to register services before first check.
     time.sleep(1)
+    since_last_pass = 0
+
     while True:
         services_data = _get_health_checks_required_data()
         start_time = time.time()
@@ -162,6 +164,7 @@ def main():
         print_err('=== START: {start_datetime} ==='.format(**locals()))
         timeout = HEALTH_CHECKS_TIMEOUT
         period = timeout + random.uniform(-HEALTH_CHECKS_TIMEOUT_VARIATION, HEALTH_CHECKS_TIMEOUT_VARIATION)
+        errors = False
 
         print_err('\n')
         health_check_code_dict = _run_health_checks(services_data, timeout)
@@ -173,7 +176,13 @@ def main():
                 _mark_health_status(service_id, health_check_code)
             except:
                 traceback.print_exc()
+            errors = (status == 'critical')
 
+        if errors:
+            since_last_pass += 1
+            period = min(since_last_pass, timeout)
+        else:
+            since_last_pass = 0
         duration = time.time() - start_time
         print_err('Health checks took {duration:.2f}s.'.format(**locals()))
         if duration < period:
