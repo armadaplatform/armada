@@ -21,7 +21,7 @@ def add_arguments(parser):
 def command_info(args):
     info = armada_api.get_json('info')
 
-    output_header = ['Host', 'Ship name', 'Ship role', 'API address', 'API status', 'Version']
+    output_header = ['Current', 'Ship name', 'Ship role', 'API address', 'API status', 'Version']
     output_rows = [output_header]
 
     ship_role_counts = Counter()
