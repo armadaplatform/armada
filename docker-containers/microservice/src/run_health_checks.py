@@ -176,7 +176,8 @@ def main():
                 _mark_health_status(service_id, health_check_code)
             except:
                 traceback.print_exc()
-            errors = (status == 'critical')
+            if status == 'critical':
+                errors = True
 
         if errors:
             since_last_pass += 1
