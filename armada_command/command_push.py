@@ -5,6 +5,7 @@ import os
 import pwd
 import socket
 
+from armada_command.docker_utils.compatibility import docker_backend
 from armada_command.armada_utils import ArmadaCommandException, execute_local_command
 from armada_command.docker_utils.images import ArmadaImageFactory, InvalidImagePathException
 from armada_command.dockyard import dockyard
@@ -61,8 +62,8 @@ def command_push(args):
         dockyard_string = destination_image.dockyard.url or ''
         dockyard_string += ' (alias: {})'.format(dockyard_alias) if dockyard_alias else ''
         print('Pushing image {} to dockyard: {}...'.format(source_image.image_name_with_tag, dockyard_string))
-        tag_command = 'docker tag -f {} {}'.format(source_image.image_name_with_tag,
-                                                   destination_image.image_path_with_tag)
+        tag_command = docker_backend.build_tag_command(source_image.image_name_with_tag,
+                                                       destination_image.image_path_with_tag)
         print(tag_command)
         assert execute_local_command(tag_command, stream_output=True, retries=1)[0] == 0
     else:

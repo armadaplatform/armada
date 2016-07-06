@@ -91,15 +91,7 @@ docker_server_version() {
 }
 
 get_static_docker_client_if_missing() {
-    if [ ! -d "/opt/armada-docker-client" ]; then
-        mkdir /opt/armada-docker-client
-    fi
-    docker_version=$(docker_server_version)
-    if [ ! -f "/opt/armada-docker-client/docker-$docker_version" ]; then
-        log_message "Fetching static docker client v$docker_version.";
-        curl -sSL https://get.docker.com/builds/Linux/x86_64/docker-$docker_version -o /opt/armada-docker-client/docker-$docker_version
-        chmod +x /opt/armada-docker-client/docker-$docker_version
-    fi
+    python /opt/armada/armada_command/docker_utils/compatibility.py cache-client
 }
 
 get_docker_start_timestamp() {

@@ -7,7 +7,7 @@ else
     tag_or_branch="master"
 fi
 
-ARMADA_BASE_URL="https://raw.githubusercontent.com/armadaplatform/armada/${tag_or_branch}/install/"
+ARMADA_BASE_URL="https://raw.githubusercontent.com/armadaplatform/armada/${tag_or_branch}/"
 ARMADA_REPOSITORY=dockyard.armada.sh
 
 command_exists() {
@@ -17,11 +17,11 @@ command_exists() {
 setup_daemon(){
     service_file=$1
     service_dest=$2
-    download_file ${ARMADA_BASE_URL}armada-runner /tmp/armada-runner
+    download_file ${ARMADA_BASE_URL}install/armada-runner /tmp/armada-runner
     $sh_c "mv -f /tmp/armada-runner /usr/local/bin/armada-runner"
     $sh_c "chmod +x /usr/local/bin/armada-runner"
 
-    download_file ${ARMADA_BASE_URL}$service_file /tmp/armada_service
+    download_file ${ARMADA_BASE_URL}install/$service_file /tmp/armada_service
     $sh_c "mv -f /tmp/armada_service $service_dest"
 }
 
@@ -149,13 +149,20 @@ fi
 
 $sh_c "$pip install -U 'requests>=2.9.1' 2>/dev/null"
 
-download_file ${ARMADA_BASE_URL}armada /tmp/armada
+download_file ${ARMADA_BASE_URL}install/armada /tmp/armada
 $sh_c "mv -f /tmp/armada /usr/local/bin/armada"
 $sh_c "chmod +x /usr/local/bin/armada"
 
+download_file ${ARMADA_BASE_URL}armada_command/docker_utils/compatibility.py /tmp/docker_compatibility.py
 echo "Downloading armada image..."
 $sh_c "docker pull ${ARMADA_REPOSITORY}/armada"
-$sh_c "docker tag -f ${ARMADA_REPOSITORY}/armada armada"
+$sh_c "python /tmp/docker_compatibility.py tag ${ARMADA_REPOSITORY}/armada armada"
+python_return_code=$?
+$sh_c "rm -f /tmp/docker_compatibility.py"
+
+if [ ${python_return_code} != 0 ]; then
+    exit 1
+fi
 
 if command_exists update-rc.d || command_exists chkconfig; then
     start_using_initd
