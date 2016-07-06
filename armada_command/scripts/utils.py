@@ -67,3 +67,12 @@ def suppress_version_check():
     os.environ['SUPPRESS_VERSION_CHECK'] = '1'
     yield
     del os.environ['SUPPRESS_VERSION_CHECK']
+
+
+def is_valid_response(response):
+    if isinstance(response, dict):
+        try:
+            return response['status'] != 'error'
+        except KeyError:
+            pass
+    return True
