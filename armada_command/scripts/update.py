@@ -10,7 +10,7 @@ from distutils.version import StrictVersion
 
 from armada_command import armada_api
 from armada_command.ship_config import get_ship_config
-from armada_command.scripts.utils import suppress_exception, get_logger, SyncOpen
+from armada_command.scripts.utils import suppress_exception, get_logger, SyncOpen, is_valid_response
 from armada_command.scripts.update_config import VERSION_CACHE_FILE_PATH, SYNC_INTERVAL, DISPLAY_INTERVAL
 
 
@@ -44,12 +44,17 @@ def _cache_outdated_or_invalid():
 
 @suppress_exception(logger)
 def _version_check():
+    current_version = armada_api.get('version')
+    if not is_valid_response(current_version):
+        # skip version check since we cannot determinate current version
+        return
+
     with SyncOpen(VERSION_CACHE_FILE_PATH, 'r+') as f:
         data = json.load(f)
         displayed_timestamp = data['displayed']
 
         cache_version = data['latest_version']
-        current_is_newer = StrictVersion(armada_api.get('version')) >= StrictVersion(cache_version)
+        current_is_newer = StrictVersion(current_version) >= StrictVersion(cache_version)
         if current_is_newer or time.time() - DISPLAY_INTERVAL < displayed_timestamp:
             return
 

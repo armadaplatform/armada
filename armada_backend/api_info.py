@@ -1,7 +1,7 @@
 import requests
 
 import api_base
-from armada_backend.utils import get_ship_name
+from armada_backend.utils import get_ship_name, get_ship_ip
 from armada_command import armada_api
 from armada_command.consul.consul import consul_query
 
@@ -48,6 +48,7 @@ class Info(api_base.ApiCommand):
             result = []
             running_armada_services = _get_running_armada_services()
             ship_ip_to_armada = _create_ip_to_service(running_armada_services)
+            current_ship_ip = get_ship_ip()
             for consul_node in catalog_nodes_dict:
                 ship_ip = consul_node['Address']
                 ship_name = get_ship_name(ship_ip)
@@ -61,13 +62,16 @@ class Info(api_base.ApiCommand):
                 except:
                     ship_role = '?'
 
+                is_current = (ship_ip == current_ship_ip)
+
                 armada_instance = {
                     'name': ship_name,
                     'role': ship_role,
                     'address': service_armada_address,
                     'status': service_armada_status,
                     'version': service_armada_version,
-                    'microservice_id': armada_service.get('microservice_id')
+                    'microservice_id': armada_service.get('microservice_id'),
+                    'is_current': is_current
                 }
                 result.append(armada_instance)
         except Exception as e:
