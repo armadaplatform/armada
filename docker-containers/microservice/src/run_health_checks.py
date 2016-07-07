@@ -19,6 +19,7 @@ from common.consul import consul_get
 HEALTH_CHECKS_PATH_WILDCARD = '/opt/*/health-checks/*'
 HEALTH_CHECKS_TIMEOUT = 10
 HEALTH_CHECKS_TIMEOUT_VARIATION = 2
+HEALTH_CHECKS_TIMEOUT_INCREMENTATION = 2
 INITIAL_HEALTH_CODE = 0  # passing
 
 
@@ -181,9 +182,11 @@ def main():
 
         if errors:
             since_last_pass += 1
-            period = min(since_last_pass, timeout)
+            if since_last_pass < timeout/HEALTH_CHECKS_TIMEOUT_INCREMENTATION:
+                period = since_last_pass*HEALTH_CHECKS_TIMEOUT_INCREMENTATION
         else:
             since_last_pass = 0
+
         duration = time.time() - start_time
         print_err('Health checks took {duration:.2f}s.'.format(**locals()))
         if duration < period:
