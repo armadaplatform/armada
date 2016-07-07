@@ -3,7 +3,12 @@
 ## Unreleased
 
 ### Features
-- Added indicator of current ship in 'armada info'
+- Added indicator of current ship in 'armada info'.
+
+### Bug fixes:
+- Fix log file permission error. 
+- Validate response from armada_api.get('version').
+
 
 ## 0.20.2 (2016-07-04)
 
