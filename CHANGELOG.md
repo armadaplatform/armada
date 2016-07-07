@@ -5,7 +5,7 @@
 ### Features
 - Added indicator of current ship in 'armada info'.
 
-### Bug fixes:
+### Bug fixes
 - Fix log file permission error. 
 - Validate response from armada_api.get('version').
 
