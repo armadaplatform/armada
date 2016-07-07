@@ -7,7 +7,9 @@
 
 ### Bug fixes
 - Fix log file permission error. 
+- Fix getting docker pid on centos7
 - Validate response from armada_api.get('version').
+
 
 
 ## 0.20.2 (2016-07-04)
