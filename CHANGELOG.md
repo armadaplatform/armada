@@ -7,10 +7,12 @@
 
 ### Bug fixes
 - Fix log file permission error. 
+- Fix getting docker pid on centos7
 - Validate response from armada_api.get('version').
 
 ### Improvements
 - Install armada pip package (with hermes) in microservice_python* base images.
+
 
 ## 0.20.2 (2016-07-04)
 
