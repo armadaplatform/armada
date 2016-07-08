@@ -18,8 +18,8 @@ from common.consul import consul_get
 
 HEALTH_CHECKS_PATH_WILDCARD = '/opt/*/health-checks/*'
 HEALTH_CHECKS_TIMEOUT = 10
-HEALTH_CHECKS_TIMEOUT_VARIATION = 2
-HEALTH_CHECKS_TIMEOUT_INCREMENTATION = 2
+HEALTH_CHECKS_PERIOD_VARIATION = 2
+HEALTH_CHECKS_PERIOD_INCREMENTATION = 2
 INITIAL_HEALTH_CODE = 0  # passing
 
 
@@ -164,8 +164,8 @@ def main():
         start_datetime = datetime.datetime.now().isoformat()
         print_err('=== START: {start_datetime} ==='.format(**locals()))
         timeout = HEALTH_CHECKS_TIMEOUT
-        period = timeout + random.uniform(-HEALTH_CHECKS_TIMEOUT_VARIATION, HEALTH_CHECKS_TIMEOUT_VARIATION)
-        errors = False
+        period = timeout + random.uniform(-HEALTH_CHECKS_PERIOD_VARIATION, HEALTH_CHECKS_PERIOD_VARIATION)
+        is_critical = False
 
         print_err('\n')
         health_check_code_dict = _run_health_checks(services_data, timeout)
@@ -178,12 +178,12 @@ def main():
             except:
                 traceback.print_exc()
             if status == 'critical':
-                errors = True
+                is_critical = True
 
-        if errors:
+        if is_critical:
             since_last_pass += 1
-            if since_last_pass < timeout/HEALTH_CHECKS_TIMEOUT_INCREMENTATION:
-                period = since_last_pass*HEALTH_CHECKS_TIMEOUT_INCREMENTATION
+            if since_last_pass * HEALTH_CHECKS_PERIOD_INCREMENTATION < timeout:
+                period = since_last_pass * HEALTH_CHECKS_PERIOD_INCREMENTATION
         else:
             since_last_pass = 0
 
