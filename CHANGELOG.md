@@ -2,6 +2,8 @@
 
 ## 1.0.0 (2016-07-08)
 
+We do best effort to support docker versions 1.6.0 - 1.10.3 with this release.
+
 ### Features
 - Added indicator of current ship in 'armada info'.
 
