@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.0 (2016-07-08)
 
 ### Features
 - Added indicator of current ship in 'armada info'.
