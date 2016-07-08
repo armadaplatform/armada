@@ -9,6 +9,8 @@
 - Fix log file permission error. 
 - Validate response from armada_api.get('version').
 
+### Improvements
+- Install armada pip package (with hermes) in microservice_python* base images.
 
 ## 0.20.2 (2016-07-04)
 
