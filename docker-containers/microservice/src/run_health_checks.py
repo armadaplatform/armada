@@ -18,6 +18,7 @@ from common.consul import consul_get
 
 HEALTH_CHECKS_PATH_WILDCARD = '/opt/*/health-checks/*'
 HEALTH_CHECKS_TIMEOUT = 10
+HEALTH_CHECKS_PERIOD = 10
 HEALTH_CHECKS_PERIOD_VARIATION = 2
 HEALTH_CHECKS_PERIOD_INCREMENTATION = 2
 INITIAL_HEALTH_CODE = 0  # passing
@@ -153,10 +154,23 @@ def _service_id_to_service_name(service_id, services_data):
             return data["service_name"]
 
 
+def _get_health_check_period(is_critical):
+    period = HEALTH_CHECKS_PERIOD + random.uniform(-HEALTH_CHECKS_PERIOD_VARIATION, HEALTH_CHECKS_PERIOD_VARIATION)
+
+    if is_critical:
+        _get_health_check_period.critical_count += 1
+        if _get_health_check_period.critical_count * HEALTH_CHECKS_PERIOD_INCREMENTATION < HEALTH_CHECKS_PERIOD:
+            period = _get_health_check_period.critical_count * HEALTH_CHECKS_PERIOD_INCREMENTATION
+    else:
+        _get_health_check_period.critical_count = 0
+
+    return period
+_get_health_check_period.critical_count = 0
+
+
 def main():
     # We give register_in_service_discovery.py script time to register services before first check.
     time.sleep(1)
-    since_last_pass = 0
 
     while True:
         services_data = _get_health_checks_required_data()
@@ -164,7 +178,7 @@ def main():
         start_datetime = datetime.datetime.now().isoformat()
         print_err('=== START: {start_datetime} ==='.format(**locals()))
         timeout = HEALTH_CHECKS_TIMEOUT
-        period = timeout + random.uniform(-HEALTH_CHECKS_PERIOD_VARIATION, HEALTH_CHECKS_PERIOD_VARIATION)
+
         is_critical = False
 
         print_err('\n')
@@ -180,13 +194,7 @@ def main():
             if status == 'critical':
                 is_critical = True
 
-        if is_critical:
-            since_last_pass += 1
-            if since_last_pass * HEALTH_CHECKS_PERIOD_INCREMENTATION < timeout:
-                period = since_last_pass * HEALTH_CHECKS_PERIOD_INCREMENTATION
-        else:
-            since_last_pass = 0
-
+        period = _get_health_check_period(is_critical)
         duration = time.time() - start_time
         print_err('Health checks took {duration:.2f}s.'.format(**locals()))
         if duration < period:
