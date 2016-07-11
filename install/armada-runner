@@ -63,7 +63,7 @@ wait_for_armada_running() {
     is_armada_running=0
     while [ ${is_armada_running} != "1" ] && [ ${wait_timeout} -gt 0 ]; do
         sleep 1
-        is_armada_running=$(armada info 2>/dev/null | grep passing | awk '{split($3,a,":"); print a[1]}' | grep "^${external_ip}$" | wc -l)
+        is_armada_running=$(armada info 2>/dev/null | grep passing | awk '{split($4,a,":"); print a[1]}' | grep "^${external_ip}$" | wc -l)
         wait_timeout=$[wait_timeout - 1]
     done
 
