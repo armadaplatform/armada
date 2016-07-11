@@ -16,7 +16,7 @@ class ArmadaApiException(Exception):
 
 
 def __are_we_in_armada_container():
-    return os.environ.get('MICROSERVICE_NAME') == 'armada' and os.path.isfile('/.dockerinit')
+    return os.environ.get('MICROSERVICE_NAME') == 'armada' and os.path.isfile('/.dockerenv')
 
 
 def __get_armada_address(ship_name=None):
