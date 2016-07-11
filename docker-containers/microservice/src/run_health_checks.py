@@ -155,17 +155,19 @@ def _service_id_to_service_name(service_id, services_data):
 
 
 def _get_health_check_period(is_critical):
-    period = HEALTH_CHECKS_PERIOD + random.uniform(-HEALTH_CHECKS_PERIOD_VARIATION, HEALTH_CHECKS_PERIOD_VARIATION)
+    if not is_critical:
+        _get_health_check_period.critical_count = 0
+        period = HEALTH_CHECKS_PERIOD + random.uniform(-HEALTH_CHECKS_PERIOD_VARIATION, HEALTH_CHECKS_PERIOD_VARIATION)
+        return period
 
-    if is_critical:
+    try:
         _get_health_check_period.critical_count += 1
-        if _get_health_check_period.critical_count * HEALTH_CHECKS_PERIOD_INCREMENTATION < HEALTH_CHECKS_PERIOD:
-            period = _get_health_check_period.critical_count * HEALTH_CHECKS_PERIOD_INCREMENTATION
-    else:
+    except AttributeError:
         _get_health_check_period.critical_count = 0
 
-    return period
-_get_health_check_period.critical_count = 0
+    incrementation_period = _get_health_check_period.critical_count * HEALTH_CHECKS_PERIOD_INCREMENTATION
+
+    return min(incrementation_period, HEALTH_CHECKS_PERIOD)
 
 
 def main():
@@ -178,7 +180,6 @@ def main():
         start_datetime = datetime.datetime.now().isoformat()
         print_err('=== START: {start_datetime} ==='.format(**locals()))
         timeout = HEALTH_CHECKS_TIMEOUT
-
         is_critical = False
 
         print_err('\n')
