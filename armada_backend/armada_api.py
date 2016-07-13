@@ -1,4 +1,5 @@
 import web
+import os
 
 from api_create import Create
 from api_env import GetEnv
@@ -26,6 +27,7 @@ def _get_module_path_to_class(c):
 
 
 def main():
+    reload = os.environ.get('DEVELOPMENT') == 'true'
     urls = (
         '/health', Health.__name__,
 
@@ -49,7 +51,7 @@ def main():
         '/list', _get_module_path_to_class(List),
         '/info', _get_module_path_to_class(Info),
     )
-    app = web.application(urls, globals())
+    app = web.application(urls, globals(), autoreload=reload)
     app.run()
 
 

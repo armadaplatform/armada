@@ -125,7 +125,7 @@ case "$1" in
 
         docker_version=$(docker_server_version)
 
-        docker run -d \
+        run_options="-d \
             --privileged=true \
             --cidfile "${ARMADA_CONTAINERID_FILE}" \
             -p 2201:22 \
@@ -139,7 +139,14 @@ case "$1" in
             -v /:/ship_root_dir:ro \
             -e SHIP_EXTERNAL_IP=${external_ip} \
             -e MICROSERVICE_NAME=armada \
-            -e DOCKER_START_TIMESTAMP=${docker_start_timestamp} \
+            -e DOCKER_START_TIMESTAMP=${docker_start_timestamp}"
+        dev=$(printenv DEV)
+        echo "$DEV"
+        if [ "$DEV" == "true" ]; then
+            run_options="${run_options}"+" -v /opt/armada-src/armada_backend:/opt/armada-docker/armada_backend -e DEVELOPMENT=true"
+        fi
+
+        docker run $run_options \
             armada \
             >> "${ARMADA_LOGFILE}" 2>&1
         if [ $? != 0 ]; then
