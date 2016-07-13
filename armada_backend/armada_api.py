@@ -27,7 +27,7 @@ def _get_module_path_to_class(c):
 
 
 def main():
-    reload = os.environ.get('DEVELOPMENT') == 'true'
+    reload = os.environ.get('AUTORELOAD') == 'true'
     urls = (
         '/health', Health.__name__,
 

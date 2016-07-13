@@ -33,3 +33,15 @@ your platform more service oriented.
 In the root directory of the repository run:
 
     python -m tests.unit_tests
+
+# Workflow for Armada development:
+
+1. $ vagrant up
+2. $ vagrant ssh
+3. Make changes in armada source code on your hard drive in directory that contains this Vagrantfile.
+   It is in sync with /opt/armada-src in Vagrant.
+   To enable autoreload of [Armada API](armada_backend/armada_api.py) set environment variable 'AUTORELOAD=true' and restart Armada using your local 'armada-runner' script.
+4. $ build-armada
+5. $ restart-armada
+6. Test changes.
+7. $ armada push armada -d [dockyard]
