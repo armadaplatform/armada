@@ -1,5 +1,4 @@
 #!/bin/bash
-
 BASE=armada
 
 # modify these in /etc/default/$BASE (/etc/default/armada)
@@ -8,6 +7,8 @@ ARMADA_LOGFILE=/var/log/$BASE.log
 ARMADA_LOCK_FILE=/var/lock/subsys/$BASE
 ARMADA_DESC="armada"
 ARMADA_PORT=8900
+
+DOCKER_PID_FILE='/var/run/docker.pid'
 
 PATH=$PATH:/usr/local/bin
 
@@ -62,7 +63,7 @@ wait_for_armada_running() {
     is_armada_running=0
     while [ ${is_armada_running} != "1" ] && [ ${wait_timeout} -gt 0 ]; do
         sleep 1
-        is_armada_running=$(armada info 2>/dev/null | grep passing | awk '{split($3,a,":"); print a[1]}' | grep "^${external_ip}$" | wc -l)
+        is_armada_running=$(armada info 2>/dev/null | grep passing | awk '{split($4,a,":"); print a[1]}' | grep "^${external_ip}$" | wc -l)
         wait_timeout=$[wait_timeout - 1]
     done
 
@@ -102,8 +103,8 @@ get_static_docker_client_if_missing() {
 }
 
 get_docker_start_timestamp() {
-    # We take earliest start time of all docker processes
-    echo -n $(ps $(pidof docker | xargs -n1 echo -n " -p") -o lstart= | xargs -n1 -I@ date -d @ +'%s' | sort -n | head -n1)
+    docker_pid=$(cat ${DOCKER_PID_FILE})
+    date -d "$(ps -p $docker_pid -o lstart=)" +'%s'
 }
 
 case "$1" in
