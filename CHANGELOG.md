@@ -1,13 +1,26 @@
 # Changelog
 
-## Unreleased
+## 1.0.0 (2016-07-08)
+
+**Ahoy sailor!**  
+**:tada: :birthday: Armada is celebrating one year anniversary! :birthday: :tada:**  
+**Fair winds!**  
+:anchor:  
+
+
+
+We do best effort to support docker versions 1.6.0 - 1.10.3 with this release.
 
 ### Features
-- Added indicator of current ship in 'armada info'.
+:balloon: Added indicator of current ship in 'armada info'.
 
 ### Bug fixes
-- Fix log file permission error. 
-- Validate response from armada_api.get('version').
+:balloon: Fix log file permission error.  
+:balloon: Fix getting docker pid on centos7.  
+:balloon: Validate response from armada_api.get('version').  
+
+### Improvements
+:balloon: Install armada pip package (with hermes) in microservice_python* base images.
 
 
 ## 0.20.2 (2016-07-04)
