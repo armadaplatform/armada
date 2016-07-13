@@ -141,15 +141,13 @@ case "$1" in
             -e SHIP_EXTERNAL_IP=${external_ip} \
             -e MICROSERVICE_NAME=armada \
             -e DOCKER_START_TIMESTAMP=${docker_start_timestamp}"
-        dev=$(printenv DEV)
-        echo "$DEV"
+
         if [ "$DEV" == "true" ]; then
             run_options="${run_options}"+" -v /opt/armada-src/armada_backend:/opt/armada-docker/armada_backend -e DEVELOPMENT=true"
         fi
 
-        docker run $run_options \
-            armada \
-            >> "${ARMADA_LOGFILE}" 2>&1
+        docker run $run_options armada >> "${ARMADA_LOGFILE}" 2>&1
+
         if [ $? != 0 ]; then
             echo "Error! Couldn't start Armada's container. Check ${ARMADA_LOGFILE} for details."
             exit 1
