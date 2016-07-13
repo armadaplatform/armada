@@ -20,7 +20,7 @@ HEALTH_CHECKS_PATH_WILDCARD = '/opt/*/health-checks/*'
 HEALTH_CHECKS_TIMEOUT = 10
 HEALTH_CHECKS_PERIOD = 10
 HEALTH_CHECKS_PERIOD_VARIATION = 2
-HEALTH_CHECKS_PERIOD_INCREMENTATION = 2
+HEALTH_CHECKS_PERIOD_INCREMENTATION = 1
 INITIAL_HEALTH_CODE = 0  # passing
 
 
@@ -163,7 +163,7 @@ def _get_health_check_period(is_critical):
     try:
         _get_health_check_period.critical_count += 1
     except AttributeError:
-        _get_health_check_period.critical_count = 0
+        _get_health_check_period.critical_count = 1
 
     incrementation_period = _get_health_check_period.critical_count * HEALTH_CHECKS_PERIOD_INCREMENTATION
 
