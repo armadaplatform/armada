@@ -27,7 +27,7 @@ def _get_module_path_to_class(c):
 
 
 def main():
-    reload = os.environ.get('AUTORELOAD') == 'true'
+    reload = os.environ.get('ARMADA_AUTORELOAD') == 'true'
     urls = (
         '/health', Health.__name__,
 

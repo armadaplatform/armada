@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Enabled autoreload of Armada API in development Vagrant
+
+
 ## 1.0.0 (2016-07-08)
 
 **Ahoy sailor!**  
