@@ -3,6 +3,8 @@ from __future__ import print_function
 import os
 import subprocess
 import sys
+import grp
+import logging
 
 from armada_command.consul.consul import consul_query
 from consul import kv
@@ -129,3 +131,27 @@ def split_image_path(image_path):
             image_name, image_tag = image_name.split(':', 1)
 
     return dockyard_address, image_name, image_tag
+
+
+def _owned_file_handler(filename, mode='a', owner_group='docker'):
+    gid = grp.getgrnam(owner_group).gr_gid
+    if not os.path.exists(filename):
+        open(filename, 'a').close()
+        os.chown(filename, -1, gid)
+        os.chmod(filename, 0o664)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s')
+    handler = logging.FileHandler(filename, mode)
+    handler.setFormatter(formatter)
+    return handler
+
+
+def get_logger(name, filename):
+    logger = logging.getLogger(name)
+    logger.setLevel(20)
+    try:
+        logger.addHandler(_owned_file_handler(filename))
+    except IOError:
+        # current user has no permissions to write to log file
+        return
+    else:
+        return logger
