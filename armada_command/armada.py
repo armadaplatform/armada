@@ -29,7 +29,6 @@ from armada_utils import set_verbose, is_verbose, get_logger
 from armada_command.scripts.update import version_check
 
 
-
 ARMADA_CLI_LOG_PATH = '/var/log/armada_command/armada_cli.log'
 
 
@@ -155,7 +154,6 @@ def main():
     logger.info(' '.join(sys.argv[1:]))
 
     args = parse_args()
-
     try:
         if args.verbose:
             set_verbose()
