@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- After critical status of service health checks next check is run after 1s,2s,3s... until 10s or first pass of health checks.
+
+
+# Changelog
+
 ## 1.0.0 (2016-07-08)
 
 **Ahoy sailor!**  
