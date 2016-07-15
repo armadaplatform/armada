@@ -5,6 +5,7 @@ import sys
 import traceback
 import os
 import pwd
+import logging
 from datetime import datetime
 
 from requests.packages import urllib3
@@ -29,7 +30,7 @@ from armada_utils import set_verbose, is_verbose, get_logger
 from armada_command.scripts.update import version_check
 
 
-ARMADA_CLI_LOG_PATH = '/var/log/armada_command/armada_cli.log'
+ARMADA_CLI_LOG_PATH = '/var/log/armada/armada-cli.log'
 
 
 def parse_args():
@@ -150,7 +151,7 @@ def main():
     # https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
     # We don't want Insecure Platform Warning to pop up everytime HTTPS request is sent.
     urllib3.disable_warnings()
-    logger = get_logger(pwd.getpwuid(os.getuid()).pw_name, ARMADA_CLI_LOG_PATH)
+    logger = get_logger(pwd.getpwuid(os.getuid()).pw_name, ARMADA_CLI_LOG_PATH) or logging.getLogger('dummy')
     logger.info(' '.join(sys.argv[1:]))
 
     args = parse_args()

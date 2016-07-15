@@ -5,6 +5,7 @@ import subprocess
 import sys
 import grp
 import logging
+from logging.handlers import TimedRotatingFileHandler
 
 from armada_command.consul.consul import consul_query
 from consul import kv
@@ -140,14 +141,14 @@ def _owned_file_handler(filename, mode='a', owner_group='docker'):
         os.chown(filename, -1, gid)
         os.chmod(filename, 0o664)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s')
-    handler = logging.FileHandler(filename, mode)
+    handler = TimedRotatingFileHandler(filename, when='midnight', backupCount=3)
     handler.setFormatter(formatter)
     return handler
 
 
 def get_logger(name, filename):
     logger = logging.getLogger(name)
-    logger.setLevel(20)
+    logger.setLevel(logging.INFO)
     try:
         logger.addHandler(_owned_file_handler(filename))
     except IOError:

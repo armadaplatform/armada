@@ -109,9 +109,10 @@ download_file()
     fi
 }
 
-if [ ! -d /var/log/armada_command ]; then
-    $sh_c "mkdir /var/log/armada_command"
-    $sh_c "chmod 664 /var/log/armada_command"
+if [ ! -d /var/log/armada ]; then
+    $sh_c "mkdir /var/log/armada"
+    $sh_c "chgrp docker /var/log/armada"
+    $sh_c "chmod 775 /var/log/armada"
 fi
 
 #===================================================================================================
