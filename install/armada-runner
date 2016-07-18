@@ -3,7 +3,7 @@ BASE=armada
 
 # modify these in /etc/default/$BASE (/etc/default/armada)
 ARMADA_CONTAINERID_FILE=/var/run/$BASE.pid
-ARMADA_LOGFILE=/var/log/$BASE.log
+ARMADA_LOGFILE=/var/log/armada/$BASE-runner.log
 ARMADA_LOCK_FILE=/var/lock/subsys/$BASE
 ARMADA_DESC="armada"
 ARMADA_PORT=8900
