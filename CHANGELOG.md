@@ -2,8 +2,11 @@
 
 ## Unreleased
 
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
+
 ### Features
 - Added logging of Armada CLI
+- Added support for docker 1.12.*
 
 ### Improvements
 - After critical status of service health checks next check is run after 1s,2s,3s... until 10s or first pass of health checks.

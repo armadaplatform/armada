@@ -2,7 +2,7 @@
 
 IMAGE_PATH="/opt/armada-src/"
 IMAGE_NAME="armada"
-DOCKERFILE_PATH="${IMAGE_PATH}/Dockerfile"
+DOCKERFILE_PATH="${IMAGE_PATH}Dockerfile"
 DOCKYARD_ADDRESS="dockyard.armada.sh"
 TAG_CMD="${IMAGE_PATH}armada_command/docker_utils/compatibility.py tag"
 

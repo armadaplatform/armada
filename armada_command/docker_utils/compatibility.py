@@ -18,7 +18,7 @@ def _get_docker_version():
     try:
         return match.group('version')
     except AttributeError:
-        raise Exception("Couldn't determinate docker version.")
+        raise Exception("Couldn't determine docker version.")
 
 
 def _get_subclasses(base_class):
@@ -109,7 +109,7 @@ class DockerBackendV1(BaseDockerBackend):
 
 
 class DockerBackendV2(DockerBackendV1):
-    versions_range = ('1.10.0', '1.10.4')
+    versions_range = ('1.10.0', '1.11.0')
 
     def build_tag_command(self, source_image, destination_image):
         # --force is deprecated since 1.10.0

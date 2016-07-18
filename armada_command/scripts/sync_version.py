@@ -14,7 +14,7 @@ logger = get_logger(__file__)
 def main():
     version = armada_api.get('version')
     if not is_valid_response(version):
-        # skip sync if we cannot determinate current version
+        # skip sync if we cannot determine current version
         return
     r = requests.get('http://version.armada.sh/version_check', data=dict(version=version), timeout=3)
     r.raise_for_status()
