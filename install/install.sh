@@ -144,8 +144,8 @@ else
     fi
 fi
 
-is_python_27=$($sh_c "python -V 2>&1 | grep '2.7' | wc -l")
-if [ $is_python_27 != 1 ]; then
+
+if ! command_exists python2.7; then
     $sh_c "echo 'Required Python version 2.7'"
     exit 1
 fi
