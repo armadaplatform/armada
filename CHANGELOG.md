@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Features
+- Added logging of Armada CLI
+
 ### Improvements
 - After critical status of service health checks next check is run after 1s,2s,3s... until 10s or first pass of health checks.
 
