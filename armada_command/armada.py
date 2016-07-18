@@ -26,8 +26,6 @@ from armada_utils import set_verbose, is_verbose
 from armada_command.scripts.update import version_check
 from armada_logging import log_command
 
-from armada_command.docker_utils import compatibility
-
 
 def parse_args():
     parser = argparse.ArgumentParser()

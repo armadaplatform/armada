@@ -12,23 +12,25 @@ from subprocess import check_call, check_output, CalledProcessError
 DOCKER_STATIC_CLIENT_DIR = '/opt/armada-docker-client/'
 
 
-def _get_version():
+def _get_docker_version():
     output = check_output(['docker', '--version'])
-    match = re.search('Docker version (?P<version>\d+\.\d+\.\d+)', output)
-    if match:
+    match = re.search(r'^Docker version (?P<version>\d+\.\d+\.\d+)', output)
+    try:
         return match.group('version')
+    except AttributeError:
+        raise Exception("Couldn't determinate docker version.")
 
 
-def get_subclasses(base_class):
+def _get_subclasses(base_class):
     for cls in base_class.__subclasses__():
         yield cls
-        for subcls in get_subclasses(cls):
+        for subcls in _get_subclasses(cls):
             yield subcls
 
 
-def docker_backend_factory(forced_version=None):
-    version = StrictVerboseVersion(forced_version or _get_version())
-    for subclass in set(get_subclasses(BaseDockerBackend)):
+def _docker_backend_factory():
+    version = StrictVerboseVersion(_get_docker_version())
+    for subclass in set(_get_subclasses(BaseDockerBackend)):
         if subclass.is_supported_version(version):
             return subclass(version)
     print("Docker version {} is unsupported.".format(version), file=sys.stderr)
@@ -115,7 +117,7 @@ class DockerBackendV2(DockerBackendV1):
 
 
 class DockerBackendV3(DockerBackendV2):
-    versions_range = ('1.11.0', '1.12.0')
+    versions_range = ('1.11.0', None)
 
     @staticmethod
     def _download_static_docker_client(url, output_file):
@@ -133,7 +135,7 @@ class DockerBackendV3(DockerBackendV2):
             shutil.rmtree(tmp_dir)
 
 
-docker_backend = docker_backend_factory()
+docker_backend = _docker_backend_factory()
 
 
 def tag_image(args):
