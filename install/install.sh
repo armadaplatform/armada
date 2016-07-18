@@ -152,7 +152,7 @@ fi
 
 
 if ! command_exists python2.7; then
-    $sh_c "echo 'Required Python version 2.7'"
+    $sh_c "echo >&2 'Required Python version 2.7'"
     exit 1
 fi
 
