@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.1 (2016-07-19)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
+
+### Bug fixes
+- Fixed issue with unhandled exception during the installation process. 
+
+
 ## 1.1.0 (2016-07-19)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
