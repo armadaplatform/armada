@@ -163,11 +163,12 @@ $sh_c "mv -f /tmp/armada /usr/local/bin/armada"
 $sh_c "chmod +x /usr/local/bin/armada"
 
 download_file ${ARMADA_BASE_URL}armada_command/docker_utils/compatibility.py /tmp/docker_compatibility.py
+trap "$sh_c 'rm -f /tmp/docker_compatibility.py'" EXIT
+
 echo "Downloading armada image..."
 $sh_c "docker pull ${ARMADA_REPOSITORY}/armada"
 $sh_c "python /tmp/docker_compatibility.py tag ${ARMADA_REPOSITORY}/armada armada"
 python_return_code=$?
-$sh_c "rm -f /tmp/docker_compatibility.py"
 
 if [ ${python_return_code} != 0 ]; then
     exit 1

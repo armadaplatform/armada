@@ -91,7 +91,13 @@ docker_server_version() {
 }
 
 get_static_docker_client_if_missing() {
-    python /opt/armada/armada_command/docker_utils/compatibility.py cache-client
+    # in case there is no /opt/armada yet, (eg. we run service for the very first time, during the installation process)
+    # let's use file cached in /tmp
+    if [ -f /opt/armada/armada_command/docker_utils/compatibility.py ]; then
+        python /opt/armada/armada_command/docker_utils/compatibility.py cache-client
+    else
+        python /tmp/docker_compatibility.py cache-client
+    fi
 }
 
 get_docker_start_timestamp() {
