@@ -118,9 +118,9 @@ case "$1" in
 
         docker_version=$(docker_server_version)
 
-        docker run -d \
+        run_options="-d \
             --privileged=true \
-            --cidfile "${ARMADA_CONTAINERID_FILE}" \
+            --cidfile ${ARMADA_CONTAINERID_FILE} \
             -p 2201:22 \
             -p ${ARMADA_PORT}:80 \
             -p 8300:8300 -p 8301:8301 -p 8301:8301/udp \
@@ -132,9 +132,14 @@ case "$1" in
             -v /:/ship_root_dir:ro \
             -e SHIP_EXTERNAL_IP=${external_ip} \
             -e MICROSERVICE_NAME=armada \
-            -e DOCKER_START_TIMESTAMP=${docker_start_timestamp} \
-            armada \
-            >> "${ARMADA_LOGFILE}" 2>&1
+            -e DOCKER_START_TIMESTAMP=${docker_start_timestamp}"
+
+        if [ "$ARMADA_AUTORELOAD" == "true" ]; then
+            run_options+=" -v /opt/armada-src/armada_backend:/opt/armada-docker/armada_backend -e ARMADA_AUTORELOAD=true"
+        fi
+
+        docker run $run_options armada >> "${ARMADA_LOGFILE}" 2>&1
+
         if [ $? != 0 ]; then
             echo "Error! Couldn't start Armada's container. Check ${ARMADA_LOGFILE} for details."
             exit 1
