@@ -19,6 +19,15 @@ class Stop(api_base.ApiCommand):
     def _stop_service(self, container_id):
         docker_api = docker_client.api()
         last_exception = None
+        try:
+            exec_id = docker_api.exec_create(container_id, 'supervisorctl stop register_in_service_discovery')
+            docker_api.exec_start(exec_id['Id'])
+        except:
+            traceback.print_exc()
+        try:
+            deregister_services(container_id)
+        except:
+            traceback.print_exc()
         for i in range(3):
             try:
                 docker_api.stop(container_id)
@@ -30,7 +39,3 @@ class Stop(api_base.ApiCommand):
         if is_container_running(container_id):
             get_logger().error('Could not stop container: {}'.format(container_id))
             raise last_exception
-        try:
-            deregister_services(container_id)
-        except:
-            traceback.print_exc()
