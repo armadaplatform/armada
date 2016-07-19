@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 latest_tag=$1
 if [ ${latest_tag} ]; then
     tag_or_branch=${latest_tag}
@@ -82,12 +84,13 @@ if ! command_exists docker; then
     exit 1
 fi
 
+set +e
 $sh_c "docker info > /dev/null 2>&1"
 if [ $? != 0 ]; then
     echo >&2 "Cannot run 'docker' command. Is docker running? Try 'docker -d'."
     exit 1
 fi
-
+set -e
 
 download_file()
 {
@@ -145,6 +148,12 @@ else
         $sh_c "yum install -y epel-release"
         $sh_c "yum install -y ${COMMON_REQUIRED_PACKAGES} ${YUM_REQUIRED_PACKAGES}"
     fi
+fi
+
+
+if ! command_exists python2.7; then
+    $sh_c "echo >&2 'Required Python version 2.7'"
+    exit 1
 fi
 
 $sh_c "$pip install -U 'requests>=2.9.1' 2>/dev/null"
