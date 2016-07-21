@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import argparse
 import datetime
+import re
 
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
@@ -36,6 +37,8 @@ def epoch_to_iso(unix_timestamp):
 def command_list(args):
     if args.service_name:
         service_names = [args.service_name]
+        if '*' in args.service_name:
+            service_names = _filter_names(args.service_name, list(consul_query('catalog/services').keys()))
     else:
         service_names = list(consul_query('catalog/services').keys())
 
@@ -92,3 +95,17 @@ def command_list(args):
 
     if not args.quiet:
         print_table([output_rows[0]] + sorted(output_rows[1:]))
+
+
+def _filter_names(filter, names):
+    expr = filter[1:-1]
+    if filter[0] != '*':
+        expr = '^' + filter[0:-1]
+    elif filter[-1] != '*':
+        expr = filter[1:] + '$'
+    ce = re.compile(expr)
+    service_names = []
+    for i in names:
+        if ce.search(i) is not None:
+            service_names.append(i)
+    return service_names
