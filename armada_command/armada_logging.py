@@ -9,6 +9,14 @@ from logging.handlers import TimedRotatingFileHandler
 ARMADA_CLI_LOG_PATH = '/var/log/armada/armada-cli.log'
 
 
+class GroupWriteRotatingFileHandler(TimedRotatingFileHandler):
+    def doRollover(self):
+        TimedRotatingFileHandler.doRollover(self)
+        gid = grp.getgrnam('docker').gr_gid
+        os.chown(self.baseFilename, -1, gid)
+        os.chmod(self.baseFilename, 0o664)
+
+
 def _owned_file_handler(filename, owner_group='docker'):
     gid = grp.getgrnam(owner_group).gr_gid
     if not os.path.exists(filename):
@@ -16,7 +24,7 @@ def _owned_file_handler(filename, owner_group='docker'):
         os.chown(filename, -1, gid)
         os.chmod(filename, 0o664)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', '%Y-%m-%d %H:%M:%S')
-    handler = TimedRotatingFileHandler(filename, when='midnight', backupCount=3)
+    handler = GroupWriteRotatingFileHandler(filename, when='midnight', backupCount=3)
     handler.setFormatter(formatter)
     return handler
 
