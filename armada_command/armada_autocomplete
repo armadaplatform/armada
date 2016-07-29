@@ -44,6 +44,10 @@ _armada()
             COMPREPLY=( $(compgen -W "${dockyards}" -- ${cur}) )
             return 0
             ;;
+        recover)
+            _filedir
+            return 0
+            ;;
         *)
         ;;
     esac
