@@ -34,6 +34,13 @@ _armada()
             COMPREPLY=( $(compgen -W "${dockyard_opts}" -- ${cur}) )
             return 0
             ;;
+        default)
+            if [ $COMP_CWORD -eq 3 ] && [ "${COMP_WORDS[1]}" = "dockyard" ];then
+                local dockyards=$(armada dockyard list  | sed -e '1d' -e 's/->/ /' | awk '{print($1)}' | tr '\n' ' ')
+                COMPREPLY=( $(compgen -W "${dockyards}" -- ${cur}) )
+            fi
+            return 0
+            ;;
         --ship)
             local ships=$(armada info 2>/dev/null | sed 's/->/ /' | grep -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}" | awk '{print($1)}' | tr '\n' ' ')
             COMPREPLY=( $(compgen -W "${ships}" -- ${cur}) )
@@ -42,6 +49,11 @@ _armada()
         --dockyard|-d)
             local dockyards=$(armada dockyard list  | sed -e '1d' -e 's/->/ /' | awk '{print($1)}' | tr '\n' ' ')" local"
             COMPREPLY=( $(compgen -W "${dockyards}" -- ${cur}) )
+            return 0
+            ;;
+        --base-template|-b)
+            local template_opts="python python3 node"
+            COMPREPLY=( $(compgen -W "${template_opts}" -- ${cur}) )
             return 0
             ;;
         recover)
@@ -53,4 +65,3 @@ _armada()
     esac
     return 0
 }
-complete -F _armada armada
