@@ -1,5 +1,5 @@
 # Changelog
-## Unrealased
+## Unreleased
 
 ### Bug fixes
 - Remove HTTP_PROXY header
