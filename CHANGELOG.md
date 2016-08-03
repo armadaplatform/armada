@@ -4,6 +4,9 @@
 ### Features
 - Added autocomplete of armada commands, dockyard aliases, services and ships names
 
+### Improvements
+- 'armada list' command support wildcards *, ?
+
 ### Bug fixes
 - Remove HTTP_PROXY header
 
