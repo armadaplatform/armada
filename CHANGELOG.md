@@ -1,6 +1,9 @@
 # Changelog
 ## Unreleased
 
+### Features
+- Added autocomplete of armada commands, dockyard aliases, services and ships names
+
 ### Bug fixes
 - Remove HTTP_PROXY header
 
