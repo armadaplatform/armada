@@ -30,7 +30,7 @@ def _save_containers_parameters_list_in_file(containers_parameters_list, saved_c
 
 def _save_containers_parameters_list_in_kv_store(containers_parameters_list):
     ship_name = get_ship_name()
-    kv.set('containers_parameters_list/{ship_name}'.format(**locals()), containers_parameters_list)
+    kv.kv_set('containers_parameters_list/{ship_name}'.format(**locals()), containers_parameters_list)
 
 
 def _is_recovery_completed():

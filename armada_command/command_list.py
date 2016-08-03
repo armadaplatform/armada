@@ -3,10 +3,8 @@ from __future__ import print_function
 import argparse
 import datetime
 
-from armada_command.consul import kv
-from armada_command.consul.consul import consul_query
+from armada_command.armada_api import get_json
 from armada_utils import print_table
-from armada_api import get_json
 
 
 def parse_args():
@@ -49,8 +47,10 @@ def command_list(args):
         if args.quiet:
             print(str(service['container_id']))
         else:
-            service_tags_pretty = [str(x)+':'+str(service['tags'][x]) for x in sorted(service['tags'])] if service['tags'] else '-'
-            output_row = (service['name'], service['address'], service['microservice_id'], service['status'], service_tags_pretty)
+            service_tags_pretty = [str(x) + ':' + str(service['tags'][x])
+                                   for x in sorted(service['tags'])] if service['tags'] else '-'
+            output_row = (service['name'], service['address'], service['microservice_id'], service['status'],
+                          service_tags_pretty)
             if args.uptime:
                 creation_time = epoch_to_iso(service['start_timestamp'])
                 output_row += (creation_time,)
