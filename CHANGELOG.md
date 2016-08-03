@@ -1,6 +1,9 @@
 # Changelog
 ## Unreleased
 
+### Improvements
+- 'armada list' command support wildcards *, ?
+
 ### Bug fixes
 - Remove HTTP_PROXY header
 
