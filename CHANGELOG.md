@@ -1,5 +1,6 @@
 # Changelog
-## Unreleased
+
+## 1.2.0 (2016-08-03)
 
 ### Features
 - Added autocomplete of armada commands, dockyard aliases, services and ships names
