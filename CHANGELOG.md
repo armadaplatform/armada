@@ -1,5 +1,6 @@
 # Changelog
-## Unreleased
+
+## 1.2.0 (2016-08-03)
 
 ### Improvements
 - 'armada list' command support wildcards *, ?
