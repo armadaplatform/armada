@@ -1,4 +1,8 @@
 # Changelog
+## Unreleased
+
+### Bug fixes
+- Remove HTTP_PROXY header
 
 ## 1.1.1 (2016-07-19)
 
