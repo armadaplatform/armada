@@ -6,7 +6,7 @@ import sys
 
 import armada_api
 from armada_command.armada_payload import RunPayload
-from armada_command.armada_utils import ArmadaCommandException, is_verbose
+from armada_command.armada_utils import ArmadaCommandException, is_verbose, is_ip, ship_ip_to_name
 from armada_command.docker_utils.images import ArmadaImageFactory, select_latest_image, InvalidImagePathException
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default
@@ -100,6 +100,9 @@ def command_run(args):
         raise ArmadaCommandException('ERROR: Please specify microservice_name argument'
                                      ' or set MICROSERVICE_NAME environment variable')
     ship = args.ship
+    if ship:
+        if is_ip(ship):
+            ship = ship_ip_to_name(ship) or ship
     is_run_locally = ship is None
     dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(image.image_name, is_run_locally)
 

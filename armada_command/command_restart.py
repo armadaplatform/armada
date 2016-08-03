@@ -74,7 +74,10 @@ def command_restart(args):
             else:
                 payload = {'container_id': container_id}
                 if args.ship:
-                    payload['target_ship'] = args.ship
+                    ship = args.ship
+                    if armada_utils.is_ip(ship):
+                        ship = armada_utils.ship_ip_to_name(ship) or ship
+                    payload['target_ship'] = ship
                     payload['force'] = args.force
 
                 print('Checking if there is new image version. May take few minutes if download is needed...')

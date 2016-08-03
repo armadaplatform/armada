@@ -3,6 +3,7 @@ from __future__ import print_function
 import os
 import subprocess
 import sys
+import socket
 
 from armada_command.consul.consul import consul_query
 from consul import kv
@@ -129,3 +130,11 @@ def split_image_path(image_path):
             image_name, image_tag = image_name.split(':', 1)
 
     return dockyard_address, image_name, image_tag
+
+
+def is_ip(name):
+    try:
+        socket.inet_aton(name)
+        return True
+    except socket.error:
+        return False
