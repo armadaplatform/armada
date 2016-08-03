@@ -42,7 +42,7 @@ _armada()
             return 0
             ;;
         --ship)
-            local ships=$(armada info 2>/dev/null | sed 's/->/ /' | grep -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}" | awk '{print($1)}' | tr '\n' ' ')
+            local ships=$(armada info 2>/dev/null | sed -e '1d' -e 's/->/ /' | awk '{print($1)}' | tr '\n' ' ')
             COMPREPLY=( $(compgen -W "${ships}" -- ${cur}) )
             return 0
             ;;
