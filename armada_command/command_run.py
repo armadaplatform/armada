@@ -100,9 +100,8 @@ def command_run(args):
         raise ArmadaCommandException('ERROR: Please specify microservice_name argument'
                                      ' or set MICROSERVICE_NAME environment variable')
     ship = args.ship
-    if ship:
-        if is_ip(ship):
-            ship = ship_ip_to_name(ship) or ship
+    if ship and is_ip(ship):
+        ship = ship_ip_to_name(ship) or ship
     is_run_locally = ship is None
     dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(image.image_name, is_run_locally)
 
