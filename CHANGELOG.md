@@ -5,6 +5,7 @@
 ### Bug fixes
 - Fix filtering by `app_id` in `armada list`.
 - Fix pyflakes issues.
+- Fix installation of bash completion file.
 
 ## 1.2.0 (2016-08-03)
 
