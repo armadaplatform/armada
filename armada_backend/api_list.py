@@ -1,4 +1,5 @@
 import fnmatch
+from distutils.util import strtobool
 
 import web
 
@@ -17,7 +18,7 @@ class List(api_base.ApiCommand):
     def GET(self):
         try:
             get_args = web.input(local=False, microservice_name=None, env=None, app_id=None)
-            filter_local = bool(get_args.local)
+            filter_local = bool(get_args.local and strtobool(str(get_args.local)))
             filter_microservice_name = get_args.microservice_name
             filter_env = get_args.env
             filter_app_id = get_args.app_id

@@ -49,7 +49,7 @@ def command_list(args):
         else:
             service_tags_pretty = [str(x) + ':' + str(service['tags'][x])
                                    for x in sorted(service['tags'])] if service['tags'] else '-'
-            output_row = (service['name'], service['address'], service['microservice_id'], service['status'],
+            output_row = (service['name'], service['address'], service['container_id'], service['status'],
                           service_tags_pretty)
             if args.uptime:
                 creation_time = epoch_to_iso(service['start_timestamp'])

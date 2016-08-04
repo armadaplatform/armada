@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
+
+### Bug fixes
+- Fix `armada list` always assuming `-l/--local` flag.
+- Revert old behavior in `armada list` that showed 'container_id' instead of 'microservice_id' in ID column.
+
+
 ## 1.2.1 (2016-08-04)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
