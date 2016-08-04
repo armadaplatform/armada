@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fix filtering by `app_id` in `armada list`.
+- Fix pyflakes issues.
+
+## 1.2.0 (2016-08-03)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
+
+### Features
+- Added autocomplete of armada commands, dockyard aliases, services and ships names.
+
+### Improvements
+- 'armada list' command support wildcards *, ?.
+
+### Bug fixes
+- Remove HTTP_PROXY header.
+
 ## 1.1.1 (2016-07-19)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.

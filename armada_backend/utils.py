@@ -36,7 +36,7 @@ def deregister_services(container_id):
         if service_id.startswith(container_id):
             consul_get('agent/service/deregister/{service_id}'.format(**locals()))
             try:
-                kv.remove("start_timestamp/" + container_id)
+                kv.kv_remove("start_timestamp/" + container_id)
             except Exception as e:
                 traceback.print_exc()
 
@@ -49,14 +49,14 @@ def get_ship_ip():
 def get_ship_name(ship_ip=None):
     if ship_ip is None:
         ship_ip = get_ship_ip()
-    ship_name = kv.get('ships/{}/name'.format(ship_ip)) or ship_ip
+    ship_name = kv.kv_get('ships/{}/name'.format(ship_ip)) or ship_ip
     return ship_name
 
 
 def set_ship_name(name):
     ship_ip = get_ship_ip()
-    kv.set('ships/{}/name'.format(ship_ip), name)
-    kv.set('ships/{}/ip'.format(name), ship_ip)
+    kv.kv_set('ships/{}/name'.format(ship_ip), name)
+    kv.kv_set('ships/{}/ip'.format(name), ship_ip)
 
 
 def get_other_ship_ips():
