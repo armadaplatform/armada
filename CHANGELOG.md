@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.1 (2016-08-04)
 
 ### Bug fixes
 - Fix filtering by `app_id` in `armada list`.
