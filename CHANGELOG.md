@@ -2,6 +2,8 @@
 
 ## 1.2.1 (2016-08-04)
 
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
+
 ### Bug fixes
 - Fix filtering by `app_id` in `armada list`.
 - Fix pyflakes issues.
