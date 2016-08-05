@@ -111,11 +111,11 @@ def print_table(rows):
 
 
 def ship_name_to_ip(name):
-    return kv.get('ships/{}/ip'.format(name))
+    return kv.kv_get('ships/{}/ip'.format(name))
 
 
 def ship_ip_to_name(ip):
-    return kv.get('ships/{}/name'.format(ip))
+    return kv.kv_get('ships/{}/name'.format(ip))
 
 
 def split_image_path(image_path):

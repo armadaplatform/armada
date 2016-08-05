@@ -162,6 +162,10 @@ download_file ${ARMADA_BASE_URL}install/armada /tmp/armada
 $sh_c "mv -f /tmp/armada /usr/local/bin/armada"
 $sh_c "chmod +x /usr/local/bin/armada"
 
+download_file ${ARMADA_BASE_URL}armada_command/armada_autocomplete /tmp/armada_autocomplete
+$sh_c "mv -f /tmp/armada_autocomplete /etc/bash_completion.d/armada"
+sudo bash -c ". /etc/bash_completion.d/armada"
+
 download_file ${ARMADA_BASE_URL}armada_command/docker_utils/compatibility.py /tmp/docker_compatibility.py
 trap "$sh_c 'rm -f /tmp/docker_compatibility.py'" EXIT
 

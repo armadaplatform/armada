@@ -1,3 +1,6 @@
+import fnmatch
+from distutils.util import strtobool
+
 import web
 
 import api_base
@@ -14,15 +17,18 @@ class List(api_base.ApiCommand):
 
     def GET(self):
         try:
-            get_args = web.input(local=False, microservice_name=None)
-            filter_local = bool(get_args.local)
+            get_args = web.input(local=False, microservice_name=None, env=None, app_id=None)
+            filter_local = bool(get_args.local and strtobool(str(get_args.local)))
             filter_microservice_name = get_args.microservice_name
+            filter_env = get_args.env
+            filter_app_id = get_args.app_id
 
             if filter_local:
                 local_microservices_ids = set(consul_query('agent/services').keys())
 
             if filter_microservice_name:
-                microservices_names = [filter_microservice_name]
+                names = list(consul_query('catalog/services').keys())
+                microservices_names = fnmatch.filter(names, filter_microservice_name)
             else:
                 microservices_names = list(consul_query('catalog/services').keys())
 
@@ -48,10 +54,14 @@ class List(api_base.ApiCommand):
                     microservice_tags = instance['Service']['Tags'] or []
                     microservice_tags_dict = self.__create_dict_from_tags(microservice_tags)
 
-                    if not filter_local or microservice_id in local_microservices_ids:
+                    matches_env = (filter_env is None) or (filter_env == microservice_tags_dict.get('env'))
+                    matches_app_id = (filter_app_id is None) or (filter_app_id == microservice_tags_dict.get('app_id'))
+
+                    if (matches_env and matches_app_id and
+                            (not filter_local or microservice_id in local_microservices_ids)):
                         microservice_address = microservice_ip + ':' + microservice_port
                         try:
-                            microservice_start_timestamp = kv.get("start_timestamp/" + container_id)
+                            microservice_start_timestamp = kv.kv_get("start_timestamp/" + container_id)
                         except:
                             microservice_start_timestamp = None
                         microservice_dict = {

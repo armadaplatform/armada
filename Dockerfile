@@ -1,7 +1,7 @@
 FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
-ENV ARMADA_APT_GET_UPDATE_DATE 2016-06-13
+ENV ARMADA_APT_GET_UPDATE_DATE 2016-08-03
 
 RUN apt-get update && apt-get install -y python python-dev python-pip unzip rsync openssh-server libffi-dev libssl-dev
 RUN pip install paramiko web.py docker-py==1.7.1
@@ -22,7 +22,7 @@ RUN cd /opt/armada-docker/armada_backend/scripts && chmod +x * && sync && ./setu
 ADD ./install/armada /usr/local/bin/armada
 RUN chmod +x /usr/local/bin/armada
 
-ENV ARMADA_VERSION 1.1.1
+ENV ARMADA_VERSION 1.2.2
 RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_command/_version.py
 
 ENV PYTHONPATH /opt/armada-docker:$PYTHONPATH

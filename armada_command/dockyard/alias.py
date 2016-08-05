@@ -75,19 +75,19 @@ def set_alias(name, address, user=None, password=None):
         value['password'] = password
 
     will_be_default = len(get_list()) <= 1 and name != DOCKYARD_FALLBACK_ALIAS
-    kv.set(key, value)
+    kv.kv_set(key, value)
     if will_be_default:
         set_default(name)
 
 
 def get_alias(name):
     key = 'dockyard/aliases/{name}'.format(**locals())
-    return kv.get(key)
+    return kv.kv_get(key)
 
 
 def remove_alias(name):
     key = 'dockyard/aliases/{name}'.format(**locals())
-    kv.remove(key)
+    kv.kv_remove(key)
     if get_default() == name:
         remove_default()
 
@@ -95,9 +95,9 @@ def remove_alias(name):
 def get_list():
     result_list = []  # Contains dictionaries:
     # {'name': ..., 'is_default':..., 'address':..., ['user':...], ['password':...])
-    default_alias = kv.get('dockyard/default')
+    default_alias = kv.kv_get('dockyard/default')
     aliases_key = 'dockyard/aliases/'
-    prefixed_aliases = kv.list(aliases_key) or []
+    prefixed_aliases = kv.kv_list(aliases_key) or []
     for prefixed_alias in sorted(prefixed_aliases):
         alias_name = prefixed_alias[len(aliases_key):]
         row = {
@@ -110,20 +110,20 @@ def get_list():
 
 
 def set_default(name):
-    kv.set('dockyard/default', name)
+    kv.kv_set('dockyard/default', name)
 
 
 def get_default():
-    return kv.get('dockyard/default')
+    return kv.kv_get('dockyard/default')
 
 
 def remove_default():
-    kv.remove('dockyard/default')
+    kv.kv_remove('dockyard/default')
 
 
 def get_initialized():
-    return kv.get('dockyard/initialized') == '1'
+    return kv.kv_get('dockyard/initialized') == '1'
 
 
 def set_initialized():
-    kv.set('dockyard/initialized', '1')
+    kv.kv_set('dockyard/initialized', '1')

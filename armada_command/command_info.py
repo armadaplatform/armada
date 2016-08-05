@@ -29,7 +29,8 @@ def command_info(args):
         current_string = '->'.rjust(len(output_header[0])) if ship['is_current'] else ''
         if ship['status'] == 'passing':
             ship_role_counts[ship['role']] += 1
-        output_rows.append([current_string, ship['name'], ship['role'], ship['address'], ship['status'], ship['version']])
+        output_rows.append([current_string, ship['name'], ship['role'], ship['address'], ship['status'],
+                            ship['version']])
 
     print_table(output_rows)
 
