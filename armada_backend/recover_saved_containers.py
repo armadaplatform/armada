@@ -9,6 +9,8 @@ from time import sleep
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.utils import get_container_parameters, get_local_containers_ids, get_logger
 from armada_command import armada_api
+from armada_command.consul import kv
+
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
 RECOVERY_RETRY_LIMIT = 5
@@ -38,9 +40,11 @@ def _get_local_running_containers():
 
 def _recover_container(container_parameters):
     get_logger().info('Recovering: {}...\n'.format(json.dumps(container_parameters)))
+    kv.kv_set('service/{}'.format(container_parameters['microservice_name']), {'status': 'recovering'})
     recovery_result = armada_api.post('run', container_parameters)
     if recovery_result.get('status') == 'ok':
         get_logger().info('Recovered container: {}'.format(json.dumps(recovery_result)))
+        kv.kv_remove('service/{}'.format(container_parameters['microservice_name']))
         return True
     else:
         get_logger().error('Could not recover container: {}'.format(json.dumps(recovery_result)))
@@ -69,6 +73,8 @@ def recover_saved_containers(saved_containers):
         running_containers = _get_local_running_containers()
         containers_to_be_recovered = _multiset_difference(containers_not_recovered, running_containers)
         recovery_retry_count += 1
+    for container_parameters in containers_to_be_recovered:
+        kv.kv_set('service/{}'.format(container_parameters['microservice_name']), {'status': 'not-recovered'})
     return containers_to_be_recovered
 
 
