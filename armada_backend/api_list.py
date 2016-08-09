@@ -80,25 +80,27 @@ class List(api_base.ApiCommand):
             get_logger().info('kv_services_list: {}'.format(kv_services_list))
             if kv_services_list:
                 if filter_microservice_name:
-                    recover_ids = [service[len(prefix):] for service in kv_services_list]
-                    recover_ids = fnmatch.filter(recover_ids, filter_microservice_name)
+                    names = set([service.split('/')[1] for service in kv_services_list])
+                    names = fnmatch.filter(names, filter_microservice_name)
                 else:
-                    recover_ids = [service[len(prefix):] for service in kv_services_list]
-                get_logger().info('recover_ids: {}'.format(recover_ids))
-                for id in recover_ids:
-                    microservice_name = kv.kv_get(prefix + id)['service']
-                    microservice_status = kv.kv_get(prefix + id)['status']
-                    not_available = 'n/a'
-                    microservice_dict = {
-                        'name': microservice_name,
-                        'status': microservice_status,
-                        'address': not_available,
-                        'microservice_id': not_available,
-                        'container_id': id,
-                        'tags': {},
-                        'start_timestamp': 0,
-                    }
-                    result.append(microservice_dict)
+                    names = set([service.split('/')[1] for service in kv_services_list])
+                for name in names:
+                    instances = kv.kv_list('{}/{}/'.format(prefix, name))
+                    for instance in instances:
+                        microservice_name = instance.split('/')[1]
+                        microservice_status = kv.kv_get(instance)['status']
+                        id = instance.split('/')[2]
+                        not_available = 'n/a'
+                        microservice_dict = {
+                            'name': microservice_name,
+                            'status': microservice_status,
+                            'address': not_available,
+                            'microservice_id': not_available,
+                            'container_id': id,
+                            'tags': {},
+                            'start_timestamp': 0,
+                        }
+                        result.append(microservice_dict)
 
             return self.status_ok({'result': result})
         except Exception as e:
