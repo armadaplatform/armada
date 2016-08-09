@@ -3,7 +3,11 @@
 ## Unreleased
 
 ### Improvements
-- run and restart command can get IP address as '--ship' argument
+- `run` and `restart` commands can get IP address as '--ship' argument.
+
+### Bug fixes
+- While default armada network interface is unavailable armada uses host default interface.
+
 
 ## 1.2.2 (2016-08-04)
 
