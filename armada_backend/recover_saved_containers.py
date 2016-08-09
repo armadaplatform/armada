@@ -5,6 +5,7 @@ import sys
 import traceback
 from collections import Counter
 from time import sleep
+import hashlib
 
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.utils import get_container_parameters, get_local_containers_ids, get_logger
@@ -40,11 +41,9 @@ def _get_local_running_containers():
 
 def _recover_container(container_parameters):
     get_logger().info('Recovering: {}...\n'.format(json.dumps(container_parameters)))
-    kv.kv_set('service/{}'.format(container_parameters['microservice_name']), {'status': 'recovering'})
     recovery_result = armada_api.post('run', container_parameters)
     if recovery_result.get('status') == 'ok':
         get_logger().info('Recovered container: {}'.format(json.dumps(recovery_result)))
-        kv.kv_remove('service/{}'.format(container_parameters['microservice_name']))
         return True
     else:
         get_logger().error('Could not recover container: {}'.format(json.dumps(recovery_result)))
@@ -66,15 +65,24 @@ def recover_saved_containers(saved_containers):
     while containers_to_be_recovered and recovery_retry_count < RECOVERY_RETRY_LIMIT:
         get_logger().info("Recovering containers: {}".format(json.dumps(containers_to_be_recovered)))
         containers_not_recovered = []
-        for container_parameters in containers_to_be_recovered:
+        for index, container_parameters in enumerate(containers_to_be_recovered):
+            recover_id = hashlib.md5(json.dumps(container_parameters, sort_keys=True) + str(index)).hexdigest()
+            kv.kv_set('service/{}'.format(recover_id), {'service': container_parameters['microservice_name'],
+                                                        'status': 'recovering'})
+        for index, container_parameters in enumerate(containers_to_be_recovered):
+            recover_id = hashlib.md5(json.dumps(container_parameters, sort_keys=True) + str(index)).hexdigest()
             if not _recover_container(container_parameters):
                 containers_not_recovered.append(container_parameters)
+                if recovery_retry_count == (RECOVERY_RETRY_LIMIT - 1):
+                    kv.kv_set('service/{}'.format(recover_id), {'service': container_parameters['microservice_name'],
+                                                                'status': 'not-recovered'})
+            else:
+                kv.kv_remove('service/{}'.format(recover_id))
         sleep(DELAY_BETWEEN_RECOVER_RETRY_SECONDS)
         running_containers = _get_local_running_containers()
         containers_to_be_recovered = _multiset_difference(containers_not_recovered, running_containers)
         recovery_retry_count += 1
-    for container_parameters in containers_to_be_recovered:
-        kv.kv_set('service/{}'.format(container_parameters['microservice_name']), {'status': 'not-recovered'})
+
     return containers_to_be_recovered
 
 

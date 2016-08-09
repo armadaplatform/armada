@@ -6,7 +6,7 @@ import web
 import api_base
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
-
+from utils import get_logger
 
 class List(api_base.ApiCommand):
     @staticmethod
@@ -74,6 +74,31 @@ class List(api_base.ApiCommand):
                             'start_timestamp': microservice_start_timestamp,
                         }
                         result.append(microservice_dict)
+
+            prefix = 'service/'
+            kv_services_list = kv.kv_list(prefix)
+            get_logger().info('kv_services_list: {}'.format(kv_services_list))
+            if kv_services_list:
+                if filter_microservice_name:
+                    recover_ids = [service[len(prefix):] for service in kv_services_list]
+                    recover_ids = fnmatch.filter(recover_ids, filter_microservice_name)
+                else:
+                    recover_ids = [service[len(prefix):] for service in kv_services_list]
+                get_logger().info('recover_ids: {}'.format(recover_ids))
+                for id in recover_ids:
+                    microservice_name = kv.kv_get(prefix + id)['service']
+                    microservice_status = kv.kv_get(prefix + id)['status']
+                    not_available = 'n/a'
+                    microservice_dict = {
+                        'name': microservice_name,
+                        'status': microservice_status,
+                        'address': not_available,
+                        'microservice_id': not_available,
+                        'container_id': id,
+                        'tags': {},
+                        'start_timestamp': 0,
+                    }
+                    result.append(microservice_dict)
 
             return self.status_ok({'result': result})
         except Exception as e:
