@@ -78,7 +78,7 @@ def command_restart(args):
                     payload['force'] = args.force
 
                 print('Checking if there is new image version. May take few minutes if download is needed...')
-                ship_name = armada_utils.ship_ip_to_name(instance['Address'])
+                ship_name = instance['Address']
                 result = armada_api.post('restart', payload, ship_name=ship_name)
 
                 if result['status'] == 'ok':

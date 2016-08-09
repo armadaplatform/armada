@@ -50,7 +50,7 @@ def command_stop(args):
                 print('[{0}/{1}]'.format(i + 1, instances_count))
             container_id = instance['ServiceID'].split(':')[0]
             payload = {'container_id': container_id}
-            ship_name = armada_utils.ship_ip_to_name(instance['Address'])
+            ship_name = instance['Address']
             result = armada_api.post('stop', payload, ship_name=ship_name)
 
             if result['status'] == 'ok':
