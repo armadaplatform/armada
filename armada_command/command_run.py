@@ -6,7 +6,7 @@ import sys
 
 import armada_api
 from armada_command.armada_payload import RunPayload
-from armada_command.armada_utils import ArmadaCommandException, is_verbose
+from armada_command.armada_utils import ArmadaCommandException, is_verbose, is_ip, ship_ip_to_name
 from armada_command.docker_utils.images import ArmadaImageFactory, select_latest_image, InvalidImagePathException
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default

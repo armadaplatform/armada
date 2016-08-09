@@ -8,7 +8,7 @@ import traceback
 import requests
 
 from armada_command.consul.consul import consul_query
-from armada_utils import is_verbose, print_err, ship_name_to_ip
+from armada_utils import is_verbose, print_err, ship_name_to_ip, is_ip
 
 
 class ArmadaApiException(Exception):
@@ -28,7 +28,10 @@ def __get_armada_address(ship_name=None):
             if service['Service'] == 'armada':
                 return 'http://127.0.0.1:{}'.format(service['Port'])
     else:
-        ship_ip = ship_name_to_ip(ship_name)
+        if not is_ip(ship_name):
+            ship_ip = ship_name_to_ip(ship_name)
+        else:
+            ship_ip = ship_name
         service_armada_dict = consul_query('catalog/service/armada')
         for service_armada in service_armada_dict:
             if service_armada['Address'] == ship_ip:
