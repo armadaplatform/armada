@@ -87,9 +87,10 @@ class List(api_base.ApiCommand):
                 for name in names:
                     instances = kv.kv_list('{}/{}/'.format(prefix, name))
                     for instance in instances:
-                        microservice_name = instance.split('/')[1]
-                        microservice_status = kv.kv_get(instance)['status']
-                        id = instance.split('/')[2]
+                        instance_dict = kv.kv_get(instance)
+                        microservice_name = instance_dict['ServiceName']
+                        microservice_status = instance_dict['status']
+                        id = instance_dict['ServiceID']
                         not_available = 'n/a'
                         microservice_dict = {
                             'name': microservice_name,

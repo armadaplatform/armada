@@ -43,6 +43,8 @@ def command_ssh(args):
 
     service_id = instance['ServiceID']
     container_id = service_id.split(':')[0]
+    if container_id.startswith('kv_'):
+        raise armada_utils.ArmadaCommandException('Cannot connect to not running service.')
     payload = {'container_id': container_id}
 
     is_local = False

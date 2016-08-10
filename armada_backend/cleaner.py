@@ -29,9 +29,11 @@ def deregister_not_running_services():
                 id = 0
                 if kv.kv_list('service/{}/'.format(name)):
                     id = int(kv.kv_list('service/{}/'.format(name))[-1].split('/')[2]) + 1
-                kv.kv_set('service/{}/{}'.format(name, id), {'status': 'crashed',
+                kv.kv_set('service/{}/{}'.format(name, id), {'ServiceName': name,
+                                                             'status': 'crashed',
                                                              'container_id': container_id,
-                                                             'params': params})
+                                                             'params': params,
+                                                             'ServiceID': 'kv_{}_{}'.format(name, id)})
 
 
 def main():
