@@ -11,7 +11,6 @@ from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.utils import get_container_parameters, get_local_containers_ids, get_logger
 from armada_command import armada_api
 from armada_command.consul import kv
-from kv_service_storage import set_status
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
 RECOVERY_RETRY_LIMIT = 5
@@ -77,17 +76,21 @@ def recover_saved_containers(saved_containers):
                 index = 0
             to_be_recovered.append((container_parameters, index))
             # id = hashlib.md5(container_parameters + str(index)).hexdigest()
-            set_status(json.loads(container_parameters)['microservice_name'], index,
-                       'recovering', json.loads(container_parameters))
+            name = json.loads(container_parameters)['microservice_name']
+            kv.kv_set('service/{}/{}'.format(name, index),
+                      {'status': 'recovering', 'params': json.loads(container_parameters)})
+
         for container_parameters, index in to_be_recovered:
             container_parameters = json.loads(container_parameters)
+            name = container_parameters['microservice_name']
             # id = hashlib.md5(json.dumps(container_parameters, sort_keys=True) + str(index)).hexdigest()
             if not _recover_container(container_parameters):
                 containers_not_recovered.append(container_parameters)
                 if recovery_retry_count == (RECOVERY_RETRY_LIMIT - 1):
-                    set_status(container_parameters['microservice_name'], index, 'not-recovered', container_parameters)
+                    kv.kv_set('service/{}/{}'.format(name, index),
+                              {'status': 'not-recovered', 'params': json.loads(container_parameters)})
             else:
-                kv.kv_remove('service/{}/{}'.format(container_parameters['microservice_name'], index))
+                kv.kv_remove('service/{}/{}'.format(name, index))
         sleep(DELAY_BETWEEN_RECOVER_RETRY_SECONDS)
         running_containers = _get_local_running_containers()
         containers_to_be_recovered = _multiset_difference(containers_not_recovered, running_containers)
