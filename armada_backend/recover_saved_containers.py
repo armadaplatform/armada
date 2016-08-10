@@ -75,7 +75,6 @@ def recover_saved_containers(saved_containers):
             except IndexError:
                 index = 0
             to_be_recovered.append((container_parameters, index))
-            # id = hashlib.md5(container_parameters + str(index)).hexdigest()
             name = json.loads(container_parameters)['microservice_name']
             kv.kv_set('service/{}/{}'.format(name, index),
                       {'status': 'recovering', 'params': json.loads(container_parameters)})
@@ -83,7 +82,6 @@ def recover_saved_containers(saved_containers):
         for container_parameters, index in to_be_recovered:
             container_parameters = json.loads(container_parameters)
             name = container_parameters['microservice_name']
-            # id = hashlib.md5(json.dumps(container_parameters, sort_keys=True) + str(index)).hexdigest()
             if not _recover_container(container_parameters):
                 containers_not_recovered.append(container_parameters)
                 if recovery_retry_count == (RECOVERY_RETRY_LIMIT - 1):
