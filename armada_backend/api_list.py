@@ -89,7 +89,7 @@ class List(api_base.ApiCommand):
                     for instance in instances:
                         instance_dict = kv.kv_get(instance)
                         microservice_name = instance_dict['ServiceName']
-                        microservice_status = instance_dict['status']
+                        microservice_status = instance_dict['Status']
                         id = instance_dict['ServiceID']
                         not_available = 'n/a'
                         microservice_dict = {
@@ -99,7 +99,7 @@ class List(api_base.ApiCommand):
                             'microservice_id': not_available,
                             'container_id': id,
                             'tags': {},
-                            'start_timestamp': 0,
+                            'start_timestamp': None,
                         }
                         result.append(microservice_dict)
 

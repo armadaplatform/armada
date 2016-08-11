@@ -36,7 +36,7 @@ def command_diagnose(args):
         instances = get_matched_containers(microservice_name)
         if instances is not None and len(instances) == 1:
             instance = instances[0]
-            status = instance['status']
+            status = instance['Status']
             if status == 'recovering':
                 params = instance['params']
                 print('RESTART_CONTAINER_PARAMETERS:')

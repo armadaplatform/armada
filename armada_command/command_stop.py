@@ -51,8 +51,8 @@ def command_stop(args):
                 print('[{0}/{1}]'.format(i + 1, instances_count))
             container_id = instance['ServiceID'].split(':')[0]
             if container_id.startswith('kv_'):
-                kv.kv_remove('service/{}/{}'.format(instance['name'], container_id.split('_')[-1]))
-                print('Service {} has been removed.'.format(instance['name']))
+                kv.kv_remove('service/{}/{}'.format(instance['ServiceName'], container_id.split('_')[-1]))
+                print('Service {} has been removed.'.format(instance['ServiceName']))
             else:
                 payload = {'container_id': container_id}
                 ship_name = instance['Address']
