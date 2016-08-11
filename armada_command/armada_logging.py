@@ -13,7 +13,7 @@ class GroupWriteRotatingFileHandler(TimedRotatingFileHandler):
     def doRollover(self):
         TimedRotatingFileHandler.doRollover(self)
         gid = grp.getgrnam('docker').gr_gid
-        os.chown(self.baseFilename, 0, gid)
+        os.chown(self.baseFilename, -1, gid)
         os.chmod(self.baseFilename, 0o664)
 
 
@@ -21,7 +21,7 @@ def _owned_file_handler(filename, owner_group='docker'):
     gid = grp.getgrnam(owner_group).gr_gid
     if not os.path.exists(filename):
         open(filename, 'a').close()
-        os.chown(filename, 0, gid)
+        os.chown(filename, -1, gid)
         os.chmod(filename, 0o664)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', '%Y-%m-%d %H:%M:%S')
     handler = GroupWriteRotatingFileHandler(filename, when='midnight', backupCount=3)
