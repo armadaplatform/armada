@@ -1,7 +1,7 @@
 import itertools
 import os
 
-SHIP_ROOT_DIR = '/ship_root_dir'
+CONFIGS_CUSTOM_DIR = '/configs'
 CONFIG_PATH_BASE = '/etc/opt/'
 
 
@@ -17,7 +17,7 @@ class Volumes(object):
     def get_existing_volumes(self):
         used = set()
         for volume in self.volumes:
-            if _is_directory(volume[0], root_path=SHIP_ROOT_DIR) and volume[1] not in used:
+            if _is_directory(volume[0], root_path=CONFIGS_CUSTOM_DIR) and volume[1] not in used:
                 used.add(volume[1])
                 yield volume
 

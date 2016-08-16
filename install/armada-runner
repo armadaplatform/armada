@@ -8,6 +8,8 @@ ARMADA_LOCK_FILE=/var/lock/subsys/$BASE
 ARMADA_DESC="armada"
 ARMADA_PORT=8900
 
+CONFIGS_CUSTOM_DIR=/etc
+
 DOCKER_PID_FILE='/var/run/docker.pid'
 
 PATH=$PATH:/usr/local/bin
@@ -143,7 +145,7 @@ case "$1" in
             -v /etc/opt:/etc/opt \
             -v /opt/armada-docker-client/docker-$docker_version:/usr/bin/docker \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            -v /:/ship_root_dir:ro \
+            -v $CONFIGS_CUSTOM_DIR:/configs:ro \
             -e SHIP_EXTERNAL_IP=${external_ip} \
             -e MICROSERVICE_NAME=armada \
             -e DOCKER_START_TIMESTAMP=${docker_start_timestamp}"
