@@ -20,7 +20,6 @@ def add_arguments(parser):
                         help='Name of the microservice to diagnose. '
                              'If not provided it will use MICROSERVICE_NAME env variable. ')
     parser.add_argument('-l', '--logs', action='store_true', help='Displays last 10 lines from every log file.')
-    parser.add_argument('-x', '--xx', action='store_true', help='Diagnose crashed/recovering/not-recovered.')
 
 
 def command_diagnose(args):
@@ -31,8 +30,8 @@ def command_diagnose(args):
         script = "logs.sh"
     diagnostic_command = ("armada ssh -i {microservice_name} "
                           "bash < /opt/armada/armada_command/diagnostic_scripts/{script}").format(**locals())
-    code = subprocess.call(diagnostic_command, shell=True)
-    if code:
+    exit_code = subprocess.call(diagnostic_command, shell=True)
+    if exit_code != 0:
         instances = get_matched_containers(microservice_name)
         if instances is not None and len(instances) == 1:
             instance = instances[0]

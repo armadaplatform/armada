@@ -79,6 +79,7 @@ def recover_saved_containers(saved_containers):
             kv.kv_set('service/{}/{}'.format(name, index), {'ServiceName': name,
                                                             'Status': 'recovering',
                                                             'params': json.loads(container_parameters),
+                                                            'kv_index': index,
                                                             'ServiceID': 'kv_{}_{}'.format(name, index)})
 
         for container_parameters, index in to_be_recovered:
@@ -90,6 +91,7 @@ def recover_saved_containers(saved_containers):
                     kv.kv_set('service/{}/{}'.format(name, index), {'ServiceName': name,
                                                                     'Status': 'not-recovered',
                                                                     'params': json.loads(container_parameters),
+                                                                    'kv_index': index,
                                                                     'ServiceID': 'kv_{}_{}'.format(name, index)})
             else:
                 kv.kv_remove('service/{}/{}'.format(name, index))

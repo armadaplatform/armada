@@ -75,34 +75,41 @@ class List(api_base.ApiCommand):
                         }
                         result.append(microservice_dict)
 
-            prefix = 'service/'
-            kv_services_list = kv.kv_list(prefix)
-            get_logger().info('kv_services_list: {}'.format(kv_services_list))
-            if kv_services_list:
-                if filter_microservice_name:
-                    names = set([service.split('/')[1] for service in kv_services_list])
-                    names = fnmatch.filter(names, filter_microservice_name)
-                else:
-                    names = set([service.split('/')[1] for service in kv_services_list])
-                for name in names:
-                    instances = kv.kv_list('{}/{}/'.format(prefix, name))
-                    for instance in instances:
-                        instance_dict = kv.kv_get(instance)
-                        microservice_name = instance_dict['ServiceName']
-                        microservice_status = instance_dict['Status']
-                        id = instance_dict['ServiceID']
-                        not_available = 'n/a'
-                        microservice_dict = {
-                            'name': microservice_name,
-                            'status': microservice_status,
-                            'address': not_available,
-                            'microservice_id': not_available,
-                            'container_id': id,
-                            'tags': {},
-                            'start_timestamp': None,
-                        }
-                        result.append(microservice_dict)
-
+            kv_service_list = _get_kv_service_list(filter_microservice_name)
+            result.extend(kv_service_list)
             return self.status_ok({'result': result})
         except Exception as e:
             return self.status_exception("Cannot get the list of services.", e)
+
+
+def _get_kv_service_list(filter_microservice_name):
+    prefix = 'service'
+    kv_services_list = kv.kv_list("{}/".format(prefix))
+    result = []
+    if not kv_services_list:
+        return result
+    names = set([service.split('/')[1] for service in kv_services_list])
+    if filter_microservice_name:
+        names = fnmatch.filter(names, filter_microservice_name)
+
+    for name in names:
+        instances = kv.kv_list('{}/{}/'.format(prefix, name))
+        if instances is None:
+            continue
+        for instance in instances:
+            instance_dict = kv.kv_get(instance)
+            microservice_name = instance_dict['ServiceName']
+            microservice_status = instance_dict['Status']
+            not_available = 'n/a'
+            container_id = instance_dict['container_id'] if 'container_id' in instance_dict else not_available
+            microservice_dict = {
+                'name': microservice_name,
+                'status': microservice_status,
+                'address': not_available,
+                'microservice_id': not_available,
+                'container_id': container_id,
+                'tags': {},
+                'start_timestamp': None,
+            }
+            result.append(microservice_dict)
+    return result

@@ -49,11 +49,11 @@ def command_stop(args):
         try:
             if instances_count > 1:
                 print('[{0}/{1}]'.format(i + 1, instances_count))
-            container_id = instance['ServiceID'].split(':')[0]
-            if container_id.startswith('kv_'):
-                kv.kv_remove('service/{}/{}'.format(instance['ServiceName'], container_id.split('_')[-1]))
+            if 'kv_index' in instance:
+                kv.kv_remove('service/{}/{}'.format(instance['ServiceName'], instance['kv_index']))
                 print('Service {} has been removed.'.format(instance['ServiceName']))
             else:
+                container_id = instance['ServiceID'].split(':')[0]
                 payload = {'container_id': container_id}
                 ship_name = instance['Address']
                 result = armada_api.post('stop', payload, ship_name=ship_name)
