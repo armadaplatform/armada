@@ -102,6 +102,7 @@ def _get_kv_service_list(filter_microservice_name):
             microservice_status = instance_dict['Status']
             not_available = 'n/a'
             container_id = instance_dict['container_id'] if 'container_id' in instance_dict else not_available
+            microservice_start_timestamp = instance_dict['start_timestamp']
             microservice_dict = {
                 'name': microservice_name,
                 'status': microservice_status,
@@ -109,7 +110,7 @@ def _get_kv_service_list(filter_microservice_name):
                 'microservice_id': not_available,
                 'container_id': container_id,
                 'tags': {},
-                'start_timestamp': None,
+                'start_timestamp': microservice_start_timestamp,
             }
             result.append(microservice_dict)
     return result
