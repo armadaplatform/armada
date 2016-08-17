@@ -76,15 +76,15 @@ class List(api_base.ApiCommand):
                         }
                         result.append(microservice_dict)
 
-            inactive_service_list = _get_inactive_service_list(filter_microservice_name, filter_env, filter_app_id)
-            result.extend(inactive_service_list)
+            inactive_services_list = _get_inactive_services_list(filter_microservice_name, filter_env, filter_app_id)
+            result.extend(inactive_services_list)
             return self.status_ok({'result': result})
         except Exception as e:
             traceback.print_exc()
             return self.status_exception("Cannot get the list of services.", e)
 
 
-def _get_inactive_service_list(filter_microservice_name, filter_env, filter_app_id):
+def _get_inactive_services_list(filter_microservice_name, filter_env, filter_app_id):
     services_list = kv.kv_list("service/")
     result = []
     if not services_list:
