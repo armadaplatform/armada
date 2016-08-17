@@ -183,7 +183,7 @@ if command_exists update-rc.d || command_exists chkconfig; then
 elif command_exists systemctl; then
     start_using_systemd
 elif command_exists rc-status; then
-    +start_using_openrc
+    start_using_openrc
 else
     echo "No initd or systemd installed."
     exit 1
