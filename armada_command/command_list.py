@@ -28,6 +28,8 @@ def add_arguments(parser):
 
 
 def epoch_to_iso(unix_timestamp):
+    if unix_timestamp is None:
+        return 'n/a'
     return datetime.datetime.utcfromtimestamp(
         int(unix_timestamp)).strftime('%Y-%m-%d %H:%M')
 

@@ -112,7 +112,8 @@ def get_local_containers_ids():
     response.raise_for_status()
     list_response = response.json()
     services_from_api = list_response['result']
-    return list(set(service['container_id'] for service in services_from_api))
+    return list(set(service['container_id'] for service in services_from_api if service['status'] not in ['recovering',
+                                                                                                          'crashed']))
 
 
 def is_container_running(container_id):

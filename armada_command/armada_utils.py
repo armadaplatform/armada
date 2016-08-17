@@ -46,6 +46,20 @@ def get_matched_containers(microservice_name_or_container_id_prefix):
             if container_id.startswith(microservice_name_or_container_id_prefix) and ":" not in instance['ServiceID']:
                 matched_containers_by_id.append(instance)
 
+    instances_kv = kv.kv_list('service/')
+
+    if instances_kv:
+        for instance in instances_kv:
+            instance_dict = kv.kv_get(instance)
+            container_id = instance_dict['container_id'] if 'container_id' in instance_dict else instance_dict['ServiceID']
+            service_name = instance_dict['ServiceName']
+
+            if microservice_name_or_container_id_prefix == service_name:
+                matched_containers_by_name.append(instance_dict)
+
+            if container_id.startswith(microservice_name_or_container_id_prefix) and ":" not in instance_dict['ServiceID']:
+                matched_containers_by_id.append(instance_dict)
+
     matched_containers_by_name_count = len(matched_containers_by_name)
     matched_containers_by_id_count = len(matched_containers_by_id)
 

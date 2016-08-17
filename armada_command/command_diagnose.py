@@ -1,6 +1,10 @@
 import argparse
 import os
 import subprocess
+import json
+
+from armada_command.consul import kv
+from armada_utils import get_matched_containers
 
 
 def parse_args():
@@ -20,9 +24,28 @@ def add_arguments(parser):
 
 def command_diagnose(args):
     microservice_name = args.microservice_name
+
     script = "diagnose.sh"
     if args.logs:
         script = "logs.sh"
     diagnostic_command = ("armada ssh -i {microservice_name} "
                           "bash < /opt/armada/armada_command/diagnostic_scripts/{script}").format(**locals())
-    subprocess.call(diagnostic_command, shell=True)
+    exit_code = subprocess.call(diagnostic_command, shell=True)
+    if exit_code != 0:
+        instances = get_matched_containers(microservice_name)
+        if instances is not None and len(instances) == 1:
+            instance = instances[0]
+            status = instance['Status']
+            if status == 'recovering':
+                params = instance['params']
+                print('RESTART_CONTAINER_PARAMETERS:')
+                print(params)
+            elif status == 'crashed':
+                params = instance['params']
+                print('RESTART_CONTAINER_PARAMETERS:')
+                print(json.dumps(params, indent=4, sort_keys=True))
+                print('')
+                container_id = instance['container_id']
+                print('Docker logs of container_id: {}'.format(container_id))
+                diagnostic_command = ("docker logs {}".format(container_id))
+                subprocess.call(diagnostic_command, shell=True)

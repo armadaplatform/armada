@@ -1,4 +1,5 @@
 import fnmatch
+import traceback
 from distutils.util import strtobool
 
 import web
@@ -75,6 +76,53 @@ class List(api_base.ApiCommand):
                         }
                         result.append(microservice_dict)
 
+            inactive_services_list = _get_inactive_services_list(filter_microservice_name, filter_env, filter_app_id)
+            result.extend(inactive_services_list)
             return self.status_ok({'result': result})
         except Exception as e:
+            traceback.print_exc()
             return self.status_exception("Cannot get the list of services.", e)
+
+
+def _get_inactive_services_list(filter_microservice_name, filter_env, filter_app_id):
+    services_list = kv.kv_list("service/")
+    result = []
+    if not services_list:
+        return result
+    names = set([service.split('/')[1] for service in services_list])
+    if filter_microservice_name:
+        names = fnmatch.filter(names, filter_microservice_name)
+
+    for name in names:
+        instances = kv.kv_list('service/{}/'.format(name))
+        if instances is None:
+            continue
+        for instance in instances:
+            instance_dict = kv.kv_get(instance)
+            microservice_name = instance_dict['ServiceName']
+            microservice_status = instance_dict['Status']
+            not_available = 'n/a'
+            container_id = instance_dict['container_id'] if 'container_id' in instance_dict else not_available
+            microservice_start_timestamp = instance_dict['start_timestamp']
+
+            microservice_tags_dict = {}
+            if instance_dict['params']['microservice_env']:
+                microservice_tags_dict['env'] = instance_dict['params']['microservice_env']
+            if instance_dict['params']['microservice_app_id']:
+                microservice_tags_dict['app_id'] = instance_dict['params']['microservice_app_id']
+
+            matches_env = (filter_env is None) or (filter_env == microservice_tags_dict.get('env'))
+            matches_app_id = (filter_app_id is None) or (filter_app_id == microservice_tags_dict.get('app_id'))
+
+            if matches_env and matches_app_id:
+                microservice_dict = {
+                    'name': microservice_name,
+                    'status': microservice_status,
+                    'address': not_available,
+                    'microservice_id': not_available,
+                    'container_id': container_id,
+                    'tags': microservice_tags_dict,
+                    'start_timestamp': microservice_start_timestamp,
+                }
+                result.append(microservice_dict)
+    return result

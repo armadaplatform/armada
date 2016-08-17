@@ -21,3 +21,17 @@ def kv_remove(key):
 
 def kv_list(key):
     return consul_query('kv/{key}?keys'.format(**locals()))
+
+
+def save_service(name, index, status, params, container_id=None):
+    if container_id is not None:
+        start_timestamp = kv_get("start_timestamp/" + container_id)
+    else:
+        start_timestamp = None
+    kv_set('service/{}/{}'.format(name, index), {'ServiceName': name,
+                                                 'Status': status,
+                                                 'container_id': container_id,
+                                                 'params': params,
+                                                 'kv_index': index,
+                                                 'start_timestamp': start_timestamp,
+                                                 'ServiceID': 'kv_{}_{}'.format(name, index)})

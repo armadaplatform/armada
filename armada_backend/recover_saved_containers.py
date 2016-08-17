@@ -5,10 +5,12 @@ import sys
 import traceback
 from collections import Counter
 from time import sleep
+import hashlib
 
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.utils import get_container_parameters, get_local_containers_ids, get_logger
 from armada_command import armada_api
+from armada_command.consul import kv
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
 RECOVERY_RETRY_LIMIT = 5
@@ -62,13 +64,34 @@ def recover_saved_containers(saved_containers):
     while containers_to_be_recovered and recovery_retry_count < RECOVERY_RETRY_LIMIT:
         get_logger().info("Recovering containers: {}".format(json.dumps(containers_to_be_recovered)))
         containers_not_recovered = []
-        for container_parameters in containers_to_be_recovered:
+        counter_to_be_recovered = Counter(json.dumps(x, sort_keys=True) for x in containers_to_be_recovered)
+        to_be_recovered = []
+        for container_parameters in counter_to_be_recovered.elements():
+            try:
+                if to_be_recovered[-1][0] == container_parameters:
+                    index = to_be_recovered[-1][1] + 1
+                else:
+                    index = 0
+            except IndexError:
+                index = 0
+            to_be_recovered.append((container_parameters, index))
+            name = json.loads(container_parameters)['microservice_name']
+            kv.save_service(name, index, 'recovering', json.loads(container_parameters))
+
+        for container_parameters, index in to_be_recovered:
+            container_parameters = json.loads(container_parameters)
+            name = container_parameters['microservice_name']
             if not _recover_container(container_parameters):
                 containers_not_recovered.append(container_parameters)
+                if recovery_retry_count == (RECOVERY_RETRY_LIMIT - 1):
+                    kv.save_service(name, index, 'not-recovered', json.loads(container_parameters))
+            else:
+                kv.kv_remove('service/{}/{}'.format(name, index))
         sleep(DELAY_BETWEEN_RECOVER_RETRY_SECONDS)
         running_containers = _get_local_running_containers()
         containers_to_be_recovered = _multiset_difference(containers_not_recovered, running_containers)
         recovery_retry_count += 1
+
     return containers_to_be_recovered
 
 
