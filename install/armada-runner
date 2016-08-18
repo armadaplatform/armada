@@ -8,7 +8,7 @@ ARMADA_LOCK_FILE=/var/lock/subsys/$BASE
 ARMADA_DESC="armada"
 ARMADA_PORT=8900
 
-CONFIGS_CUSTOM_DIR=/etc
+RESTRICT_CUSTOM_CONFIG_DIRS=/
 
 DOCKER_PID_FILE='/var/run/docker.pid'
 
@@ -145,11 +145,11 @@ case "$1" in
             -v /etc/opt:/etc/opt \
             -v /opt/armada-docker-client/docker-$docker_version:/usr/bin/docker \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            -v ${CONFIGS_CUSTOM_DIR}:/configs:ro \
+            -v ${RESTRICT_CUSTOM_CONFIG_DIRS}:/configs:ro \
             -e SHIP_EXTERNAL_IP=${external_ip} \
             -e MICROSERVICE_NAME=armada \
             -e DOCKER_START_TIMESTAMP=${docker_start_timestamp} \
-            -e HOST_CONFIG_DIR=${CONFIGS_CUSTOM_DIR}"
+            -e RESTRICT_CUSTOM_CONFIG_DIRS=${RESTRICT_CUSTOM_CONFIG_DIRS}"
 
         if [ "$ARMADA_AUTORELOAD" == "true" ]; then
             run_options+=" -v /opt/armada-src/armada_backend:/opt/armada-docker/armada_backend -e ARMADA_AUTORELOAD=true"

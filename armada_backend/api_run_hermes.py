@@ -3,7 +3,7 @@ import os
 
 CONFIGS_CUSTOM_DIR = '/configs'
 CONFIG_PATH_BASE = '/etc/opt/'
-HOST_CONFIG_DIR = os.environ.get('HOST_CONFIG_DIR')
+RESTRICT_CUSTOM_CONFIG_DIRS = os.environ.get('RESTRICT_CUSTOM_CONFIG_DIRS')
 
 class Volumes(object):
     def __init__(self):
@@ -18,8 +18,8 @@ class Volumes(object):
     def get_existing_volumes(self):
         used = set()
         for volume in self.volumes:
-            if volume[0].startswith("/") and not volume[0].startswith(HOST_CONFIG_DIR):
-                raise Exception("{0} is outside of allowed config mount points. ({1})".format(volume[0], HOST_CONFIG_DIR))
+            if not (volume[0].startswith(CONFIG_PATH_BASE) or volume[0].startswith(RESTRICT_CUSTOM_CONFIG_DIRS)):
+                raise Exception("{0} is outside of allowed config mount points. ({1})".format(volume[0], RESTRICT_CUSTOM_CONFIG_DIRS))
             if _is_directory(volume[0], root_path=CONFIGS_CUSTOM_DIR) and volume[1] not in used:
                 used.add(volume[1])
                 yield volume
