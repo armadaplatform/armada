@@ -9,6 +9,7 @@ TimeoutStartSec=35
 Type=oneshot
 ExecStart=/usr/local/bin/armada-runner start
 ExecStop=/usr/local/bin/armada-runner stop
+RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
