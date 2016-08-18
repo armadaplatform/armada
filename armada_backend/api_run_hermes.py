@@ -3,7 +3,7 @@ import os
 
 CONFIGS_CUSTOM_DIR = '/configs'
 CONFIG_PATH_BASE = '/etc/opt/'
-
+HOST_CONFIG_DIR = os.environ.get('HOST_CONFIG_DIR')
 
 class Volumes(object):
     def __init__(self):
@@ -11,12 +11,15 @@ class Volumes(object):
 
     def add_config_paths(self, config_paths):
         for config_path in config_paths:
+            # os.path.join ignores CONFIG_PATH_BASE if config_path is an absolute path!
             volume_mapping = (os.path.join(CONFIG_PATH_BASE, config_path),) * 2
             self.volumes.append(volume_mapping)
 
     def get_existing_volumes(self):
         used = set()
         for volume in self.volumes:
+            if volume[0].startswith("/") and not volume[0].startswith(HOST_CONFIG_DIR):
+                raise Exception("{0} is outside of allowed config mount points. ({1})".format(volume[0], HOST_CONFIG_DIR))
             if _is_directory(volume[0], root_path=CONFIGS_CUSTOM_DIR) and volume[1] not in used:
                 used.add(volume[1])
                 yield volume

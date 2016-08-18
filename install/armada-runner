@@ -145,10 +145,11 @@ case "$1" in
             -v /etc/opt:/etc/opt \
             -v /opt/armada-docker-client/docker-$docker_version:/usr/bin/docker \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            -v $CONFIGS_CUSTOM_DIR:/configs:ro \
+            -v ${CONFIGS_CUSTOM_DIR}:/configs:ro \
             -e SHIP_EXTERNAL_IP=${external_ip} \
             -e MICROSERVICE_NAME=armada \
-            -e DOCKER_START_TIMESTAMP=${docker_start_timestamp}"
+            -e DOCKER_START_TIMESTAMP=${docker_start_timestamp} \
+            -e HOST_CONFIG_DIR=${CONFIGS_CUSTOM_DIR}"
 
         if [ "$ARMADA_AUTORELOAD" == "true" ]; then
             run_options+=" -v /opt/armada-src/armada_backend:/opt/armada-docker/armada_backend -e ARMADA_AUTORELOAD=true"
