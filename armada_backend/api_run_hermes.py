@@ -1,9 +1,9 @@
 import itertools
 import os
 
-SHIP_ROOT_DIR = '/ship_root_dir'
+CONFIGS_CUSTOM_DIR = '/configs'
 CONFIG_PATH_BASE = '/etc/opt/'
-
+RESTRICT_CUSTOM_CONFIG_DIRS = os.environ.get('RESTRICT_CUSTOM_CONFIG_DIRS')
 
 class Volumes(object):
     def __init__(self):
@@ -11,14 +11,18 @@ class Volumes(object):
 
     def add_config_paths(self, config_paths):
         for config_path in config_paths:
-            volume_mapping = (os.path.join(CONFIG_PATH_BASE, config_path),) * 2
-            self.volumes.append(volume_mapping)
+            # os.path.join ignores CONFIG_PATH_BASE if config_path is an absolute path!
+            volume_path = os.path.join(CONFIG_PATH_BASE, config_path)
+            self.volumes.append(volume_path)
 
     def get_existing_volumes(self):
         used = set()
         for volume in self.volumes:
-            if _is_directory(volume[0], root_path=SHIP_ROOT_DIR) and volume[1] not in used:
-                used.add(volume[1])
+            if not (volume.startswith(CONFIG_PATH_BASE) or volume.startswith(RESTRICT_CUSTOM_CONFIG_DIRS)):
+                raise Exception("{0} is outside of allowed config mount points. ({1}, {2})".
+                                format(volume, CONFIG_PATH_BASE, RESTRICT_CUSTOM_CONFIG_DIRS))
+            if _is_directory(volume, root_path=CONFIGS_CUSTOM_DIR) and volume not in used:
+                used.add(volume)
                 yield volume
 
 
@@ -95,12 +99,9 @@ def process_hermes(microservice_name, image_name, env, app_id, configs):
 
     volumes = Volumes()
     volumes.add_config_paths(possible_config_paths)
+    existing_volumes = volumes.get_existing_volumes()
 
-    hermes_volumes = {}
-
-    config_path = os.pathsep.join(volume[1] for volume in volumes.get_existing_volumes())
-
-    for volume in volumes.get_existing_volumes():
-        hermes_volumes[volume[0]] = volume[1]
+    config_path = os.pathsep.join(existing_volumes)
+    hermes_volumes = {volume: volume for volume in existing_volumes}
 
     return config_path, hermes_volumes
