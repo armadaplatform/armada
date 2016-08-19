@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.1 (2016-08-19)
+
+### Bug fixes
+- Fixed critical bug with mounting containers' volumes introduced in 1.3.0.
+
+
 ## 1.3.0 (2016-08-19)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
