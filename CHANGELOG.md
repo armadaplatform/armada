@@ -3,6 +3,9 @@
 ## Unreleased
 
 ### Improvements
+- Optionally restrict possible config directories. By default root directory is mounted in read-only mode.
+This can be restricted by setting `RESTRICT_CUSTOM_CONFIG_DIRS` variable to a specific path. (e.g. /home/user/configs)
+
 - `run` and `restart` commands can get IP address as '--ship' argument.
 
 ### Bug fixes
