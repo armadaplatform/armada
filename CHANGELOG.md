@@ -10,9 +10,17 @@ This can be restricted by setting `RESTRICT_CUSTOM_CONFIG_DIRS` variable to a sp
 
 - `run` and `restart` commands can get IP address as '--ship' argument.
 
+### Features
+- `armada list` show services that should be running with additional statuses:
+    - `recovering`
+    - `not-recovered` if recovering was not successful 
+    - `crashed` for not running containers
+    - `armada stop` to remove service from list
+
+    
 ### Bug fixes
 - While default armada network interface is unavailable armada uses host default interface.
-
+- Fixed logging of Armada CLI commands
 
 ## 1.2.2 (2016-08-04)
 
