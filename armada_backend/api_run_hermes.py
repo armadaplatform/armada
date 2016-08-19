@@ -99,7 +99,7 @@ def process_hermes(microservice_name, image_name, env, app_id, configs):
 
     volumes = Volumes()
     volumes.add_config_paths(possible_config_paths)
-    existing_volumes = volumes.get_existing_volumes()
+    existing_volumes = list(volumes.get_existing_volumes())
 
     config_path = os.pathsep.join(existing_volumes)
     hermes_volumes = {volume: volume for volume in existing_volumes}
