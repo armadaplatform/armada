@@ -1,9 +1,9 @@
 import itertools
 import os
 
-CONFIGS_CUSTOM_DIR = '/configs'
+CONFIGS_CUSTOM_DIR = '/configs/'
 CONFIG_PATH_BASE = '/etc/opt/'
-RESTRICT_CUSTOM_CONFIG_DIRS = os.environ.get('RESTRICT_CUSTOM_CONFIG_DIRS')
+RESTRICT_CUSTOM_CONFIG_DIRS = os.environ.get('RESTRICT_CUSTOM_CONFIG_DIRS', '').rstrip('/') + '/'
 
 class Volumes(object):
     def __init__(self):
@@ -18,26 +18,41 @@ class Volumes(object):
     def get_existing_volumes(self):
         used = set()
         for volume in self.volumes:
-            if not (volume.startswith(CONFIG_PATH_BASE) or volume.startswith(RESTRICT_CUSTOM_CONFIG_DIRS)):
-                raise Exception("{0} is outside of allowed config mount points. ({1}, {2})".
-                                format(volume, CONFIG_PATH_BASE, RESTRICT_CUSTOM_CONFIG_DIRS))
-            if _is_directory(volume, root_path=CONFIGS_CUSTOM_DIR) and volume not in used:
-                used.add(volume)
-                yield volume
+            if volume in used:
+                continue
+
+            if volume.startswith(CONFIG_PATH_BASE):
+                if _is_directory(volume, host_path=CONFIG_PATH_BASE, container_path=CONFIG_PATH_BASE):
+                    used.add(volume)
+                    yield volume
+                continue
+
+            if volume.startswith(RESTRICT_CUSTOM_CONFIG_DIRS):
+                if _is_directory(volume, host_path=RESTRICT_CUSTOM_CONFIG_DIRS, container_path=CONFIGS_CUSTOM_DIR):
+                    used.add(volume)
+                    yield volume
+                continue
+
+            raise Exception("{0} is outside of allowed config mount points. ({1}, {2})".
+                            format(volume, CONFIG_PATH_BASE, RESTRICT_CUSTOM_CONFIG_DIRS))
 
 
-def _is_directory(path, root_path='/'):
+def _is_directory(path, host_path='/', container_path='/'):
     """
     Checks if given path is a directory. It is a generalized version of os.path.isdir() that can work with changed
     root directory, even if the `path` contains symlinks.
     """
-    path_so_far = root_path
+    if not path.startswith(host_path):
+        return False
+
+    path = path[len(host_path):]
+    path_so_far = container_path
     for directory in path.lstrip('/').split('/'):
         rooted_path = os.path.join(path_so_far, directory)
         while os.path.islink(rooted_path):
             link_destination = os.readlink(rooted_path)
             if os.path.isabs(link_destination):
-                rooted_path = os.path.join(root_path, link_destination.lstrip('/'))
+                rooted_path = os.path.join(container_path, link_destination[len(host_path):].lstrip('/'))
             else:
                 rooted_path = os.path.join(rooted_path, os.path.pardir, link_destination)
         if not os.path.isdir(rooted_path):
