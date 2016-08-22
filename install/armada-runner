@@ -23,6 +23,13 @@ if [ -f /etc/default/$BASE ]; then
     . /etc/default/$BASE
 fi
 
+notify(){
+    systemctl --version > /dev/null 2>&1
+    if [ $? == 0 ]; then
+        systemd-notify $1 $2
+    fi
+}
+
 set_external_ip() {
     if [ -n "${default_interface}" ]; then
         external_ip=$(ifconfig ${default_interface} | grep 'inet ' | awk '{print $2}' | cut -d: -f2 | head -1 | tr -d '\n')
@@ -82,6 +89,7 @@ wait_for_armada_running() {
 
     touch ${ARMADA_LOCK_FILE} 2>/dev/null
     echo ${ARMADA_DESC} is running.
+    notify --ready --status="${ARMADA_DESC} is running"
 }
 
 stop_armada() {
@@ -92,6 +100,7 @@ stop_armada() {
         && docker rm -f ${armada_containerid}
     rm -f "${ARMADA_CONTAINERID_FILE}" 2>/dev/null
     rm -f "${ARMADA_LOCK_FILE}" 2>/dev/null
+    notify --status="${ARMADA_DESC} has been stopped"
 }
 
 docker_server_version() {
