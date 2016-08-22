@@ -24,6 +24,7 @@ if [ -f /etc/default/$BASE ]; then
 fi
 
 notify(){
+    echo "${1}" "${2}"
     systemctl --version > /dev/null 2>&1
     if [ $? == 0 ]; then
         systemd-notify "${1}" "${2}"
@@ -72,7 +73,7 @@ fail_if_armada_is_running() {
 }
 
 wait_for_armada_running() {
-    echo "Waiting for ${ARMADA_DESC} running state..."
+    notify "Waiting for ${ARMADA_DESC} running state..."
     set_external_ip
     wait_timeout=30
     is_armada_running=0
@@ -83,12 +84,11 @@ wait_for_armada_running() {
     done
 
     if [ ${wait_timeout} -le 0 ]; then
-        echo "Waiting for ${ARMADA_DESC} running state timed out :("
+        notify "Waiting for ${ARMADA_DESC} running state timed out :("
         exit 1
     fi
 
     touch ${ARMADA_LOCK_FILE} 2>/dev/null
-    echo ${ARMADA_DESC} is running.
     notify --ready --status="${ARMADA_DESC} is running"
 }
 
