@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fixed critical bug with setting containers' config paths introduced in 1.3.0.
+
+
 ## 1.3.1 (2016-08-19)
 
 ### Bug fixes
