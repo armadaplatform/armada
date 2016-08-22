@@ -52,6 +52,8 @@ def _is_directory(path, host_path='/', container_path='/'):
         while os.path.islink(rooted_path):
             link_destination = os.readlink(rooted_path)
             if os.path.isabs(link_destination):
+                if not link_destination.startswith(host_path):
+                    return False
                 rooted_path = os.path.join(container_path, link_destination[len(host_path):].lstrip('/'))
             else:
                 rooted_path = os.path.join(rooted_path, os.path.pardir, link_destination)
