@@ -26,7 +26,7 @@ fi
 notify(){
     systemctl --version > /dev/null 2>&1
     if [ $? == 0 ]; then
-        systemd-notify $1 $2
+        systemd-notify "${1}" "${2}"
     fi
 }
 

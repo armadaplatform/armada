@@ -8,7 +8,7 @@ Requires=docker.service
 TimeoutStartSec=35
 Environment="CIDFILE=/var/run/armada.pid"
 ExecStartPre=/usr/local/bin/armada-runner start
-ExecStart=/bin/bash -c "/usr/bin/docker logs -f $(cat ${CIDFILE})"
+ExecStart=/bin/bash -c "/usr/bin/docker logs -f --tail=10 $(cat ${CIDFILE})"
 ExecStop=/usr/local/bin/armada-runner stop
 ExecStopAfter=/usr/local/bin/armada-runner stop
 NotifyAccess=all
