@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.3.2 (2016-08-23)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
 
 ### Bug fixes
 - Fixed critical bug with setting containers' config paths introduced in 1.3.0.
