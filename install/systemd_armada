@@ -6,7 +6,6 @@ Requires=docker.service
 [Service]
 #wait_timeout from armada-runner +5s
 TimeoutStartSec=35
-Type=notify
 Environment="CIDFILE=/var/run/armada.pid"
 ExecStartPre=/usr/local/bin/armada-runner start
 ExecStart=/bin/bash -c "/usr/bin/docker logs -f --tail=10 $(cat ${CIDFILE})"
