@@ -22,13 +22,13 @@ class Volumes(object):
                 continue
 
             if volume.startswith(CONFIG_PATH_BASE):
-                if _is_directory(volume, host_path=CONFIG_PATH_BASE, container_path=CONFIG_PATH_BASE):
+                if _is_directory_under_host_path(volume, host_path=CONFIG_PATH_BASE, container_path=CONFIG_PATH_BASE):
                     used.add(volume)
                     yield volume
                 continue
 
             if volume.startswith(RESTRICT_CUSTOM_CONFIG_DIRS):
-                if _is_directory(volume, host_path=RESTRICT_CUSTOM_CONFIG_DIRS, container_path=CONFIGS_CUSTOM_DIR):
+                if _is_directory_under_host_path(volume, host_path=RESTRICT_CUSTOM_CONFIG_DIRS, container_path=CONFIGS_CUSTOM_DIR):
                     used.add(volume)
                     yield volume
                 continue
@@ -37,7 +37,7 @@ class Volumes(object):
                             format(volume, CONFIG_PATH_BASE, RESTRICT_CUSTOM_CONFIG_DIRS))
 
 
-def _is_directory(path, host_path='/', container_path='/'):
+def _is_directory_under_host_path(path, host_path='/', container_path='/'):
     """
     Checks if given path is a directory. It is a generalized version of os.path.isdir() that can work with changed
     root directory, even if the `path` contains symlinks.
