@@ -73,7 +73,7 @@ fail_if_armada_is_running() {
 }
 
 wait_for_armada_running() {
-    notify --status="Waiting for ${ARMADA_DESC} running state..."
+    notify --status='Waiting for ${ARMADA_DESC} running state...'
     set_external_ip
     wait_timeout=30
     is_armada_running=0
@@ -84,12 +84,12 @@ wait_for_armada_running() {
     done
 
     if [ ${wait_timeout} -le 0 ]; then
-        notify --status="Waiting for ${ARMADA_DESC} running state timed out :("
+        notify --status='"Waiting for ${ARMADA_DESC} running state timed out :("'
         exit 1
     fi
 
     touch ${ARMADA_LOCK_FILE} 2>/dev/null
-    notify --ready --status="${ARMADA_DESC} is running"
+    notify --ready --status='"${ARMADA_DESC} is running"'
 }
 
 stop_armada() {
