@@ -25,11 +25,8 @@ def armada_vagrantfile(args={})
         config.vm.provision "shell", inline: <<SCRIPT
             apt-get -y install docker.io=1.10.3-0ubuntu6
             sudo usermod -aG docker ubuntu
-            /projects/armada/install/install.sh ubuntu16
-            docker rm -f `docker ps | grep armada | cut -f 1 -d ' '`
-            rm /var/run/armada.pid
             sudo echo default_interface=enp0s8 > /etc/default/armada
-            sudo systemctl restart armada.service
+            /projects/armada/install/install.sh ubuntu16
             sudo chmod 777 /etc/opt
 SCRIPT
         if origin_dockyard_address then
