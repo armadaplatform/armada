@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fixed armada service on `systemd` init system.
+
 ## 1.3.2 (2016-08-23)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
