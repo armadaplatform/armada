@@ -8,7 +8,7 @@ from time import sleep
 import hashlib
 
 from armada_backend.api_ship import wait_for_consul_ready
-from armada_backend.utils import get_container_parameters, get_local_containers_ids, get_logger
+from armada_backend.utils import get_container_parameters, get_local_containers_ids, get_logger, get_ship_name
 from armada_command import armada_api
 from armada_command.consul import kv
 
@@ -120,6 +120,47 @@ def _check_if_we_should_recover(saved_containers_path):
             return False
     except:
         return False
+
+
+def _get_crashed_services():
+    ship = get_ship_name()
+    services_list = kv.kv_list('ships/{}/service/'.format(ship))
+    crashed_services = []
+    if not services_list:
+        return crashed_services
+
+    for service in services_list:
+        service_dict = kv.kv_get(service)
+        microservice_status = service_dict['Status']
+        if microservice_status == 'crashed':
+            crashed_services.append(service)
+    return crashed_services
+
+
+def recover_containers_from_kv_store():
+    services_to_be_recovered = _get_crashed_services()
+
+    for service in services_to_be_recovered:
+        kv.update_service_status('recovering', key=service)
+
+    recovery_retry_count = 0
+    while services_to_be_recovered and recovery_retry_count < RECOVERY_RETRY_LIMIT:
+        get_logger().info("Recovering containers: {}".format(json.dumps(services_to_be_recovered)))
+        services_not_recovered = []
+
+        for service in services_to_be_recovered:
+            service_parameters = kv.kv_get(service)['params']
+            if not _recover_container(service_parameters):
+                services_not_recovered.append(service)
+                if recovery_retry_count == (RECOVERY_RETRY_LIMIT - 1):
+                    kv.update_service_status('not-recovered', key=service)
+            else:
+                kv.kv_remove(service)
+        sleep(DELAY_BETWEEN_RECOVER_RETRY_SECONDS)
+        services_to_be_recovered = _get_crashed_services()
+        recovery_retry_count += 1
+
+    return services_to_be_recovered
 
 
 def main():

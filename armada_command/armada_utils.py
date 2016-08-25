@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 import socket
+import fnmatch
 
 from armada_command.consul.consul import consul_query
 from consul import kv
@@ -52,6 +53,21 @@ def get_matched_containers(microservice_name_or_container_id_prefix):
         for instance in instances_kv:
             instance_dict = kv.kv_get(instance)
             container_id = instance_dict['container_id'] if 'container_id' in instance_dict else instance_dict['ServiceID']
+            service_name = instance_dict['ServiceName']
+
+            if microservice_name_or_container_id_prefix == service_name:
+                matched_containers_by_name.append(instance_dict)
+
+            if container_id.startswith(microservice_name_or_container_id_prefix) and ":" not in instance_dict['ServiceID']:
+                matched_containers_by_id.append(instance_dict)
+
+    services_list = kv.kv_list('ships/')
+    if services_list:
+        services_list = fnmatch.filter(services_list, 'ships/*/service/*')
+    if services_list:
+        for service in services_list:
+            service_dict = kv.kv_get(service)
+            container_id = service_dict['container_id']
             service_name = instance_dict['ServiceName']
 
             if microservice_name_or_container_id_prefix == service_name:

@@ -7,6 +7,7 @@ import web
 import api_base
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
+from utils import get_ship_name, get_logger
 
 
 class List(api_base.ApiCommand):
@@ -76,8 +77,12 @@ class List(api_base.ApiCommand):
                         }
                         result.append(microservice_dict)
 
-            inactive_services_list = _get_inactive_services_list(filter_microservice_name, filter_env, filter_app_id)
-            result.extend(inactive_services_list)
+            # inactive_services_list = _get_inactive_services_list(filter_microservice_name, filter_env, filter_app_id)
+            # result.extend(inactive_services_list)
+
+            services_list = _get_services_list(filter_microservice_name, filter_env, filter_app_id, filter_local)
+            result.extend(services_list)
+
             return self.status_ok({'result': result})
         except Exception as e:
             traceback.print_exc()
@@ -125,4 +130,49 @@ def _get_inactive_services_list(filter_microservice_name, filter_env, filter_app
                     'start_timestamp': microservice_start_timestamp,
                 }
                 result.append(microservice_dict)
+    return result
+
+
+def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filter_local):
+    services_list = kv.kv_list('ships/')
+    result = []
+    if not services_list:
+        return result
+    services_list = fnmatch.filter(services_list, 'ships/*/service/*')
+
+    if not services_list:
+        return result
+    if filter_microservice_name:
+        services_list = fnmatch.filter(services_list, 'ships/*/service/{}/*'.format(filter_microservice_name))
+
+    for service in services_list:
+        service_dict = kv.kv_get(service)
+        get_logger().info('{}:{}'.format(service, service_dict))
+        microservice_name = service_dict['ServiceName']
+        microservice_status = service_dict['Status']
+        not_available = 'n/a'
+        container_id = service_dict['container_id'] if 'container_id' in service_dict else not_available
+        microservice_start_timestamp = service_dict['start_timestamp']
+
+        microservice_tags_dict = {}
+        if service_dict['params']['microservice_env']:
+            microservice_tags_dict['env'] = service_dict['params']['microservice_env']
+        if service_dict['params']['microservice_app_id']:
+            microservice_tags_dict['app_id'] = service_dict['params']['microservice_app_id']
+
+        matches_env = (filter_env is None) or (filter_env == microservice_tags_dict.get('env'))
+        matches_app_id = (filter_app_id is None) or (filter_app_id == microservice_tags_dict.get('app_id'))
+
+        if (matches_env and matches_app_id and
+                (not filter_local or fnmatch.fnmatch(service, 'ships/{}/service/*'.format(get_ship_name())))):
+            microservice_dict = {
+                'name': microservice_name,
+                'status': microservice_status,
+                'address': not_available,
+                'microservice_id': not_available,
+                'container_id': container_id,
+                'tags': microservice_tags_dict,
+                'start_timestamp': microservice_start_timestamp,
+            }
+            result.append(microservice_dict)
     return result

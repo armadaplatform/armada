@@ -23,12 +23,14 @@ def deregister_not_running_services():
         if service_id != 'consul':
             container_id = service_id.split(':')[0]
             if container_id not in containers_ids:
+                ship = get_ship_name()
                 name = consul_query('agent/services')[service_id]['Service']
-                params = get_container_parameters(container_id)
-                kv_index = 0
-                if kv.kv_list('service/{}/'.format(name)):
-                    kv_index = int(kv.kv_list('service/{}/'.format(name))[-1].split('/')[2]) + 1
-                kv.save_service(name, kv_index, 'crashed', params, container_id)
+                # params = get_container_parameters(container_id)
+                # kv_index = 0
+                # if kv.kv_list('service/{}/'.format(name)):
+                #     kv_index = int(kv.kv_list('service/{}/'.format(name))[-1].split('/')[2]) + 1
+                # kv.save_service(name, kv_index, 'crashed', params, container_id)
+                kv.update_service_status('crashed', ship=ship, name=name, container_id=container_id)
                 deregister_services(container_id)
 
 

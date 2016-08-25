@@ -58,17 +58,17 @@ def command_restart(args):
             if instances_count > 1:
                 print('[{0}/{1}]'.format(i + 1, instances_count))
 
-            if 'kv_index' in instance:
-                if not instance['params']:
-                    raise armada_utils.ArmadaCommandException(
-                        'There is no run command available for service {}.'.format(instance['ServiceName']))
-                run_command = instance['params']['run_command']
-                with suppress_version_check():
-                    assert armada_utils.execute_local_command(run_command, stream_output=True, retries=5)[0] == 0
-                    kv.kv_remove('service/{}/{}'.format(instance['ServiceName'], instance['kv_index']))
-                if instances_count > 1:
-                    print()
-                continue
+            # if 'kv_index' in instance:
+            #     if not instance['params']:
+            #         raise armada_utils.ArmadaCommandException(
+            #             'There is no run command available for service {}.'.format(instance['ServiceName']))
+            #     run_command = instance['params']['run_command']
+            #     with suppress_version_check():
+            #         assert armada_utils.execute_local_command(run_command, stream_output=True, retries=5)[0] == 0
+            #         kv.kv_remove('service/{}/{}'.format(instance['ServiceName'], instance['kv_index']))
+            #     if instances_count > 1:
+            #         print()
+            #     continue
 
             container_id = instance['ServiceID'].split(':')[0]
             is_run_locally = armada_utils.is_local_container(container_id) and not args.ship
