@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.3.3 (2016-08-25)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
 
