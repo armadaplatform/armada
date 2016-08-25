@@ -1,13 +1,40 @@
 # Changelog
 
-## Unreleased
+## 1.3.2 (2016-08-23)
 
-### Improvements
-- `run` and `restart` commands can get IP address as '--ship' argument.
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
 
 ### Bug fixes
-- While default armada network interface is unavailable armada uses host default interface.
+- Fixed critical bug with setting containers' config paths introduced in 1.3.0.
 
+
+## 1.3.1 (2016-08-19)
+
+### Bug fixes
+- Fixed critical bug with mounting containers' volumes introduced in 1.3.0.
+
+
+## 1.3.0 (2016-08-19)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
+
+### Improvements
+- Optionally restrict possible config directories. By default root directory is mounted inside armada container in read-only mode, to verify existence of `--config` paths.
+This can be restricted by setting `RESTRICT_CUSTOM_CONFIG_DIRS` variable to a specific path. (e.g. /home/user/configs)
+
+- `run` and `restart` commands can get IP address as '--ship' argument.
+
+### Features
+- `armada list` show services that should be running with additional statuses:
+    - `recovering`
+    - `not-recovered` if recovering was not successful 
+    - `crashed` for not running containers
+    - `armada stop` to remove service from list
+
+    
+### Bug fixes
+- While default armada network interface is unavailable armada uses host default interface.
+- Fixed logging of Armada CLI commands
 
 ## 1.2.2 (2016-08-04)
 
