@@ -6,6 +6,7 @@ import traceback
 from collections import Counter
 from time import sleep
 import hashlib
+import uuid
 
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.utils import get_container_parameters, get_local_containers_ids, get_logger, get_ship_name
@@ -98,7 +99,7 @@ def recover_saved_containers(saved_containers):
 def _recover_saved_containers_from_path(saved_containers_path):
     try:
         saved_containers = _load_saved_containers_parameters_list(saved_containers_path)
-        not_recovered = recover_saved_containers(saved_containers)
+        not_recovered = recover_saved_containers_from_parameters(saved_containers)
         if not_recovered:
             get_logger().error('Following containers were not recovered: {}'.format(not_recovered))
             return False
@@ -161,6 +162,24 @@ def recover_containers_from_kv_store():
         recovery_retry_count += 1
 
     return services_to_be_recovered
+
+
+def recover_saved_containers_from_parameters(saved_containers):
+    crashed_services = _get_crashed_services()
+    for service in crashed_services:
+        kv.kv_remove(key=service)
+
+    ship = get_ship_name()
+    wait_for_consul_ready()
+    running_containers = _get_local_running_containers()
+    containers_to_be_recovered = _multiset_difference(saved_containers, running_containers)
+    for container_parameters in containers_to_be_recovered:
+        container_parameters = container_parameters
+        container_id = uuid.uuid4().hex[:12]
+        kv.save_service(ship, container_id, 'crashed', container_parameters)
+
+    containers_to_be_recovered = recover_containers_from_kv_store()
+    return containers_to_be_recovered
 
 
 def main():

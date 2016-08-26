@@ -28,42 +28,33 @@ def kv_list(key):
     return consul_query('kv/{key}?keys'.format(**locals()))
 
 
-def save_service(name, index, status, params, container_id=None):
-    if container_id is not None:
-        start_timestamp = kv_get("start_timestamp/" + container_id)
+def save_service(ship, container_id, status, params=None):
+    start_timestamp = None
+    if status == 'crashed':
+        name = params['microservice_name']
     else:
-        start_timestamp = None
-    kv_set('service/{}/{}'.format(name, index), {'ServiceName': name,
-                                                 'Status': status,
-                                                 'container_id': container_id,
-                                                 'params': params,
-                                                 'kv_index': index,
-                                                 'start_timestamp': start_timestamp,
-                                                 'ServiceID': 'kv_{}_{}'.format(name, index)})
+        docker_api = docker.Client(base_url='unix://' + DOCKER_SOCKET_PATH, version='1.18', timeout=11)
+        docker_api.start(container_id)
+        docker_inspect = docker_api.inspect_container(container_id)
 
-
-def save_service_1(ship, container_id, status):
-    docker_api = docker.Client(base_url='unix://' + DOCKER_SOCKET_PATH, version='1.18', timeout=11)
-    docker_api.start(container_id)
-    docker_inspect = docker_api.inspect_container(container_id)
-
-    service_env = docker_inspect['Config']['Env']
-    for variable in service_env:
-        if variable.startswith('MICROSERVICE_NAME'):
-            name = variable.split('=')[1].encode('utf-8')
-        elif variable.startswith('RESTART_CONTAINER_PARAMETERS'):
-            params = json.loads(base64.b64decode(variable[len('RESTART_CONTAINER_PARAMETERS')+1:]))
-    start_timestamp_string = docker_inspect['Created'][:-4]
-    start_timestamp = str(calendar.timegm(datetime.strptime(
-        start_timestamp_string, "%Y-%m-%dT%H:%M:%S.%f").timetuple()))
-
+        service_env = docker_inspect['Config']['Env']
+        for variable in service_env:
+            if variable.startswith('MICROSERVICE_NAME'):
+                name = variable.split('=')[1].encode('utf-8')
+            elif variable.startswith('RESTART_CONTAINER_PARAMETERS'):
+                params = json.loads(base64.b64decode(variable[len('RESTART_CONTAINER_PARAMETERS')+1:]))
+        start_timestamp_string = docker_inspect['Created'][:-4]
+        start_timestamp = str(calendar.timegm(datetime.strptime(
+            start_timestamp_string, "%Y-%m-%dT%H:%M:%S.%f").timetuple()))
+    address = kv_get('ships/{}/ip'.format(ship)) or ship
     service_dict = {
         'ServiceName': name,
         'Status': status,
         'container_id': container_id,
         'params': params,
         'start_timestamp': start_timestamp,
-        'ServiceID': container_id
+        'ServiceID': container_id,
+        'Address': address
     }
     kv_set('ships/{}/service/{}/{}'.format(ship, name, container_id), service_dict)
 

@@ -72,7 +72,12 @@ class Name(api_base.ApiCommand):
         ship_name, error = self.get_post_parameter('name')
         if error:
             return self.status_error(error)
-        if not ship_name or ship_name == 'None':
+        other_ship_ips = get_other_ship_ips()
+        name_taken = False
+        if other_ship_ips:
+            other_ship_names = [get_ship_name(ip) for ip in other_ship_ips]
+            name_taken = ship_name in other_ship_names
+        if not ship_name or ship_name == 'None' or name_taken:
             return self.status_error('Incorrect ship name: {}'.format(ship_name))
         set_ship_name(ship_name)
         return self.status_ok()

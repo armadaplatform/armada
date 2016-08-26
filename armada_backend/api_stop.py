@@ -20,9 +20,13 @@ class Stop(api_base.ApiCommand):
 
     def _stop_service(self, container_id):
         ship = get_ship_name()
-        key = fnmatch.filter(kv_list('ships/{}/service/'.format(ship)), '*{}'.format(container_id))
-        service_dict = kv_get(key)
-        if service_dict['Status'] in ['crashed', 'not-recovered']:
+        service_dict = None
+        service_list = kv_list('ships/{}/service/'.format(ship))
+        if service_list:
+            key = fnmatch.filter(service_list, '*{}'.format(container_id))
+            get_logger().info('key: {}'.format(key))
+            service_dict = kv_get(key)
+        if service_dict and service_dict['Status'] in ['crashed', 'not-recovered']:
             kv_remove(key[0])
         else:
             docker_api = docker_client.api()

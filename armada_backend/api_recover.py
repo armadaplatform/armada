@@ -1,5 +1,6 @@
 from armada_backend import api_base
-from armada_backend.recover_saved_containers import recover_saved_containers, recover_containers_from_kv_store
+from armada_backend.recover_saved_containers import recover_containers_from_kv_store
+from armada_backend.recover_saved_containers import recover_saved_containers_from_parameters
 
 
 class Recover(api_base.ApiCommand):
@@ -20,7 +21,7 @@ class Recover(api_base.ApiCommand):
         if error:
             return self.status_error(error)
         try:
-            not_recovered_containers = recover_saved_containers(saved_containers)
+            not_recovered_containers = recover_saved_containers_from_parameters(saved_containers)
             if not_recovered_containers:
                 return self.status_error(
                     "Failed to recover following containers: {containers}".format(
