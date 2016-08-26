@@ -12,6 +12,7 @@ from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.utils import get_container_parameters, get_local_containers_ids, get_logger, get_ship_name
 from armada_command import armada_api
 from armada_command.consul import kv
+from cleaner import deregister_not_running_services
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
 RECOVERY_RETRY_LIMIT = 5
@@ -58,9 +59,23 @@ def _multiset_difference(a, b):
 
 
 def _recover_saved_containers_from_path(saved_containers_path):
+    wait_for_consul_ready()
     try:
+        ship = get_ship_name()
+        containers_saved_in_kv = kv.kv_list('ships/{}/service/'.format(ship))
+        get_logger().info('Container from KV: {}'.format(containers_saved_in_kv))
         saved_containers = _load_saved_containers_parameters_list(saved_containers_path)
-        not_recovered = recover_saved_containers_from_parameters(saved_containers)
+        get_logger().info('Container from path: {}'.format(saved_containers))
+
+        for key, container_dict in saved_containers.items():
+            old_ship_name = key.split('/')[1]
+            if old_ship_name != ship:
+                key = 'ships/{}/service/{}/{}'.format(ship, container_dict['ServiceName'],
+                                                      container_dict['container_id'])
+            if not containers_saved_in_kv or key not in containers_saved_in_kv:
+                kv.kv_set(key, container_dict)
+        # deregister_not_running_services()
+        not_recovered = recover_containers_from_kv_store()
         if not_recovered:
             get_logger().error('Following containers were not recovered: {}'.format(not_recovered))
             return False
@@ -126,12 +141,13 @@ def recover_containers_from_kv_store():
 
 
 def recover_saved_containers_from_parameters(saved_containers):
+    wait_for_consul_ready()
     crashed_services = _get_crashed_services()
     for service in crashed_services:
         kv.kv_remove(key=service)
 
     ship = get_ship_name()
-    wait_for_consul_ready()
+
     running_containers = _get_local_running_containers()
     containers_to_be_recovered = _multiset_difference(saved_containers, running_containers)
     for container_parameters in containers_to_be_recovered:
@@ -146,7 +162,7 @@ def recover_saved_containers_from_parameters(saved_containers):
 def main():
     try:
         args = _parse_args()
-        if args.force or _check_if_we_should_recover(args.saved_containers_path):
+        if args.force or True:  # _check_if_we_should_recover(args.saved_containers_path):
             if not _recover_saved_containers_from_path(args.saved_containers_path):
                 sys.exit(1)
     finally:

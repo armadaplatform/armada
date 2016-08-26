@@ -2,7 +2,8 @@ import random
 import time
 
 from armada_backend import docker_client
-from armada_backend.utils import deregister_services, shorten_container_id, get_container_parameters, get_ship_name
+from armada_backend.utils import deregister_services, shorten_container_id, get_container_parameters
+from armada_backend.utils import get_ship_ip, get_ship_name
 from armada_command.consul.consul import consul_query
 from armada_command.consul import kv
 
@@ -17,7 +18,10 @@ def get_running_container_ids():
 
 
 def deregister_not_running_services():
-    ship = get_ship_name()
+    try:
+        ship = get_ship_name()
+    except:
+        ship = get_ship_ip()
     services_ids = get_local_services_ids()
     containers_ids = get_running_container_ids()
     for service_id in services_ids:
