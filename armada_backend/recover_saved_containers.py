@@ -57,45 +57,6 @@ def _multiset_difference(a, b):
     return [json.loads(x) for x in difference.elements()]
 
 
-def recover_saved_containers(saved_containers):
-    wait_for_consul_ready()
-    running_containers = _get_local_running_containers()
-    containers_to_be_recovered = _multiset_difference(saved_containers, running_containers)
-    recovery_retry_count = 0
-    while containers_to_be_recovered and recovery_retry_count < RECOVERY_RETRY_LIMIT:
-        get_logger().info("Recovering containers: {}".format(json.dumps(containers_to_be_recovered)))
-        containers_not_recovered = []
-        counter_to_be_recovered = Counter(json.dumps(x, sort_keys=True) for x in containers_to_be_recovered)
-        to_be_recovered = []
-        for container_parameters in counter_to_be_recovered.elements():
-            try:
-                if to_be_recovered[-1][0] == container_parameters:
-                    index = to_be_recovered[-1][1] + 1
-                else:
-                    index = 0
-            except IndexError:
-                index = 0
-            to_be_recovered.append((container_parameters, index))
-            name = json.loads(container_parameters)['microservice_name']
-            kv.save_service(name, index, 'recovering', json.loads(container_parameters))
-
-        for container_parameters, index in to_be_recovered:
-            container_parameters = json.loads(container_parameters)
-            name = container_parameters['microservice_name']
-            if not _recover_container(container_parameters):
-                containers_not_recovered.append(container_parameters)
-                if recovery_retry_count == (RECOVERY_RETRY_LIMIT - 1):
-                    kv.save_service(name, index, 'not-recovered', json.loads(container_parameters))
-            else:
-                kv.kv_remove('service/{}/{}'.format(name, index))
-        sleep(DELAY_BETWEEN_RECOVER_RETRY_SECONDS)
-        running_containers = _get_local_running_containers()
-        containers_to_be_recovered = _multiset_difference(containers_not_recovered, running_containers)
-        recovery_retry_count += 1
-
-    return containers_to_be_recovered
-
-
 def _recover_saved_containers_from_path(saved_containers_path):
     try:
         saved_containers = _load_saved_containers_parameters_list(saved_containers_path)

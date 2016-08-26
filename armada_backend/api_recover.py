@@ -17,6 +17,7 @@ class Recover(api_base.ApiCommand):
             except Exception as e:
                 return self.status_exception("Error during containers recovery.", e)
             return self.status_ok()
+
         saved_containers, error = self.get_post_parameter('saved_containers')
         if error:
             return self.status_error(error)

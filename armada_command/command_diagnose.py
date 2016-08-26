@@ -39,7 +39,7 @@ def command_diagnose(args):
             if status == 'recovering':
                 params = instance['params']
                 print('RESTART_CONTAINER_PARAMETERS:')
-                print(params)
+                print(json.dumps(params, indent=4, sort_keys=True))
             elif status == 'crashed':
                 params = instance['params']
                 print('RESTART_CONTAINER_PARAMETERS:')
