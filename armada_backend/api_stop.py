@@ -25,7 +25,7 @@ class Stop(api_base.ApiCommand):
         if service_list:
             key = fnmatch.filter(service_list, '*{}'.format(container_id))
             get_logger().info('key: {}'.format(key))
-            service_dict = kv_get(key)
+            service_dict = kv_get(key[0])
         if service_dict and service_dict['Status'] in ['crashed', 'not-recovered']:
             kv_remove(key[0])
         else:

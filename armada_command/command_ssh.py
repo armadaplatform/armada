@@ -41,7 +41,7 @@ def command_ssh(args):
             'Provide more specific container_id or microservice name.'.format(**locals()))
     instance = instances[0]
 
-    if 'kv_index' in instance:
+    if 'Status' in instance:
         raise armada_utils.ArmadaCommandException('Cannot connect to not running service.')
 
     service_id = instance['ServiceID']

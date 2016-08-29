@@ -56,7 +56,6 @@ def get_ship_name(ship_ip=None):
 def set_ship_name(new_name):
     ship_ip = get_ship_ip()
     old_name = get_ship_name(ship_ip)
-    # move saved containers
     saved_containers = kv.kv_list('ships/{}/service/'.format(old_name))
     if saved_containers:
         for container in saved_containers:

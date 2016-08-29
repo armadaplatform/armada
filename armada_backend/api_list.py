@@ -79,19 +79,13 @@ class List(api_base.ApiCommand):
                         }
                         services_list_from_catalog.append(microservice_dict)
 
-            result = []
+            result = services_list_from_catalog
             for service_from_kv in services_list:
                 matching_services = filter(
-                    lambda service_catalog: service_catalog['microservice_id'] == service_from_kv['microservice_id'],
-                    services_list_from_catalog)
-                if len(matching_services) == 1:
-                    service = matching_services[0]
-                else:
-                    service = service_from_kv
-                result.append(service)
-            for service_from_catalog in services_list_from_catalog:
-                if service_from_catalog not in result:
-                    result.append(service_from_catalog)
+                    lambda service: service['microservice_id'] == service_from_kv['microservice_id'],
+                    result)
+                if len(matching_services) == 0:
+                    result.append(service_from_kv)
 
             return self.status_ok({'result': result})
         except Exception as e:

@@ -58,14 +58,12 @@ def _multiset_difference(a, b):
     return [json.loads(x) for x in difference.elements()]
 
 
-def _recover_saved_containers_from_path(saved_containers_path):
+def _load_containers_to_kv_store(saved_containers_path):
     wait_for_consul_ready()
     try:
         ship = get_ship_name()
         containers_saved_in_kv = kv.kv_list('ships/{}/service/'.format(ship))
-        get_logger().info('Container from KV: {}'.format(containers_saved_in_kv))
         saved_containers = _load_saved_containers_parameters_list(saved_containers_path)
-        get_logger().info('Container from path: {}'.format(saved_containers))
 
         for key, container_dict in saved_containers.items():
             old_ship_name = key.split('/')[1]
@@ -74,7 +72,14 @@ def _recover_saved_containers_from_path(saved_containers_path):
                                                       container_dict['container_id'])
             if not containers_saved_in_kv or key not in containers_saved_in_kv:
                 kv.kv_set(key, container_dict)
-        # deregister_not_running_services()
+    except:
+        traceback.print_exc()
+        get_logger().error('Unable to load from {}.'.format(saved_containers_path))
+
+
+def _recover_saved_containers_from_path(saved_containers_path):
+    wait_for_consul_ready()
+    try:
         not_recovered = recover_containers_from_kv_store()
         if not_recovered:
             get_logger().error('Following containers were not recovered: {}'.format(not_recovered))
@@ -162,7 +167,8 @@ def recover_saved_containers_from_parameters(saved_containers):
 def main():
     try:
         args = _parse_args()
-        if args.force or True:  # _check_if_we_should_recover(args.saved_containers_path):
+        _load_containers_to_kv_store(args.saved_containers_path)
+        if args.force or _check_if_we_should_recover(args.saved_containers_path):
             if not _recover_saved_containers_from_path(args.saved_containers_path):
                 sys.exit(1)
     finally:
