@@ -147,18 +147,20 @@ def recover_containers_from_kv_store():
 
 def recover_saved_containers_from_parameters(saved_containers):
     wait_for_consul_ready()
-    crashed_services = _get_crashed_services()
-    for service in crashed_services:
-        kv.kv_remove(key=service)
+    try:
+        ship = get_ship_name()
+        containers_saved_in_kv = kv.kv_list('ships/{}/service/'.format(ship))
 
-    ship = get_ship_name()
-
-    running_containers = _get_local_running_containers()
-    containers_to_be_recovered = _multiset_difference(saved_containers, running_containers)
-    for container_parameters in containers_to_be_recovered:
-        container_parameters = container_parameters
-        container_id = uuid.uuid4().hex[:12]
-        kv.save_service(ship, container_id, 'crashed', container_parameters)
+        for key, container_dict in saved_containers.items():
+            old_ship_name = key.split('/')[1]
+            if old_ship_name != ship:
+                key = 'ships/{}/service/{}/{}'.format(ship, container_dict['ServiceName'],
+                                                      container_dict['container_id'])
+            if not containers_saved_in_kv or key not in containers_saved_in_kv:
+                kv.kv_set(key, container_dict)
+    except:
+        traceback.print_exc()
+        get_logger().error('Unable to load from {}.'.format(saved_containers_path))
 
     containers_to_be_recovered = recover_containers_from_kv_store()
     return containers_to_be_recovered
