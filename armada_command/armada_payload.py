@@ -29,8 +29,10 @@ class RunPayload(object):
             self._payload['dockyard_user'] = dockyard_info.get('user')
             self._payload['dockyard_password'] = dockyard_info.get('password')
 
-    def update_vagrant(self, dynamic_ports, latest_image_code, microservice_name):
-        if not dynamic_ports:
+    def update_vagrant(self, has_dynamic_ports, ports, latest_image_code, microservice_name):
+        is_port_80_overridden = any(port_container == 80 for _, port_container in self._ports_to_mapping_dict(ports).items())
+
+        if not (has_dynamic_ports or is_port_80_overridden):
             self._payload['ports']['4999'] = '80'
         if not latest_image_code:
             microservice_path = '/opt/{microservice_name}'.format(**locals())
@@ -43,12 +45,8 @@ class RunPayload(object):
             self._payload['environment'][env_key] = env_value
 
     def update_ports(self, ports):
-        for port_mapping in sum(ports or [], []):
-            try:
-                port_host, port_container = map(int, (port_mapping.split(':', 1) + [None])[:2])
-                self._payload['ports'][str(port_host)] = str(port_container)
-            except (ValueError, TypeError):
-                raise ArmadaCommandException('Invalid port mapping: {0}'.format(port_mapping))
+        for port_host, port_container in self._ports_to_mapping_dict(ports).items():
+            self._payload['ports'][str(port_host)] = str(port_container)
 
     def update_volumes(self, volumes):
         for volume_string in sum(volumes or [], []):
@@ -84,3 +82,13 @@ class RunPayload(object):
 
     def update_configs(self, configs):
         self._payload['configs'] = sum(configs or [], [])
+
+    def _ports_to_mapping_dict(self, ports):
+        mapping_dict = {}
+        for port_mapping in sum(ports or [], []):
+            try:
+                port_host, port_container = map(int, (port_mapping.split(':', 1) + [None])[:2])
+                mapping_dict[port_host] = port_container
+            except (ValueError, TypeError):
+                raise ArmadaCommandException('Invalid port mapping: {0}'.format(port_mapping))
+        return mapping_dict
