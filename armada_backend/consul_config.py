@@ -42,10 +42,12 @@ def get_consul_config(consul_mode, ship_ips, datacenter, ship_external_ip):
     save_running_containers_cmd = ('{env_pythonpath} python -m armada_backend.save_running_containers '
                                    '{running_containers_parameters_path} '
                                    '>> /tmp/save_running_containers.out 2>&1').format(**locals())
+    update_magellan_cmd = '{env_pythonpath} python -m armada_backend.update_magellan'.format(**locals())
     config['watches'] = [
         {'type': 'keyprefix', 'prefix': 'dockyard/', 'handler': save_runtime_settings_cmd},
         {'type': 'nodes', 'handler': save_runtime_settings_cmd},
         {'type': 'checks', 'handler': save_running_containers_cmd},
+        {'type': 'checks', 'handler': update_magellan_cmd},
     ]
 
     return json.dumps(config, sort_keys=True, indent=4)
