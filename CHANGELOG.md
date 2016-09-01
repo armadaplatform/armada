@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+- Added `-l/--local` flag to `armada ssh` which limits matched services to local machine.
+- Added service selection prompt to `armada ssh`. Whenever multiple matching services are found, user can easily select which instance they want to shh into.
+
 ### Bug fixes
 - Properly deregister crashed sub-services. 
 - Fixed a bug which caused `armada run` in development environment use 4999:80 port mapping, even if port 80 was explicitly overridden.
