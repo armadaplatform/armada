@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Properly deregister crashed sub-services. 
+- Fixed a bug which caused `armada run` in development environment use 4999:80 port mapping, even if port 80 was explicitly overridden.
+
+
 ## 1.3.3 (2016-08-25)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
