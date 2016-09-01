@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Bug fixes
-- Do not track crashed subservices.
+- Properly deregister crashed sub-services. 
 
 ## 1.3.3 (2016-08-25)
 
