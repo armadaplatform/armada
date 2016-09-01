@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Improvements
+- [Vagrant](https://github.com/armadaplatform/vagrant "Armada Vagrant") Use `socat` instead of `armada-bind` to proxy insecure dockyard connection through localhost.
+
 ### Bug fixes
 - Properly deregister crashed sub-services. 
 - Fixed a bug which caused `armada run` in development environment use 4999:80 port mapping, even if port 80 was explicitly overridden.
