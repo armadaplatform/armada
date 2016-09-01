@@ -109,17 +109,21 @@ def chain_run_commands():
     new_dockerfile_commands = []
     run_commands = []
     with open('Dockerfile') as dockerfile:
+        join_next_line = False
         for line in dockerfile:
             if line == '\n' or line.startswith('#'):
                 continue
-            elif not line.startswith('RUN'):
-                if run_commands:
-                    chained_run = _join_commands(run_commands)
-                    new_dockerfile_commands.append(chained_run)
-                    run_commands = []
-                new_dockerfile_commands.append(line)
+            elif join_next_line or line.startswith('RUN'):
+                striped = line[4:].strip() if line.startswith('RUN') else line.strip()
+                if striped.endswith('\\'):
+                    join_next_line = True
+                    striped = striped[:-1].strip().strip('&')
+                else:
+                    join_next_line = False
+                run_commands.append(striped)
             else:
-                run_commands.append(line[4:].strip())
+                join_next_line = False
+                new_dockerfile_commands.append(line)
         if run_commands:
             chained_run = _join_commands(run_commands)
             new_dockerfile_commands.append(chained_run)
