@@ -1,5 +1,10 @@
 # Changelog
 
+##Unreleased 
+
+### Features
+- Added flag `-s/--squash` to `armada build`. With this option armada try to minimize service image via docker-squash.
+
 ## 1.3.2 (2016-08-23)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
