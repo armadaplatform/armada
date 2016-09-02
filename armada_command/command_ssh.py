@@ -27,7 +27,9 @@ def add_arguments(parser):
     parser.add_argument('-i', '--interactive', default=False, action='store_true',
                         help='Keep STDIN open even if not attached.')
     parser.add_argument('-l', '--local', default=False, action='store_true',
-                        help='Limit services lookup to local ship.')
+                        help='Limit matching services lookup to local ship.')
+    parser.add_argument('-n', '--no-prompt', default=False, action='store_true',
+                        help="Don't prompt. Command fails if multiple matching services are found.")
 
 
 def prompt_select_instance(instances):
@@ -60,6 +62,10 @@ def command_ssh(args):
 
     instances_count = len(instances)
     if instances_count > 1:
+        if args.no_prompt:
+            raise armada_utils.ArmadaCommandException(
+                'There are too many ({instances_count}) matching containers. '
+                'Provide more specific container_id or microservice name.'.format(**locals()))
         instance = prompt_select_instance(instances)
     else:
         instance = instances[0]
