@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.4.0 (2016-09-02)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
 
 ### Features
 - Added service selection prompt to `armada ssh`. Whenever multiple matching services are found, user can easily select which instance they want to ssh into.
