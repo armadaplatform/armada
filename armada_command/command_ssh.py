@@ -28,7 +28,7 @@ def add_arguments(parser):
                         help='Keep STDIN open even if not attached.')
     parser.add_argument('-l', '--local', default=False, action='store_true',
                         help='Limit matching services lookup to local ship.')
-    parser.add_argument('-n', '--no-prompt', default=False, action='store_true',
+    parser.add_argument('--no-prompt', default=False, action='store_true',
                         help="Don't prompt. Command fails if multiple matching services are found.")
 
 

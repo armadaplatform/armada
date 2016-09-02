@@ -4,7 +4,7 @@
 
 ### Features
 - Added service selection prompt to `armada ssh`. Whenever multiple matching services are found, user can easily select which instance they want to shh into.
-- Added `-n/--no-prompt` flag to `armada ssh` which disables prompting mechanism and results in error if multiple matching services are found. 
+- Added `--no-prompt` flag to `armada ssh` which disables prompting mechanism and results in error if multiple matching services are found. 
 - Added `-l/--local` flag to `armada ssh` which limits matched services to local machine.
 
 ### Bug fixes
