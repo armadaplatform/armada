@@ -100,7 +100,7 @@ def retry(num_retries, action=None, expected_exception=Exception):
     return decorator
 
 
-@retry(num_retries=float('inf'), action=partial(time.sleep, 1))
+@retry(num_retries=float('inf'), action=partial(time.sleep, 0.2))
 def _wait_for_consul():
     agent_self_dict = consul_query('agent/self')
     if 'Config' not in agent_self_dict:
@@ -210,6 +210,9 @@ def _get_consul_health_endpoint(return_code):
     return 'fail'
 
 
+# service may be deregistered without our knowledge,
+# if we were unsuccessful on reporting health status - that might be the case,
+# so let's try to register it again and retry
 @retry(num_retries=1, action=_register_services, expected_exception=HTTPError)
 def _report_health_status(service_id, health_check_code):
     endpoint = _get_consul_health_endpoint(health_check_code)
@@ -306,7 +309,7 @@ def _get_health_check_period(is_critical):
     return min(incrementation_period, HEALTH_CHECKS_PERIOD)
 
 
-@retry(num_retries=3, action=partial(time.sleep, 1))
+@retry(num_retries=10, action=partial(time.sleep, 0.2))
 def _retry_register_services():
     """
     Wait for at least one service registration file
