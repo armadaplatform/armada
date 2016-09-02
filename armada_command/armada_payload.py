@@ -60,12 +60,16 @@ class RunPayload(object):
         self._payload['microservice_env'] = env
         self._payload['microservice_app_id'] = app_id
 
-    def update_run_command(self, vagrant_dev):
+    def update_run_command(self, vagrant_dev, env, name):
         run_command = 'armada ' + ' '.join(sys.argv[1:])
         if vagrant_dev and '--hidden_vagrant_dev' not in run_command:
             run_command += ' --hidden_vagrant_dev'
         if '--hidden_is_restart' not in run_command:
             run_command += ' --hidden_is_restart'
+        if env and '--env' not in run_command:
+            run_command += ' --env {env}'.format(**locals())
+        if name not in run_command:
+            run_command += ' {name}'.format(**locals())
         self._payload['run_command'] = run_command
 
     def update_resource_limits(self, cpu_shares, memory, memory_swap, cgroup_parent):

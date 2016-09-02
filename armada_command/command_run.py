@@ -118,8 +118,9 @@ def command_run(args):
     payload.update_environment(args.e)
     payload.update_ports(args.publish)
     payload.update_volumes(args.volumes)
-    payload.update_microservice_vars(args.rename, args.env, args.app_id)
-    payload.update_run_command(vagrant_dev)
+    env = args.env or os.environ.get('MICROSERVICE_ENV')
+    payload.update_microservice_vars(args.rename, env, args.app_id)
+    payload.update_run_command(vagrant_dev, env, image.image_name)
     payload.update_resource_limits(args.cpu_shares, args.memory, args.memory_swap, args.cgroup_parent)
     payload.update_configs(args.configs)
 
