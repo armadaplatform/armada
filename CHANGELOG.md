@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Merge `run_health_checks.py` and `register_in_service_discovery.py` into `armada_agent.py` in order to save resources, register_is_service_discovery.py is left for backward compatibility. 
+
 ## 1.4.0 (2016-09-02)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.

@@ -20,7 +20,7 @@ class Stop(api_base.ApiCommand):
         docker_api = docker_client.api()
         last_exception = None
         try:
-            exec_id = docker_api.exec_create(container_id, 'supervisorctl stop register_in_service_discovery')
+            exec_id = docker_api.exec_create(container_id, 'supervisorctl stop armada_agent')
             docker_api.exec_start(exec_id['Id'])
         except:
             traceback.print_exc()
