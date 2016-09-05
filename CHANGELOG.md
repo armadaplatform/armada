@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fixed an issue with `armada ssh` not accepting container ids.
+
 ## 1.4.0 (2016-09-02)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
