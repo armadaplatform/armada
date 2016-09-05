@@ -3,7 +3,8 @@
 ## Unreleased
 
 ### Improvements
-- Merge `run_health_checks.py` and `register_in_service_discovery.py` into `armada_agent.py` in order to save resources, register_is_service_discovery.py is left for backward compatibility. 
+- Merge `run_health_checks.py` and `register_in_service_discovery.py` into `armada_agent.py` in order to save resources, register_is_service_discovery.py is left for backward compatibility.
+- Changed timeout in `armada stop` from 10s to 60s until SIGKILL is sent to container main process.
 
 ## 1.4.0 (2016-09-02)
 
