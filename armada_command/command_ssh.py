@@ -6,7 +6,6 @@ import pipes
 import shlex
 
 import armada_utils
-from armada_command.consul.consul import consul_query
 
 
 def parse_args():
@@ -26,6 +25,29 @@ def add_arguments(parser):
                         help='Allocate a pseudo-TTY.')
     parser.add_argument('-i', '--interactive', default=False, action='store_true',
                         help='Keep STDIN open even if not attached.')
+    parser.add_argument('-l', '--local', default=False, action='store_true',
+                        help='Limit matching services lookup to local ship.')
+    parser.add_argument('--no-prompt', default=False, action='store_true',
+                        help="Don't prompt. Command fails if multiple matching services are found.")
+
+
+def prompt_select_instance(instances):
+    print("There are multiple matching instances!")
+    template = "\t{i}) {name} {address}:{port} {id} {local}"
+    for i, instance in enumerate(instances):
+        local = "(local)" if armada_utils.is_local_container(instance['ServiceID']) else ""
+        print(template.format(i=i+1, name=instance['ServiceName'], address=instance['Address'], port=instance['ServicePort'],
+                              id=instance['ServiceID'],  local=local))
+    try:
+        selection = int(raw_input("Please select one: "))
+        if 0 >= selection > len(instances):
+            raise ValueError
+    except ValueError:
+        raise armada_utils.ArmadaCommandException("Invalid choice!")
+    except KeyboardInterrupt:
+        raise armada_utils.ArmadaCommandException("Aborted.")
+    selection -= 1
+    return instances[selection]
 
 
 def command_ssh(args):
@@ -33,25 +55,27 @@ def command_ssh(args):
     if not microservice_name:
         raise ValueError('No microservice name supplied.')
 
-    instances = armada_utils.get_matched_containers(microservice_name)
+    instances = [i for i in armada_utils.get_matched_containers(microservice_name) if 'kv_index' not in i]
     instances_count = len(instances)
-    if instances_count > 1:
+
+    if instances_count < 1:
         raise armada_utils.ArmadaCommandException(
-            'There are too many ({instances_count}) matching containers. '
-            'Provide more specific container_id or microservice name.'.format(**locals()))
-    instance = instances[0]
+            'There are no running containers with microservice: '
+            '{microservice_name}'.format(**locals()))
 
-    if 'kv_index' in instance:
-        raise armada_utils.ArmadaCommandException('Cannot connect to not running service.')
+    if instances_count > 1:
+        if args.no_prompt:
+            raise armada_utils.ArmadaCommandException(
+                'There are too many ({instances_count}) matching containers. '
+                'Provide more specific container_id or microservice name.'.format(**locals()))
+        instance = prompt_select_instance(instances)
+    else:
+        instance = instances[0]
 
-    service_id = instance['ServiceID']
-    container_id = service_id.split(':')[0]
+    container_id = instance['ServiceID']
     payload = {'container_id': container_id}
 
-    is_local = False
-    local_microservices_ids = set(consul_query('agent/services').keys())
-    if container_id in local_microservices_ids:
-        is_local = True
+    is_local = armada_utils.is_local_container(container_id)
 
     if args.command:
         command = ' '.join(args.command)
@@ -78,6 +102,6 @@ def command_ssh(args):
             .format(**locals())
         ssh_args = shlex.split(remote_ssh_chunk)
         ssh_args.extend(('sudo', docker_command))
-        print("Connecting to {0} on host {1}...".format(instance['ServiceName'], ssh_host))
+        print("Connecting to {0} on host {1}...".format(instance['name'], ssh_host))
 
     os.execvp(ssh_args[0], ssh_args)

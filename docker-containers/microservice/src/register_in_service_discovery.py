@@ -1,20 +1,11 @@
 from __future__ import print_function
 
-import argparse
-import calendar
-import json
 import os
-import random
 import re
+import json
 import socket
-import sys
-import time
-import traceback
-from datetime import datetime
+import argparse
 
-import requests
-
-from common.consul import consul_query, consul_post, consul_get, consul_put
 from common.docker_client import get_docker_inspect
 
 REGISTRATION_DIRECTORY = "/var/opt/service-registration/"
@@ -39,57 +30,10 @@ def _add_arguments(parser):
     parser.add_argument('-c', '--health_check', help="Alternative health check path for this service.", default=None)
 
 
-def print_err(*objs):
-    print(*objs, file=sys.stderr)
-
-
-def _exists_service(service_id):
-    try:
-        return service_id in consul_query('agent/services')
-    except:
-        return False
-
-
-def _create_tags():
-    tag_pairs = [
-        ('env', os.environ.get('MICROSERVICE_ENV')),
-        ('app_id', os.environ.get('MICROSERVICE_APP_ID')),
-    ]
-    return ['{k}:{v}'.format(**locals()) for k, v in tag_pairs if v]
-
-
-def _register_service(service_id, consul_service_data):
-    if not _exists_service(service_id):
-        print_err('Registering service...')
-        response = consul_post('agent/service/register', consul_service_data)
-        assert response.status_code == requests.codes.ok
-        print_err('Successfully registered.')
-
-
-def _create_service_file(service_filename, full_service_name, service_id, service_container_port,
-                         service_health_check_path=None):
-    service_registration_data = {
-        "service_id": service_id,
-        "service_container_port": service_container_port,
-        "service_name": full_service_name
-    }
-    if service_health_check_path is not None:
-        service_registration_data.update({"service_health_check_path": service_health_check_path})
-
+def _create_service_file(service_filename, service_registration_data):
     service_file_path = REGISTRATION_DIRECTORY + service_filename + ".json"
     with open(service_file_path, "w+") as f:
         json.dump(service_registration_data, f)
-
-
-def _store_start_timestamp(container_id, container_created_string):
-    # Converting "2014-12-11T09:24:13.852579969Z" to an epoch timestamp
-    docker_timestamp = container_created_string[:-4]
-    epoch_timestamp = str(calendar.timegm(datetime.strptime(
-            docker_timestamp, "%Y-%m-%dT%H:%M:%S.%f").timetuple()))
-    key = "kv/start_timestamp/" + container_id
-    if consul_get(key).status_code == requests.codes.not_found:
-        response = consul_put(key, epoch_timestamp)
-        assert response.status_code == requests.codes.ok
 
 
 def _get_port_and_protocol(args_port):
@@ -106,20 +50,9 @@ def main():
     args = _parse_args()
     container_id = socket.gethostname()
     docker_inspect = get_docker_inspect(container_id)
-
     port_and_protocol = _get_port_and_protocol(args.port)
-
     service_port = int(docker_inspect['NetworkSettings']['Ports'][port_and_protocol][0]['HostPort'])
     service_filename = microservice_name = os.environ.get('MICROSERVICE_NAME')
-
-    while True:
-        try:
-            agent_self_dict = consul_query('agent/self')
-            if agent_self_dict['Config']:
-                break
-        except:
-            traceback.print_exc()
-        time.sleep(1)
 
     service_id = container_id
     full_service_name = microservice_name
@@ -128,36 +61,17 @@ def main():
         full_service_name += ':' + args.subservice
         service_filename += '-' + args.subservice
 
-    consul_service_data = {
-        'ID': service_id,
-        'Name': full_service_name,
-        'Port': service_port,
-        'Check': {
-            'TTL': '15s',
-        }
+    service_data = {
+        "service_id": service_id,
+        "service_port": service_port,
+        "service_name": full_service_name,
+        "service_container_port": args.port,
     }
-    tags = _create_tags()
-    if tags:
-        consul_service_data['Tags'] = tags
 
-    print_err('consul_service_data:\n{0}\n'.format(json.dumps(consul_service_data)))
+    if args.health_check:
+        service_data["service_health_check_path"] = args.health_check
 
-    _create_service_file(service_filename, full_service_name, service_id, args.port, args.health_check)
-    while True:
-        try:
-            _register_service(service_id, consul_service_data)
-        except:
-            print_err('ERROR on registering service:')
-            traceback.print_exc()
-
-        try:
-            _store_start_timestamp(container_id, docker_inspect["Created"])
-        except:
-            print_err('ERROR on storing timestamp:')
-            traceback.print_exc()
-
-        time.sleep(10 + random.uniform(-2, 2))
-
+    _create_service_file(service_filename, service_data)
 
 if __name__ == '__main__':
     main()

@@ -1,9 +1,41 @@
 # Changelog
 
-##Unreleased 
+## Unreleased
 
 ### Features
 - Added flag `-s/--squash` to `armada build`. With this option armada try to minimize service image via docker-squash.
+
+### Bug fixes
+- Fixed an issue with `armada ssh` not accepting container ids.
+
+### Improvements
+- Merge `run_health_checks.py` and `register_in_service_discovery.py` into `armada_agent.py` in order to save resources, register_is_service_discovery.py is left for backward compatibility.
+- Changed timeout in `armada stop` from 10s to 60s until SIGKILL is sent to container main process.
+
+
+## 1.4.0 (2016-09-02)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
+
+### Features
+- Added service selection prompt to `armada ssh`. Whenever multiple matching services are found, user can easily select which instance they want to ssh into.
+- Added `--no-prompt` flag to `armada ssh` which disables prompting mechanism and results in error if multiple matching services are found. 
+- Added `-l/--local` flag to `armada ssh` which limits matched services to local machine.
+
+### Improvements
+- [Vagrant](https://github.com/armadaplatform/vagrant "Armada Vagrant") Use `socat` instead of `armada-bind` to proxy insecure dockyard connection through localhost.
+
+### Bug fixes
+- Properly deregister crashed sub-services. 
+- Fixed a bug which caused `armada run` in development environment use 4999:80 port mapping, even if port 80 was explicitly overridden.
+
+
+## 1.3.3 (2016-08-25)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
+
+### Bug fixes
+- Fixed armada service on `systemd` init system.
 
 ## 1.3.2 (2016-08-23)
 

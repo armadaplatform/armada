@@ -179,10 +179,10 @@ if [ ${python_return_code} != 0 ]; then
     exit 1
 fi
 
-if command_exists update-rc.d || command_exists chkconfig; then
-    start_using_initd
-elif command_exists systemctl; then
+if command_exists systemctl; then
     start_using_systemd
+elif command_exists update-rc.d || command_exists chkconfig; then
+    start_using_initd
 elif command_exists rc-status; then
     start_using_openrc
 else
