@@ -30,7 +30,7 @@ class Stop(api_base.ApiCommand):
             traceback.print_exc()
         for i in range(3):
             try:
-                docker_api.stop(container_id)
+                docker_api.stop(container_id, 60)
             except Exception as e:
                 last_exception = e
                 traceback.print_exc()
