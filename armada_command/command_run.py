@@ -67,7 +67,7 @@ def add_arguments(parser):
     # hermes parameters
     parser.add_argument('--env',
                         help='Name of environments (separated by ":") in which container will be run. '
-                             'E.g. "production", "production/external", "dev/test:production"'
+                             'E.g. "production", "production/external", "dev/test:production" '
                              'If not provided it will use MICROSERVICE_ENV env variable.',
                         default=os.environ.get('MICROSERVICE_ENV'))
     parser.add_argument('--app_id',
