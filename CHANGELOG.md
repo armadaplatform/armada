@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Features
+- Added flag `-s/--squash` to `armada build`. With this option armada try to minimize service image via docker-squash.
+
 ### Bug fixes
 - Fixed an issue with `armada ssh` not accepting container ids.
 
