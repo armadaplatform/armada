@@ -35,8 +35,7 @@ def add_arguments(parser):
                         help='Name of the microservice to be run. '
                              'If not provided it will use MICROSERVICE_NAME env variable. '
                              'You can also override default registry address, by passing full image path, '
-                             'e.g. registry.docker.poollivepro.com:5000/example',
-                        default=os.environ.get('MICROSERVICE_NAME'))
+                             'e.g. registry.docker.poollivepro.com:5000/example')
     parser.add_argument('--ship', metavar='SHIP_NAME',
                         help='Run microservice on specific ship (name or IP).')
     parser.add_argument('-d', '--dockyard',
