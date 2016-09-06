@@ -5,7 +5,7 @@
 ### Improvements
 - `--env` parameter `armada run` by default take `MICROSERVICE_ENV` environment variable as value.
 
-### Fix
+### Bug fixes
 - Fixed restarting services which have been run using `MICROSERVICE_NAME` environment variable.
 
 ## 1.4.0 (2016-09-02)

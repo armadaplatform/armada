@@ -35,7 +35,8 @@ def add_arguments(parser):
                         help='Name of the microservice to be run. '
                              'If not provided it will use MICROSERVICE_NAME env variable. '
                              'You can also override default registry address, by passing full image path, '
-                             'e.g. registry.docker.poollivepro.com:5000/example')
+                             'e.g. registry.docker.poollivepro.com:5000/example',
+                        default=os.environ.get('MICROSERVICE_NAME'))
     parser.add_argument('--ship', metavar='SHIP_NAME',
                         help='Run microservice on specific ship (name or IP).')
     parser.add_argument('-d', '--dockyard',
@@ -67,7 +68,9 @@ def add_arguments(parser):
     # hermes parameters
     parser.add_argument('--env',
                         help='Name of environments (separated by ":") in which container will be run. '
-                             'E.g. "production", "production/external", "dev/test:production"')
+                             'E.g. "production", "production/external", "dev/test:production"'
+                             'If not provided it will use MICROSERVICE_ENV env variable.',
+                        default=os.environ.get('MICROSERVICE_ENV'))
     parser.add_argument('--app_id',
                         help='Application or game for which this instance of microservice is dedicated. '
                              'It will be used to mount additional configs specific for that app/game.')
@@ -118,9 +121,8 @@ def command_run(args):
     payload.update_environment(args.e)
     payload.update_ports(args.publish)
     payload.update_volumes(args.volumes)
-    env = args.env or os.environ.get('MICROSERVICE_ENV')
-    payload.update_microservice_vars(args.rename, env, args.app_id)
-    payload.update_run_command(vagrant_dev, env, image.image_name)
+    payload.update_microservice_vars(args.rename, args.env, args.app_id)
+    payload.update_run_command(vagrant_dev, args.env, image.image_name)
     payload.update_resource_limits(args.cpu_shares, args.memory, args.memory_swap, args.cgroup_parent)
     payload.update_configs(args.configs)
 
