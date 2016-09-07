@@ -6,7 +6,6 @@ import pipes
 import shlex
 
 import armada_utils
-import armada_api
 
 
 def parse_args():
@@ -34,13 +33,11 @@ def add_arguments(parser):
 
 def prompt_select_instance(instances):
     print("There are multiple matching instances!")
-    template = "\t{i}) {name} {address} {id} {status} {local}"
+    template = "\t{i}) {name} {address}:{port} {id} {local}"
     for i, instance in enumerate(instances):
-        if instance['address'] == 'n/a':
-            continue
-        local = "(local)" if armada_utils.is_local_container(instance['container_id']) else ""
-        print(template.format(i=i+1, name=instance['name'], address=instance['address'], id=instance['container_id'],
-                              status=instance['status'], local=local))
+        local = "(local)" if armada_utils.is_local_container(instance['ServiceID']) else ""
+        print(template.format(i=i+1, name=instance['ServiceName'], address=instance['Address'], port=instance['ServicePort'],
+                              id=instance['ServiceID'],  local=local))
     try:
         selection = int(raw_input("Please select one: "))
         if 0 >= selection > len(instances):
@@ -58,9 +55,14 @@ def command_ssh(args):
     if not microservice_name:
         raise ValueError('No microservice name supplied.')
 
-    instances = armada_api.get_json('list', vars(args))
-
+    instances = [i for i in armada_utils.get_matched_containers(microservice_name) if 'kv_index' not in i]
     instances_count = len(instances)
+
+    if instances_count < 1:
+        raise armada_utils.ArmadaCommandException(
+            'There are no running containers with microservice: '
+            '{microservice_name}'.format(**locals()))
+
     if instances_count > 1:
         if args.no_prompt:
             raise armada_utils.ArmadaCommandException(
@@ -70,10 +72,7 @@ def command_ssh(args):
     else:
         instance = instances[0]
 
-    if instance['address'] == 'n/a':
-        raise armada_utils.ArmadaCommandException('Cannot connect to not running service.')
-
-    container_id = instance['container_id']
+    container_id = instance['ServiceID']
     payload = {'container_id': container_id}
 
     is_local = armada_utils.is_local_container(container_id)
@@ -94,10 +93,10 @@ def command_ssh(args):
                      'sh -c {command}'.format(**locals())
 
     if is_local:
-        print("Connecting to {0}...".format(instance['name']))
+        print("Connecting to {0}...".format(instance['ServiceName']))
         ssh_args = shlex.split(docker_command)
     else:
-        ssh_host = instance['address'].split(":")[0]
+        ssh_host = instance['Address']
         docker_key_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
         remote_ssh_chunk = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host}' \
             .format(**locals())

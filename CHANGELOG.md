@@ -8,6 +8,21 @@
 ### Bug fixes
 - Fixed restarting services which have been run using `MICROSERVICE_NAME` environment variable.
 
+## 1.5.0 (2016-09-06)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
+
+### Features
+- Added flag `-s/--squash` to `armada build`. With this option armada try to minimize service image via docker-squash.
+
+### Bug fixes
+- Fixed an issue with `armada ssh` not accepting container ids.
+
+### Improvements
+- Merge `run_health_checks.py` and `register_in_service_discovery.py` into `armada_agent.py` in order to save resources, register_is_service_discovery.py is left for backward compatibility.
+- Changed timeout in `armada stop` from 10s to 60s until SIGKILL is sent to container main process.
+
+
 ## 1.4.0 (2016-09-02)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.

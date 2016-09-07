@@ -34,7 +34,7 @@ echo -e "\n${cyan}Available hermes configs ${NC}"
 cd /etc/opt ; find -L . -maxdepth 1 -type d | sort
 
 echo -e "\n${green}Last health check ${NC}"
-cat /var/log/supervisor/run_health_checks-stderr*log | grep "$(cat /var/log/supervisor/run_health_checks-stderr*log | grep '^=== START: ' | tail -n1)" -A 100
+cat /var/log/supervisor/armada_agent-stderr*log | grep "$(cat /var/log/supervisor/armada_agent-stderr*log | grep '^=== START: ' | tail -n1)" -A 100
 
 echo -e "\n${purple}Process tree ${NC}"
 ps -auxf

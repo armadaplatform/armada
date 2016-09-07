@@ -157,6 +157,7 @@ if ! command_exists python2.7; then
 fi
 
 $sh_c "$pip install -U 'requests>=2.9.1' 2>/dev/null"
+$sh_c "$pip install -U docker-squash 2>/dev/null"
 
 download_file ${ARMADA_BASE_URL}install/armada /tmp/armada
 $sh_c "mv -f /tmp/armada /usr/local/bin/armada"
