@@ -1,5 +1,13 @@
 # Changelog
 
+##Unreleased
+
+### Improvements
+- `--env` parameter `armada run` by default take `MICROSERVICE_ENV` environment variable as value.
+
+### Bug fixes
+- Fixed restarting services which have been run using `MICROSERVICE_NAME` environment variable.
+
 ## 1.5.0 (2016-09-06)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
