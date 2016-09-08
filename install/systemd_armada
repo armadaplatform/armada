@@ -11,7 +11,6 @@ ExecStartPre=/usr/local/bin/armada-runner start
 ExecStart=/bin/bash -c "/usr/bin/docker logs -f --tail=10 $(cat ${CIDFILE})"
 ExecStop=/usr/local/bin/armada-runner stop
 ExecStopPost=/usr/local/bin/armada-runner stop
-NotifyAccess=all
 
 [Install]
 WantedBy=multi-user.target
