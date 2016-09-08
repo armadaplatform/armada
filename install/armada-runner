@@ -144,7 +144,6 @@ case "$1" in
         docker_version=$(docker_server_version)
 
         run_options="-d \
-            --privileged=true \
             --cidfile ${ARMADA_CONTAINERID_FILE} \
             -p 2201:22 \
             -p ${ARMADA_PORT}:80 \

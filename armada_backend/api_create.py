@@ -142,7 +142,7 @@ class Create(api_base.ApiCommand):
     def _create_host_config(self, docker_api, resource_limits, binds, port_bindings):
         resource_limits = resource_limits or {}
         host_config = docker_api.create_host_config(
-            privileged=True,
+            privileged=False,
             publish_all_ports=True,
             binds=binds,
             port_bindings=port_bindings,
