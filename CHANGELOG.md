@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fixed an issue with `armada ssh` ignoring `--local` flag.
+- Fixed KeyError exception issue when connecting to remote service.
+
 ## 1.5.1 (2016-09-07)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
