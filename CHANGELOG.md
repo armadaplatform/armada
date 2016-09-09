@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.5.2 (2016-09-09)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
 
 ### Bug fixes
 - Fixed an issue with `armada ssh` ignoring `--local` flag.
