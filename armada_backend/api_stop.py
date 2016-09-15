@@ -2,7 +2,7 @@ import traceback
 
 import api_base
 import docker_client
-from utils import deregister_services, is_container_running, get_logger
+from utils import deregister_services, is_container_running, get_logger, run_command_in_container
 
 
 class Stop(api_base.ApiCommand):
@@ -17,13 +17,14 @@ class Stop(api_base.ApiCommand):
             return self.status_exception("Cannot stop requested container", e)
 
     def _stop_service(self, container_id):
+        run_command_in_container('supervisorctl stop armada_agent', container_id)
+
+        # TODO: Compatibility with old microservice images. Should be removed in future armada version.
+        run_command_in_container('supervisorctl stop register_in_service_discovery', container_id)
+
         docker_api = docker_client.api()
         last_exception = None
-        try:
-            exec_id = docker_api.exec_create(container_id, 'supervisorctl stop armada_agent')
-            docker_api.exec_start(exec_id['Id'])
-        except:
-            traceback.print_exc()
+
         try:
             deregister_services(container_id)
         except:
