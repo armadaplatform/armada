@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.5.3 (2016-09-20)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
 
 ### Bug fixes
 - Ensure services based on old `microservice` image do not register themselves back in Consul during `armada stop`.
