@@ -2,8 +2,9 @@ import traceback
 
 import api_base
 import docker_client
+from utils import deregister_services, is_container_running, get_logger, run_command_in_container
 import fnmatch
-from utils import deregister_services, is_container_running, get_logger, get_ship_name
+from utils import get_ship_name
 from armada_command.consul.kv import kv_remove, kv_list, kv_get
 
 
@@ -29,13 +30,13 @@ class Stop(api_base.ApiCommand):
         if service_dict and service_dict['Status'] in ['crashed', 'not-recovered']:
             kv_remove(key[0])
         else:
+            run_command_in_container('supervisorctl stop armada_agent', container_id)
+
+            # TODO: Compatibility with old microservice images. Should be removed in future armada version.
+            run_command_in_container('supervisorctl stop register_in_service_discovery', container_id)
+
             docker_api = docker_client.api()
             last_exception = None
-            try:
-                exec_id = docker_api.exec_create(container_id, 'supervisorctl stop register_in_service_discovery')
-                docker_api.exec_start(exec_id['Id'])
-            except:
-                traceback.print_exc()
             try:
                 deregister_services(container_id)
             except:

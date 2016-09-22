@@ -123,7 +123,6 @@ def get_local_containers_ids():
     return list(set(service['container_id'] for service in services_from_api if service['status'] not in ['recovering',
                                                                                                           'crashed']))
 
-
 def is_container_running(container_id):
     docker_api = docker_client.api()
     try:
@@ -131,3 +130,12 @@ def is_container_running(container_id):
         return inspect['State']['Running']
     except:
         return False
+
+
+def run_command_in_container(command, container_id):
+    docker_api = docker_client.api()
+    try:
+        exec_id = docker_api.exec_create(container_id, command)
+        docker_api.exec_start(exec_id['Id'])
+    except:
+        traceback.print_exc()

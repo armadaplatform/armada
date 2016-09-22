@@ -26,6 +26,7 @@ def add_arguments(parser):
                         help='Build from image from dockyard with this alias. '
                              "Use 'local' to force using local repository.")
     parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
+    parser.add_argument('-s', '--squash', action='store_true', help='Squash image.')
 
 
 def _get_base_image_name():
@@ -36,6 +37,8 @@ def _get_base_image_name():
 
 
 def command_build(args):
+    if args.squash:
+        chain_run_commands()
     base_image_name = _get_base_image_name()
     dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(base_image_name, is_run_locally=True)
 
@@ -86,3 +89,46 @@ def command_build(args):
 
     build_command = 'docker build -t {} .'.format(image.image_name_with_tag)
     assert execute_local_command(build_command, stream_output=True)[0] == 0
+
+    if args.squash:
+        os.rename('Dockerfile.tmp', 'Dockerfile')
+        squash_command = 'docker-squash {} -t {}'.format(image.image_name_with_tag,
+                                                         image.image_name_with_tag)
+        assert execute_local_command(squash_command, stream_output=True)[0] == 0
+
+
+def _join_commands(run_commands):
+    chained_run = 'RUN ' + ' && '.join(run_commands)
+    if 'apt-get' in chained_run and 'apt-get clean' not in chained_run:
+        chained_run += ' && apt-get clean && rm -rf /var/lib/apt/lists/*'
+    chained_run += '\n'
+    return chained_run
+
+
+def chain_run_commands():
+    new_dockerfile_commands = []
+    run_commands = []
+    with open('Dockerfile') as dockerfile:
+        join_next_line = False
+        for line in dockerfile:
+            if line == '\n' or line.startswith('#'):
+                continue
+            elif join_next_line or line.startswith('RUN'):
+                striped = line[4:].strip() if line.startswith('RUN') else line.strip()
+                if striped.endswith('\\'):
+                    join_next_line = True
+                    striped = striped[:-1].strip().strip('&')
+                else:
+                    join_next_line = False
+                run_commands.append(striped)
+            else:
+                join_next_line = False
+                new_dockerfile_commands.append(line)
+        if run_commands:
+            chained_run = _join_commands(run_commands)
+            new_dockerfile_commands.append(chained_run)
+    dockerfile.close()
+    os.rename('Dockerfile', 'Dockerfile.tmp')
+    with open('Dockerfile', 'w') as dockerfile:
+        for line in new_dockerfile_commands:
+            dockerfile.write(line)

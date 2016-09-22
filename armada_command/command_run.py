@@ -67,7 +67,9 @@ def add_arguments(parser):
     # hermes parameters
     parser.add_argument('--env',
                         help='Name of environments (separated by ":") in which container will be run. '
-                             'E.g. "production", "production/external", "dev/test:production"')
+                             'E.g. "production", "production/external", "dev/test:production" '
+                             'If not provided it will use MICROSERVICE_ENV env variable.',
+                        default=os.environ.get('MICROSERVICE_ENV'))
     parser.add_argument('--app_id',
                         help='Application or game for which this instance of microservice is dedicated. '
                              'It will be used to mount additional configs specific for that app/game.')
@@ -114,12 +116,12 @@ def command_run(args):
     payload.update_image_path(image.image_path_with_tag)
     payload.update_dockyard(dockyard_alias)
     if vagrant_dev:
-        payload.update_vagrant(args.dynamic_ports, args.use_latest_image_code, image.image_name)
+        payload.update_vagrant(args.dynamic_ports, args.publish, args.use_latest_image_code, image.image_name)
     payload.update_environment(args.e)
     payload.update_ports(args.publish)
     payload.update_volumes(args.volumes)
     payload.update_microservice_vars(args.rename, args.env, args.app_id)
-    payload.update_run_command(vagrant_dev)
+    payload.update_run_command(vagrant_dev, args.env, image.image_name)
     payload.update_resource_limits(args.cpu_shares, args.memory, args.memory_swap, args.cgroup_parent)
     payload.update_configs(args.configs)
 
