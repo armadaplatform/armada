@@ -5,14 +5,12 @@ import sys
 import traceback
 from collections import Counter
 from time import sleep
-import hashlib
-import uuid
+
 
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.utils import get_container_parameters, get_local_containers_ids, get_logger, get_ship_name
 from armada_command import armada_api
 from armada_command.consul import kv
-from cleaner import deregister_not_running_services
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
 RECOVERY_RETRY_LIMIT = 5
