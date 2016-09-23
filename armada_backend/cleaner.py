@@ -18,11 +18,13 @@ def _get_running_container_ids():
     docker_api = docker_client.api()
     return set(shorten_container_id(container['Id']) for container in docker_api.containers())
 
+
 def _get_container_id_with_subservice(service_id):
     parts = service_id.split(":")
     container_id = parts[0]
     is_subservice = len(parts) > 1
     return container_id, is_subservice
+
 
 def _mark_service_as_crashed(container_id, service_name):
     params = get_container_parameters(container_id)
@@ -49,7 +51,7 @@ def _deregister_not_running_services():
         deregister_services(container_id)
 
     services_ids = kv.kv_list('ships/{}/service/'.format(ship)) or []
-    containers_ids = get_running_container_ids()
+    containers_ids = _get_running_container_ids()
     for service_id in services_ids:
         container_id = service_id.split('/')[-1]
         if container_id not in containers_ids:
