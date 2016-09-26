@@ -83,8 +83,8 @@ class List(api_base.ApiCommand):
             for service_from_kv in services_list:
                 matching_services = filter(
                     lambda service: service['microservice_id'] == service_from_kv['microservice_id'],
-                    result)
-                if len(matching_services) == 0:
+                    services_list_from_catalog)
+                if not matching_services:
                     result.append(service_from_kv)
 
             return self.status_ok({'result': result})

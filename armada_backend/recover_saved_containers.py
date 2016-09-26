@@ -11,6 +11,7 @@ from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.utils import get_container_parameters, get_local_containers_ids, get_logger, get_ship_name
 from armada_command import armada_api
 from armada_command.consul import kv
+from armada_command.consul.consul import consul_query
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
 RECOVERY_RETRY_LIMIT = 5
@@ -31,8 +32,10 @@ def _load_saved_containers_parameters_list(running_containers_parameters_path):
 
 def _get_local_running_containers():
     result = []
-    for container_id in get_local_containers_ids():
-        container_parameters = get_container_parameters(container_id)
+    ship = get_ship_name()
+    local_containers = kv.kv_list('ships/{}/service/'.format(ship))
+    for container in local_containers:
+        container_parameters = kv.kv_get(container)['params']
         if container_parameters:
             result.append(container_parameters)
     return result
@@ -56,20 +59,49 @@ def _multiset_difference(a, b):
     return [json.loads(x) for x in difference.elements()]
 
 
+def _add_running_services_at_startup(containers_saved_in_kv, ship):
+    wait_for_consul_ready()
+    all_services = consul_query('agent/services')
+    del all_services['consul']
+    for service_id, service_dict in all_services:
+        if ':' in service_id:
+            continue
+        key = 'ships/{}/service/{}/{}'.format(ship, service_dict['Service'], service_id)
+        if not containers_saved_in_kv or key not in containers_saved_in_kv:
+            kv.save_service(ship, service_id, 'started')
+
+
+def _load_from_dict(saved_containers, containers_saved_in_kv, ship):
+    for key, container_dict in saved_containers.items():
+        old_ship_name = key.split('/')[1]
+        if old_ship_name != ship:
+            key = 'ships/{}/service/{}/{}'.format(ship, container_dict['ServiceName'],
+                                                  container_dict['container_id'])
+        if not containers_saved_in_kv or key not in containers_saved_in_kv:
+            kv.kv_set(key, container_dict)
+
+
+def _load_from_list(saved_containers, ship):
+    wait_for_consul_ready()
+    running_containers = _get_local_running_containers()
+    containers_to_be_added = _multiset_difference(saved_containers, running_containers)
+    index = 0
+    for container_parameters in containers_to_be_added:
+        kv.save_service(ship, index, 'crashed', params=container_parameters)
+        index += 1
+
+
 def _load_containers_to_kv_store(saved_containers_path):
     wait_for_consul_ready()
     try:
         ship = get_ship_name()
         containers_saved_in_kv = kv.kv_list('ships/{}/service/'.format(ship))
         saved_containers = _load_saved_containers_parameters_list(saved_containers_path)
-
-        for key, container_dict in saved_containers.items():
-            old_ship_name = key.split('/')[1]
-            if old_ship_name != ship:
-                key = 'ships/{}/service/{}/{}'.format(ship, container_dict['ServiceName'],
-                                                      container_dict['container_id'])
-            if not containers_saved_in_kv or key not in containers_saved_in_kv:
-                kv.kv_set(key, container_dict)
+        _add_running_services_at_startup(containers_saved_in_kv, ship)
+        if isinstance(saved_containers, dict):
+            _load_from_dict(saved_containers, containers_saved_in_kv, ship)
+        else:
+            _load_from_list(saved_containers, ship)
     except:
         traceback.print_exc()
         get_logger().error('Unable to load from {}.'.format(saved_containers_path))
@@ -158,8 +190,20 @@ def recover_saved_containers_from_parameters(saved_containers):
                 kv.kv_set(key, container_dict)
     except:
         traceback.print_exc()
-        get_logger().error('Unable to load from {}.'.format(saved_containers_path))
 
+    containers_to_be_recovered = recover_containers_from_kv_store()
+    return containers_to_be_recovered
+
+
+def recover_saved_containers_from_parameters_old(saved_containers):
+    wait_for_consul_ready()
+    running_containers = _get_local_running_containers()
+    containers_to_be_recovered = _multiset_difference(saved_containers, running_containers)
+    ship = get_ship_name()
+    index = 0
+    for container_parameters in containers_to_be_recovered:
+        kv.save_service(ship, index, 'crashed', params=container_parameters)
+        index += 1
     containers_to_be_recovered = recover_containers_from_kv_store()
     return containers_to_be_recovered
 

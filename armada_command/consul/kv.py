@@ -1,8 +1,9 @@
 import base64
 import json
 import calendar
-import docker
-from datetime import datetime
+import time
+import os
+import requests
 
 from armada_command.consul.consul import consul_put, consul_delete, consul_query
 
@@ -33,19 +34,9 @@ def save_service(ship, container_id, status, params=None):
     if status == 'crashed':
         name = params['microservice_name']
     else:
-        docker_api = docker.Client(base_url='unix://' + DOCKER_SOCKET_PATH, version='1.18', timeout=11)
-        docker_api.start(container_id)
-        docker_inspect = docker_api.inspect_container(container_id)
-
-        service_env = docker_inspect['Config']['Env']
-        for variable in service_env:
-            if variable.startswith('MICROSERVICE_NAME'):
-                name = variable.split('=')[1].encode('utf-8')
-            elif variable.startswith('RESTART_CONTAINER_PARAMETERS'):
-                params = json.loads(base64.b64decode(variable[len('RESTART_CONTAINER_PARAMETERS')+1:]))
-        start_timestamp_string = docker_inspect['Created'][:-4]
-        start_timestamp = str(calendar.timegm(datetime.strptime(
-            start_timestamp_string, "%Y-%m-%dT%H:%M:%S.%f").timetuple()))
+        name = get_env(container_id, 'MICROSERVICE_NAME')
+        params = json.loads(base64.b64decode(get_env(container_id, 'RESTART_CONTAINER_PARAMETERS')))
+        start_timestamp = str(calendar.timegm(time.gmtime()))
     address = kv_get('ships/{}/ip'.format(ship)) or ship
     service_dict = {
         'ServiceName': name,
@@ -65,3 +56,26 @@ def update_service_status(status, ship=None, name=None, container_id=None, key=N
     service_dict = kv_get(key)
     service_dict['Status'] = status
     kv_set(key, service_dict)
+
+
+def __are_we_in_armada_container():
+    return os.environ.get('MICROSERVICE_NAME') == 'armada' and os.path.isfile('/.dockerenv')
+
+
+def __get_armada_address():
+    if __are_we_in_armada_container():
+        return 'http://127.0.0.1'
+    agent_services_dict = consul_query('agent/services')
+    for service in agent_services_dict.values():
+        if service['Service'] == 'armada':
+            return 'http://127.0.0.1:{}'.format(service['Port'])
+
+
+def get_env(container_id, env):
+    url = '{}/env/{}/{}'.format(__get_armada_address(), container_id, env)
+    response = requests.get(url)
+    response.raise_for_status()
+    result = response.json()
+    if result['status'] != 'ok':
+        raise ArmadaApiException('Armada API did not return correct status: {0}'.format(result))
+    return result['value']
