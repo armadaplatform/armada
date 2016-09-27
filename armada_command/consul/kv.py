@@ -30,7 +30,10 @@ def kv_list(key):
 
 
 def save_service(ship, container_id, status, params=None):
-    start_timestamp = None
+    try:
+        start_timestamp = kv_get('start_timestamp/{}'.format(container_id))
+    except:
+        start_timestamp = None
     if status == 'crashed':
         name = params['microservice_name']
     else:
