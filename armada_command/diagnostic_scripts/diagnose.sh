@@ -35,6 +35,9 @@ cd /etc/opt ; find -L . -maxdepth 1 -type d | sort
 
 echo -e "\n${green}Last health check ${NC}"
 cat /var/log/supervisor/armada_agent-stderr*log | grep "$(cat /var/log/supervisor/armada_agent-stderr*log | grep '^=== START: ' | tail -n1)" -A 100
+if [ $? -ne 0 ]; then
+    cat /var/log/supervisor/run_health_checks-stderr*log | grep "$(cat /var/log/supervisor/run_health_checks-stderr*log | grep '^=== START: ' | tail -n1)" -A 100
+fi
 
 echo -e "\n${purple}Process tree ${NC}"
 ps -auxf
