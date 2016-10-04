@@ -53,15 +53,20 @@ def main():
         wait_for_consul_ready()
         ship = get_ship_name()
         saved_containers = kv.kv_list('ships/{}/service/'.format(ship))
-        containers_parameters_list = {}
+        containers_parameters_dict = {}
         if saved_containers:
             for container in saved_containers:
                 container_dict = kv.kv_get(container)
-                containers_parameters_list[container] = container_dict
+                containers_parameters_dict[container] = container_dict
 
-        if containers_parameters_list:
-            _save_containers_parameters_list_in_file(containers_parameters_list, saved_containers_path)
+        if containers_parameters_dict:
+            _save_containers_parameters_list_in_file(containers_parameters_dict, saved_containers_path)
             get_logger().info('Containers have been saved to {}.'.format(saved_containers_path))
+            try:
+                _save_containers_parameters_list_in_kv_store(containers_parameters_dict)
+                get_logger().info('Containers have been saved to kv store.')
+            except:
+                traceback.print_exc()
         else:
             get_logger().info('Aborted saving container because of errors.')
     except:
