@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- Storing service restart parameters and status in K/V store.
+    - `armada recover` by default will try recover crashed services from K/V store
+
+### Improvements
+- Ship names survive joining armada
+- Ship names must be unique
+
+
 ## 1.5.3 (2016-09-20)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
