@@ -24,8 +24,7 @@ class Stop(api_base.ApiCommand):
         service_dict = None
         service_list = kv_list('ships/{}/service/'.format(ship))
         if service_list:
-            key = fnmatch.filter(service_list, '*{}'.format(container_id))
-            get_logger().info('key: {}'.format(key))
+            key = fnmatch.filter(service_list, '*/{}'.format(container_id))
             service_dict = kv_get(key[0]) if key else None
         if service_dict and service_dict['Status'] in ['crashed', 'not-recovered']:
             kv_remove(key[0])
