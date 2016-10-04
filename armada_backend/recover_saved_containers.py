@@ -12,6 +12,7 @@ from armada_backend.utils import get_container_parameters, get_local_containers_
 from armada_command import armada_api
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
+from cleaner import _deregister_not_running_services
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
 RECOVERY_RETRY_LIMIT = 5
@@ -200,6 +201,7 @@ def main():
         args = _parse_args()
         _load_containers_to_kv_store(args.saved_containers_path)
         if args.force or _check_if_we_should_recover(args.saved_containers_path):
+            _deregister_not_running_services()
             if not recover_containers_from_kv_store():
                 sys.exit(1)
     finally:
