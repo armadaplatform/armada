@@ -51,25 +51,19 @@ def main():
     saved_containers_path = args.saved_containers_path
     try:
         wait_for_consul_ready()
-        containers_ids = get_local_containers_ids()
-        containers_parameters_list = []
-        errors_count = 0
-        for container_id in containers_ids:
-            try:
-                container_parameters = get_container_parameters(container_id)
-                if container_parameters:
-                    containers_parameters_list.append(container_parameters)
-            except:
-                errors_count += 1
-                get_logger().error('ERROR on getting container parameters for {}:'.format(container_id))
-                traceback.print_exc()
-        containers_parameters_list.sort()
-        # Don't overwrite saved containers' list if it would become empty because of errors.
-        if containers_parameters_list or not errors_count:
-            _save_containers_parameters_list_in_file(containers_parameters_list, saved_containers_path)
+        ship = get_ship_name()
+        saved_containers = kv.kv_list('ships/{}/service/'.format(ship))
+        containers_parameters_dict = {}
+        if saved_containers:
+            for container in saved_containers:
+                container_dict = kv.kv_get(container)
+                containers_parameters_dict[container] = container_dict
+
+        if containers_parameters_dict:
+            _save_containers_parameters_list_in_file(containers_parameters_dict, saved_containers_path)
             get_logger().info('Containers have been saved to {}.'.format(saved_containers_path))
             try:
-                _save_containers_parameters_list_in_kv_store(containers_parameters_list)
+                _save_containers_parameters_list_in_kv_store(containers_parameters_dict)
                 get_logger().info('Containers have been saved to kv store.')
             except:
                 traceback.print_exc()

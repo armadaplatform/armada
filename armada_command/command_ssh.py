@@ -76,7 +76,11 @@ def command_ssh(args):
     else:
         instance = instances[0]
 
-    container_id = instance['ServiceID']
+    if 'Status' in instance:
+        raise armada_utils.ArmadaCommandException('Cannot connect to not running service.')
+
+    service_id = instance['ServiceID']
+    container_id = service_id.split(':')[0]
     payload = {'container_id': container_id}
 
     is_local = armada_utils.is_local_container(container_id)

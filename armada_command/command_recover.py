@@ -15,13 +15,18 @@ def parse_args():
 
 def add_arguments(parser):
     parser.add_argument('saved_containers_path',
-                        help='Path to JSON file with saved containers. They are created in /opt/armada.')
+                        help='Path to JSON file with saved containers. They are created in /opt/armada. '
+                             'If not provided, containers saved in K/V store will be recovered.',
+                        nargs='?', default='')
 
 
 def command_recover(args):
-    with open(args.saved_containers_path) as saved_containers_file:
-        saved_containers = json.load(saved_containers_file)
-    payload = {'saved_containers': saved_containers}
+    if not args.saved_containers_path:
+        payload = {'recover_from_kv': True}
+    else:
+        with open(args.saved_containers_path) as saved_containers_file:
+            saved_containers = json.load(saved_containers_file)
+        payload = {'recover_from_kv': False, 'saved_containers': saved_containers}
     result = armada_api.post('recover', payload)
     if result['status'] != 'ok':
         print(result['error'])
