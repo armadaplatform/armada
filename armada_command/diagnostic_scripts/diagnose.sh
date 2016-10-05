@@ -36,6 +36,7 @@ cd /etc/opt ; find -L . -maxdepth 1 -type d | sort
 echo -e "\n${green}Last health check ${NC}"
 cat /var/log/supervisor/armada_agent-stderr*log 2> /dev/null | grep "$(cat /var/log/supervisor/armada_agent-stderr*log 2> /dev/null | grep '^=== START: ' | tail -n1)" -A 100
 if [ $? -ne 0 ]; then
+    echo -e "\n${red}Deprecation warning: Your service is based on old microservice image. Consider rebuilding it with '-d armada' parameter.${NC}"
     cat /var/log/supervisor/run_health_checks-stderr*log | grep "$(cat /var/log/supervisor/run_health_checks-stderr*log | grep '^=== START: ' | tail -n1)" -A 100
 fi
 
