@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.6.0 (2016-10-05)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
 
 ### Features
 - Storing service restart parameters and status in K/V store.
