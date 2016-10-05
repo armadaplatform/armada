@@ -4,11 +4,12 @@
 
 ### Features
 - Storing service restart parameters and status in K/V store.
-    - `armada recover` by default will try recover crashed services from K/V store
+- `armada recover` by default will try recover crashed services from K/V store
 
 ### Improvements
 - Ship names survive joining armada
 - Ship names must be unique
+- `armada diagnose` properly prints last health-check for services based on old microservice image, along with deprecation warning. 
 
 
 ## 1.5.3 (2016-09-20)
