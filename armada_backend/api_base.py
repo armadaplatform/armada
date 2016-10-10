@@ -32,7 +32,7 @@ class ApiCommand(object):
         return result, None
 
     def status_error(self, message=None):
-        get_logger().error('API error: {}'.format(message))
+        get_logger().error('API error: %s', message)
         web.header('Content-Type', 'application/json')
         return _create_response_with_error(message)
 

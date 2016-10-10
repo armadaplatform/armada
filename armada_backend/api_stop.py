@@ -50,5 +50,5 @@ class Stop(api_base.ApiCommand):
                 if not is_container_running(container_id):
                     break
             if is_container_running(container_id):
-                get_logger().error('Could not stop container: {}'.format(container_id))
+                get_logger().error('Could not stop container: %s', container_id)
                 raise last_exception

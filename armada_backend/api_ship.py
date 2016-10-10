@@ -114,7 +114,7 @@ class Join(api_base.ApiCommand):
         if _restart_consul():
             supervisor_server = xmlrpclib.Server('http://localhost:9001/RPC2')
             hermes_init_output = supervisor_server.supervisor.startProcessGroup('hermes_init')
-            get_logger().info('hermes_init start: {}'.format(hermes_init_output))
+            get_logger().info('hermes_init start: %s', hermes_init_output)
             set_ship_name(ship)
             for key, data in local_services_data.items():
                 kv.kv_set(key, data)

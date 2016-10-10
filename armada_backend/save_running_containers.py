@@ -8,7 +8,7 @@ import time
 
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.recover_saved_containers import RECOVERY_COMPLETED_PATH
-from armada_backend.utils import get_ship_name, get_logger
+from armada_backend.utils import get_ship_name, get_logger, setup_sentry
 from armada_command.consul import kv
 
 
@@ -44,6 +44,7 @@ def _is_recovery_completed():
 
 
 def main():
+    setup_sentry()
     args = _parse_args()
 
     saved_containers_path = args.saved_containers_path

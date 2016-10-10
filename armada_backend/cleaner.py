@@ -2,7 +2,8 @@ import random
 import time
 
 from armada_backend import docker_client
-from armada_backend.utils import deregister_services, shorten_container_id, get_container_parameters
+from armada_backend.utils import deregister_services, shorten_container_id, get_container_parameters, get_logger, \
+    setup_sentry
 from armada_backend.utils import get_ship_ip, get_ship_name
 from armada_command.consul.consul import consul_query
 from armada_command.consul import kv
@@ -52,6 +53,7 @@ def _deregister_not_running_services():
 
 
 def main():
+    setup_sentry()
     while True:
         _deregister_not_running_services()
         time.sleep(60 + random.uniform(-5, 5))

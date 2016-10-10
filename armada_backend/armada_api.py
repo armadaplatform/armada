@@ -15,6 +15,7 @@ from api_ssh import SshAddress
 from api_start import Start
 from api_stop import Stop
 from api_version import GetVersion
+from armada_backend.utils import setup_sentry
 
 
 class Health(object):
@@ -56,4 +57,5 @@ def main():
 
 
 if __name__ == '__main__':
+    setup_sentry()
     main()

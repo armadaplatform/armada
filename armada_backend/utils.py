@@ -5,15 +5,34 @@ import traceback
 import os
 
 import requests
+from raven import Client, setup_logging
+from raven.handlers.logging import SentryHandler
 
 from armada_backend import docker_client
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_get
 from armada_command.consul.consul import consul_query
+from armada_command._version import __version__
+from armada_command.ship_config import get_ship_config
+
+sentry_ignore_exceptions = ['KeyboardInterrupt']
 
 
 def shorten_container_id(long_container_id):
     return long_container_id[:12]
+
+
+def setup_sentry():
+    sentry_url = get_ship_config().get('sentry_url', '')
+
+    sentry_client = Client(sentry_url,
+                           release=__version__,
+                           auto_log_stacks=True,
+                           ignore_exceptions=sentry_ignore_exceptions)
+    handler = SentryHandler(sentry_client, level=logging.WARNING)
+    setup_logging(handler)
+
+    return sentry_client
 
 
 def get_logger():

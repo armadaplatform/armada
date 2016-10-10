@@ -23,7 +23,7 @@ class Create(api_base.ApiCommand):
             raise ValueError('Field run_command cannot be empty.')
 
         if kwargs:
-            get_logger().warning('JSON data sent to API contains unrecognized keys: {}'.format(list(kwargs.keys())))
+            get_logger().warning('JSON data sent to API contains unrecognized keys: %s', list(kwargs.keys()))
 
         # Set default values:
         environment = environment or {}
