@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.6.0 (2016-10-05)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
+
+### Features
+- Storing service restart parameters and status in K/V store.
+- `armada recover` by default will try recover crashed services from K/V store
+
+### Improvements
+- Ship names survive joining armada
+- Ship names must be unique
+- `armada diagnose` properly prints last health-check for services based on old microservice image, along with deprecation warning. 
+
+
+## 1.5.3 (2016-09-20)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
+
+### Bug fixes
+- Ensure services based on old `microservice` image do not register themselves back in Consul during `armada stop`.
+
+
+## 1.5.2 (2016-09-09)
+
+We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
+
+### Bug fixes
+- Fixed an issue with `armada ssh` ignoring `--local` flag.
+- Fixed KeyError exception issue when connecting to remote service.
+
 ## 1.5.1 (2016-09-07)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.

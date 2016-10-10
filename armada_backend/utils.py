@@ -53,10 +53,18 @@ def get_ship_name(ship_ip=None):
     return ship_name
 
 
-def set_ship_name(name):
+def set_ship_name(new_name):
     ship_ip = get_ship_ip()
-    kv.kv_set('ships/{}/name'.format(ship_ip), name)
-    kv.kv_set('ships/{}/ip'.format(name), ship_ip)
+    old_name = get_ship_name(ship_ip)
+    saved_containers = kv.kv_list('ships/{}/service/'.format(old_name))
+    if saved_containers:
+        for container in saved_containers:
+            new_key = 'ships/{}/service/{}/{}'.format(new_name, container.split('/')[-2], container.split('/')[-1])
+            container_dict = kv.kv_get(container)
+            kv.kv_set(new_key, container_dict)
+            kv.kv_remove(container)
+    kv.kv_set('ships/{}/name'.format(ship_ip), new_name)
+    kv.kv_set('ships/{}/ip'.format(new_name), ship_ip)
 
 
 def get_other_ship_ips():
@@ -115,7 +123,6 @@ def get_local_containers_ids():
     return list(set(service['container_id'] for service in services_from_api if service['status'] not in ['recovering',
                                                                                                           'crashed']))
 
-
 def is_container_running(container_id):
     docker_api = docker_client.api()
     try:
@@ -123,3 +130,12 @@ def is_container_running(container_id):
         return inspect['State']['Running']
     except:
         return False
+
+
+def run_command_in_container(command, container_id):
+    docker_api = docker_client.api()
+    try:
+        exec_id = docker_api.exec_create(container_id, command)
+        docker_api.exec_start(exec_id['Id'])
+    except:
+        traceback.print_exc()

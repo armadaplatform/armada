@@ -56,6 +56,10 @@ def command_ssh(args):
         raise ValueError('No microservice name supplied.')
 
     instances = [i for i in armada_utils.get_matched_containers(microservice_name) if 'kv_index' not in i]
+
+    if args.local:
+        instances = [i for i in instances if armada_utils.is_local_container(i['ServiceID'])]
+
     instances_count = len(instances)
 
     if instances_count < 1:
@@ -72,7 +76,11 @@ def command_ssh(args):
     else:
         instance = instances[0]
 
-    container_id = instance['ServiceID']
+    if 'Status' in instance:
+        raise armada_utils.ArmadaCommandException('Cannot connect to not running service.')
+
+    service_id = instance['ServiceID']
+    container_id = service_id.split(':')[0]
     payload = {'container_id': container_id}
 
     is_local = armada_utils.is_local_container(container_id)
@@ -102,6 +110,6 @@ def command_ssh(args):
             .format(**locals())
         ssh_args = shlex.split(remote_ssh_chunk)
         ssh_args.extend(('sudo', docker_command))
-        print("Connecting to {0} on host {1}...".format(instance['name'], ssh_host))
+        print("Connecting to {0} on host {1}...".format(instance['ServiceName'], ssh_host))
 
     os.execvp(ssh_args[0], ssh_args)
