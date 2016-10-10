@@ -19,6 +19,7 @@ RUN curl -fsSL "$GOLANG_DOWNLOAD_URL" -o golang.tar.gz \
 
 ENV GOPATH /go
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin"
+RUN chmod -R 777 "$GOPATH"
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
 RUN go get github.com/tools/godep
