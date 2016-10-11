@@ -60,22 +60,6 @@ def _multiset_difference(a, b):
     return [json.loads(x) for x in difference.elements()]
 
 
-def _add_running_services_at_startup(containers_saved_in_kv, ship):
-    wait_for_consul_ready()
-    # wait for registering services
-    sleep(10)
-    all_services = consul_query('agent/services')
-    del all_services['consul']
-    for service_id, service_dict in all_services.items():
-        if ':' in service_id:
-            continue
-        if service_dict['Service'] == 'armada':
-            continue
-        key = 'ships/{}/service/{}/{}'.format(ship, service_dict['Service'], service_id)
-        if not containers_saved_in_kv or key not in containers_saved_in_kv:
-            kv.save_service(ship, service_id, 'started')
-
-
 def _load_from_dict(saved_containers, containers_saved_in_kv, ship):
     for key, container_dict in saved_containers.items():
         old_ship_name = key.split('/')[1]
@@ -84,6 +68,7 @@ def _load_from_dict(saved_containers, containers_saved_in_kv, ship):
                                                   container_dict['container_id'])
         if not containers_saved_in_kv or key not in containers_saved_in_kv:
             kv.kv_set(key, container_dict)
+            get_logger().info('Added saved service: {}'.format(service_id))
 
 
 def _load_from_list(saved_containers, ship):
@@ -94,6 +79,7 @@ def _load_from_list(saved_containers, ship):
     for container_parameters in containers_to_be_added:
         kv.save_service(ship, str(index), 'crashed', params=container_parameters)
         index += 1
+        get_logger().info('Added service: {}'.format(container_parameters))
 
 
 def _load_containers_to_kv_store(saved_containers_path):
@@ -102,7 +88,6 @@ def _load_containers_to_kv_store(saved_containers_path):
         ship = get_ship_name()
         containers_saved_in_kv = kv.kv_list('ships/{}/service/'.format(ship))
         saved_containers = _load_saved_containers_parameters_list(saved_containers_path)
-        _add_running_services_at_startup(containers_saved_in_kv, ship)
         if isinstance(saved_containers, dict):
             _load_from_dict(saved_containers, containers_saved_in_kv, ship)
         else:
@@ -199,8 +184,8 @@ def recover_saved_containers_from_parameters(saved_containers):
 def main():
     try:
         args = _parse_args()
-        _load_containers_to_kv_store(args.saved_containers_path)
         if args.force or _check_if_we_should_recover(args.saved_containers_path):
+            _load_containers_to_kv_store(args.saved_containers_path)
             _deregister_not_running_services()
             if not recover_containers_from_kv_store():
                 sys.exit(1)

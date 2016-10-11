@@ -7,8 +7,8 @@ import web
 import api_base
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
-from utils import get_ship_name
-
+from utils import get_ship_name, get_logger
+import json
 
 class List(api_base.ApiCommand):
     @staticmethod
@@ -94,19 +94,29 @@ class List(api_base.ApiCommand):
 
 
 def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filter_local):
-    services_list = kv.kv_list('ships/')
+    if filter_local:
+        ship_list = ['containers_parameters_list/{}'.format(get_ship_name())]
+    else:
+        ship_list = kv.kv_list('containers_parameters_list/')
+    services_dict = {}
+    if not ship_list:
+        return []
+    for ship in ship_list:
+        containers = kv.kv_get(ship)
+        if containers:
+            services_dict.update(containers)
+    services_list = services_dict.keys()
+
     result = []
     if not services_list:
         return result
-    services_list = fnmatch.filter(services_list, 'ships/*/service/*')
 
-    if not services_list:
-        return result
     if filter_microservice_name:
         services_list = fnmatch.filter(services_list, 'ships/*/service/{}/*'.format(filter_microservice_name))
 
     for service in services_list:
-        service_dict = kv.kv_get(service)
+        service_dict = services_dict[service]
+        get_logger().info(json.dumps(service_dict, sort_keys=True, indent=4))
         microservice_name = service_dict['ServiceName']
         microservice_status = service_dict['Status']
         microservice_id = service_dict['ServiceID']
@@ -123,8 +133,7 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
         matches_env = (filter_env is None) or (filter_env == microservice_tags_dict.get('env'))
         matches_app_id = (filter_app_id is None) or (filter_app_id == microservice_tags_dict.get('app_id'))
 
-        if (matches_env and matches_app_id and
-                (not filter_local or fnmatch.fnmatch(service, 'ships/{}/service/*'.format(get_ship_name())))):
+        if matches_env and matches_app_id:
             microservice_dict = {
                 'name': microservice_name,
                 'status': microservice_status,
@@ -135,4 +144,5 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
                 'start_timestamp': microservice_start_timestamp,
             }
             result.append(microservice_dict)
+    get_logger().info(json.dumps(result, sort_keys=True, indent=4))
     return result
