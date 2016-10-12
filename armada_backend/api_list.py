@@ -36,7 +36,7 @@ class List(api_base.ApiCommand):
             else:
                 microservices_names = list(consul_query('catalog/services').keys())
 
-            services_list_from_catalog = []
+            services_list_from_catalog = {}
 
             for microservice_name in microservices_names:
                 if microservice_name == 'consul':
@@ -77,17 +77,11 @@ class List(api_base.ApiCommand):
                             'tags': microservice_tags_dict,
                             'start_timestamp': microservice_start_timestamp,
                         }
-                        services_list_from_catalog.append(microservice_dict)
+                        services_list_from_catalog[microservice_id] = microservice_dict
 
-            result = services_list_from_catalog
-            for service_from_kv in services_list:
-                matching_services = filter(
-                    lambda service: service['microservice_id'] == service_from_kv['microservice_id'],
-                    services_list_from_catalog)
-                if not matching_services:
-                    result.append(service_from_kv)
-
-            return self.status_ok({'result': result})
+            result = services_list
+            result.update(services_list_from_catalog)
+            return self.status_ok({'result': result.values()})
         except Exception as e:
             traceback.print_exc()
             return self.status_exception("Cannot get the list of services.", e)
@@ -100,14 +94,14 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
         ship_list = kv.kv_list('containers_parameters_list/')
     services_dict = {}
     if not ship_list:
-        return []
+        return {}
     for ship in ship_list:
         containers = kv.kv_get(ship)
         if containers:
             services_dict.update(containers)
     services_list = services_dict.keys()
 
-    result = []
+    result = {}
     if not services_list:
         return result
 
@@ -143,6 +137,6 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
                 'tags': microservice_tags_dict,
                 'start_timestamp': microservice_start_timestamp,
             }
-            result.append(microservice_dict)
+            result[microservice_id] = microservice_dict
     get_logger().info(json.dumps(result, sort_keys=True, indent=4))
     return result
