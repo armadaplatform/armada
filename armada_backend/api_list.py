@@ -7,8 +7,8 @@ import web
 import api_base
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
-from utils import get_ship_name, get_logger
-import json
+from utils import get_ship_name
+
 
 class List(api_base.ApiCommand):
     @staticmethod
