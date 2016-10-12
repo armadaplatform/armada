@@ -68,7 +68,7 @@ def _load_from_dict(saved_containers, containers_saved_in_kv, ship):
                                                   container_dict['container_id'])
         if not containers_saved_in_kv or key not in containers_saved_in_kv:
             kv.kv_set(key, container_dict)
-            get_logger().info('Added saved service: {}'.format(service_id))
+            get_logger().info('Added saved service: {}'.format(container_dict['container_id']))
 
 
 def _load_from_list(saved_containers, ship):

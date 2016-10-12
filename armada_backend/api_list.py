@@ -110,7 +110,6 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
 
     for service in services_list:
         service_dict = services_dict[service]
-        get_logger().info(json.dumps(service_dict, sort_keys=True, indent=4))
         microservice_name = service_dict['ServiceName']
         microservice_status = service_dict['Status']
         microservice_id = service_dict['ServiceID']
@@ -138,5 +137,4 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
                 'start_timestamp': microservice_start_timestamp,
             }
             result[microservice_id] = microservice_dict
-    get_logger().info(json.dumps(result, sort_keys=True, indent=4))
     return result
