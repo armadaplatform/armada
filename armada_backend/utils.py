@@ -2,6 +2,7 @@ import base64
 import json
 import logging
 import traceback
+import os
 
 import requests
 
@@ -65,6 +66,11 @@ def set_ship_name(new_name):
             kv.kv_remove(container)
     kv.kv_set('ships/{}/name'.format(ship_ip), new_name)
     kv.kv_set('ships/{}/ip'.format(new_name), ship_ip)
+    os.system('sed -i \'s|ships/{}/|ships/{}/|\' /etc/consul.config'.format(old_name, new_name))
+    try:
+        os.system('/usr/local/bin/consul reload')
+    except Exception as e:
+        traceback.print_exc()
 
 
 def get_other_ship_ips():
