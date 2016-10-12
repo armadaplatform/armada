@@ -5,6 +5,7 @@ import sys
 import traceback
 from collections import Counter
 from time import sleep
+from uuid import uuid4
 
 
 from armada_backend.api_ship import wait_for_consul_ready
@@ -90,10 +91,8 @@ def _load_from_list(saved_containers, ship):
     wait_for_consul_ready()
     running_containers = _get_local_running_containers()
     containers_to_be_added = _multiset_difference(saved_containers, running_containers)
-    index = 0
     for container_parameters in containers_to_be_added:
-        kv.save_service(ship, str(index), 'crashed', params=container_parameters)
-        index += 1
+        kv.save_service(ship, _generete_id(), 'crashed', params=container_parameters)
 
 
 def _load_containers_to_kv_store(saved_containers_path):
@@ -110,6 +109,11 @@ def _load_containers_to_kv_store(saved_containers_path):
     except:
         traceback.print_exc()
         get_logger().error('Unable to load from {}.'.format(saved_containers_path))
+
+
+def _generete_id():
+    prefix = 'crashed_'
+    return prefix + uuid4().hex[:(12-len(prefix))]
 
 
 def _recover_saved_containers_from_path(saved_containers_path):
