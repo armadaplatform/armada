@@ -112,7 +112,7 @@ def _load_containers_to_kv_store(saved_containers_path):
 
 
 def _generete_id():
-    prefix = 'crashed_'
+    prefix = 'gen_'
     return prefix + uuid4().hex[:(12-len(prefix))]
 
 
