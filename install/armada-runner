@@ -129,8 +129,9 @@ remove_services(){
     services=$(curl -s "${ship_ip}:8500/v1/kv/ships/${ship_ip}/service/?keys" | jq -r .[])
     for service in $services
     do
-        curl -X DELETE "${ship_ip}:8500/v1/kv/$service"
+        curl -X DELETE "${ship_ip}:8500/v1/kv/$service" > /dev/null
     done
+    curl -X DELETE "${ship_ip}:8500/v1/kv/containers_parameters_list/${ship_ip}" > /dev/null
 }
 
 case "$1" in
