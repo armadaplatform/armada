@@ -9,7 +9,7 @@ from uuid import uuid4
 
 
 from armada_backend.api_ship import wait_for_consul_ready
-from armada_backend.utils import get_container_parameters, get_local_containers_ids, get_logger, get_ship_name
+from armada_backend.utils import get_logger, get_ship_name, shorten_container_id
 from armada_command import armada_api
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
@@ -111,9 +111,9 @@ def _load_containers_to_kv_store(saved_containers_path):
         get_logger().error('Unable to load from {}.'.format(saved_containers_path))
 
 
-def _generete_id():
+def _generate_id():
     prefix = 'gen_'
-    return prefix + uuid4().hex[:(12-len(prefix))]
+    return shorten_container_id(prefix + uuid4())
 
 
 def _recover_saved_containers_from_path(saved_containers_path):
