@@ -124,6 +124,15 @@ get_docker_start_timestamp() {
     date -d "$(ps -p $docker_pid -o lstart=)" +'%s'
 }
 
+remove_services(){
+    ship_ip=$(armada info 2>/dev/null | grep '\->' | awk '{split($4,a,":"); print a[1]}')
+    services=$(curl -s "${ship_ip}:8500/v1/kv/ships/${ship_ip}/service/?keys" | jq -r .[])
+    for service in $services
+    do
+        curl -X DELETE "${ship_ip}:8500/v1/kv/$service"
+    done
+}
+
 case "$1" in
     start)
         fail_unless_can_run_docker
@@ -186,6 +195,7 @@ case "$1" in
     shutdown)
         fail_unless_can_run_docker
         log_message "Stopping ${ARMADA_DESC}..."
+        remove_services
         stop_armada
 
         rm -f /opt/armada/runtime_settings.json
