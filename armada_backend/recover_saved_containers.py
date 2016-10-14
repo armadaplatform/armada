@@ -8,11 +8,10 @@ from time import sleep
 
 
 from armada_backend.api_ship import wait_for_consul_ready
-from armada_backend.utils import get_container_parameters, get_local_containers_ids, get_logger, get_ship_name
+from armada_backend.utils import get_logger, get_ship_name
 from armada_command import armada_api
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
-from cleaner import _deregister_not_running_services
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
 RECOVERY_RETRY_LIMIT = 5
@@ -132,6 +131,28 @@ def _get_crashed_services():
     return crashed_services
 
 
+def _add_running_services_at_startup():
+    wait_for_consul_ready()
+    try:
+        ship = get_ship_name()
+        containers_saved_in_kv = kv.kv_list('ships/{}/service/'.format(ship))
+        sleep(10)
+        all_services = consul_query('agent/services')
+        del all_services['consul']
+        for service_id, service_dict in all_services.items():
+            if ':' in service_id:
+                continue
+            if service_dict['Service'] == 'armada':
+                continue
+            key = 'ships/{}/service/{}/{}'.format(ship, service_dict['Service'], service_id)
+            if not containers_saved_in_kv or key not in containers_saved_in_kv:
+                kv.save_service(ship, service_id, 'started')
+                get_logger().info('Added running service: {}'.format(service_id))
+    except:
+        traceback.print_exc()
+        get_logger().error('Unable to add running services.')
+
+
 def recover_containers_from_kv_store():
     services_to_be_recovered = _get_crashed_services()
 
@@ -176,9 +197,9 @@ def recover_saved_containers_from_parameters(saved_containers):
 def main():
     try:
         args = _parse_args()
+        _add_running_services_at_startup()
         if args.force or _check_if_we_should_recover(args.saved_containers_path):
             _load_containers_to_kv_store(args.saved_containers_path)
-            _deregister_not_running_services()
             if not recover_containers_from_kv_store():
                 sys.exit(1)
     finally:
