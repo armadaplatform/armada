@@ -2,7 +2,7 @@ import json
 
 import web
 
-from utils import get_logger
+from armada_backend.utils import get_logger
 
 
 def _create_response_with_error(error_msg=None):

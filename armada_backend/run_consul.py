@@ -3,9 +3,8 @@ import os
 import random
 import shutil
 
-import consul_config
-from armada_backend.utils import setup_sentry
-from utils import get_logger
+from armada_backend import consul_config
+from armada_backend.utils import get_logger, setup_sentry
 
 
 def _get_runtime_settings():

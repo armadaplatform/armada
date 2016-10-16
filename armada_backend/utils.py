@@ -8,10 +8,10 @@ from raven import Client, setup_logging
 from raven.handlers.logging import SentryHandler
 
 from armada_backend import docker_client
+from armada_command._version import __version__
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_get
 from armada_command.consul.consul import consul_query
-from armada_command._version import __version__
 from armada_command.ship_config import get_ship_config
 
 sentry_ignore_exceptions = ['KeyboardInterrupt']
@@ -155,7 +155,8 @@ def get_local_containers_ids():
     list_response = response.json()
     services_from_api = list_response['result']
     return list(set(service['container_id'] for service in services_from_api if service['status'] not in ['recovering',
-                                                                                                          'crashed']))
+                                                                                                  'crashed']))
+
 
 def is_container_running(container_id):
     docker_api = docker_client.api()
@@ -173,4 +174,3 @@ def run_command_in_container(command, container_id):
         docker_api.exec_start(exec_id['Id'])
     except Exception as e:
         get_logger().exception(e)
-

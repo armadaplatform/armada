@@ -1,7 +1,7 @@
 import base64
 import json
 
-import docker_client
+from armada_backend import docker_client
 from armada_backend.api_run import Run
 from armada_backend.api_stop import Stop
 from armada_backend.utils import shorten_container_id

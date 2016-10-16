@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- Log errors to [sentry](https://github.com/getsentry/sentry). It can be enable by adding `sentry_url={url of project in sentry}` in `/etc/default/armada` config file.
+
 ## 1.7.1 (2016-10-24)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
@@ -13,7 +18,6 @@ We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
 
 ### Features
 - New base image `microservice_node6` with node v6.
-- Log errors to [sentry](https://github.com/getsentry/sentry). It can be enable by adding `sentry_url={url of project in sentry}` in `/etc/default/armada` config file.
 
 ### Improvements
 - Upgrade go in microservice_go base image from 1.5.3 to 1.6.3.

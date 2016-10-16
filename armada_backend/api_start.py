@@ -1,6 +1,4 @@
-import docker_client
-
-from armada_backend import api_base
+from armada_backend import api_base, docker_client
 from armada_backend.utils import shorten_container_id, get_ship_name
 from armada_command.consul.consul import consul_query
 from armada_command.consul.kv import save_service

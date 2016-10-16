@@ -4,13 +4,12 @@ import os
 import time
 from socket import gethostname
 
-import consul_config
 import xmlrpclib
-from runtime_settings import override_runtime_settings
 
-from armada_backend import api_base
+from armada_backend import api_base, consul_config
+from armada_backend.runtime_settings import override_runtime_settings
 from armada_backend.utils import deregister_services, get_current_datacenter, get_logger, get_other_ship_ips, \
-    set_ship_name
+    set_ship_name, get_ship_name
 from armada_command import armada_api
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query, consul_put

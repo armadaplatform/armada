@@ -1,10 +1,9 @@
 import base64
 import json
 
-import docker_client
 import web
 
-from armada_backend import api_base
+from armada_backend import api_base, docker_client
 from armada_backend.api_run_hermes import process_hermes
 from armada_backend.utils import get_logger
 from armada_command.armada_utils import split_image_path

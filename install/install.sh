@@ -180,9 +180,8 @@ if [ ${python_return_code} != 0 ]; then
     exit 1
 fi
 
-if [ -z ARMADA_CONFIG_FILE_PATH ]; then
-    touch ARMADA_CONFIG_FILE_PATH
-fi
+# Make sure that config file exists
+touch ARMADA_CONFIG_FILE_PATH
 
 if command_exists systemctl; then
     start_using_systemd
