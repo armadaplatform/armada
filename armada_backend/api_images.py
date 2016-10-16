@@ -1,6 +1,6 @@
 import json
 
-import api_base
+from armada_backend import api_base
 import docker_client
 
 

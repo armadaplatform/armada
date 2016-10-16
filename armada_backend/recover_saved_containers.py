@@ -2,7 +2,6 @@ import argparse
 import json
 import os
 import sys
-import traceback
 from collections import Counter
 from time import sleep
 from uuid import uuid4
@@ -107,8 +106,7 @@ def _load_containers_to_kv_store(saved_containers_path):
         else:
             _load_from_list(saved_containers, ship)
     except:
-        traceback.print_exc()
-        get_logger().error('Unable to load from %s', saved_containers_path)
+        get_logger().exception('Unable to load from %s', saved_containers_path)
 
 
 def _generate_id():
@@ -126,8 +124,7 @@ def _recover_saved_containers_from_path(saved_containers_path):
         else:
             return True
     except:
-        traceback.print_exc()
-        get_logger().error('Unable to recover from %s.', saved_containers_path)
+        get_logger().exception('Unable to recover from %s.', saved_containers_path)
     return False
 
 
@@ -214,8 +211,8 @@ def recover_saved_containers_from_parameters(saved_containers):
             _load_from_dict(saved_containers, ship)
         else:
             _load_from_list(saved_containers, ship)
-    except:
-        traceback.print_exc()
+    except Exception as e:
+        get_logger().exception(e)
 
     containers_to_be_recovered = recover_containers_from_kv_store()
     return containers_to_be_recovered

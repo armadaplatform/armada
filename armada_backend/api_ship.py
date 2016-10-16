@@ -2,17 +2,18 @@ import json
 import logging
 import os
 import time
-import xmlrpclib
 from socket import gethostname
 
-import api_base
 import consul_config
-from armada_backend.utils import deregister_services, set_ship_name, get_logger
-from armada_command import armada_api
-from armada_command.consul.consul import consul_query, consul_put
+import xmlrpclib
 from runtime_settings import override_runtime_settings
-from utils import get_ship_name, get_other_ship_ips, get_current_datacenter
+
+from armada_backend import api_base
+from armada_backend.utils import deregister_services, get_current_datacenter, get_logger, get_other_ship_ips, \
+    set_ship_name
+from armada_command import armada_api
 from armada_command.consul import kv
+from armada_command.consul.consul import consul_query, consul_put
 
 
 def _get_current_consul_mode():

@@ -1,6 +1,6 @@
 import socket
 
-import api_base
+from armada_backend import api_base
 from armada_backend.hermes_init import HERMES_DIRECTORY
 from armada_backend.utils import get_container_ssh_address
 

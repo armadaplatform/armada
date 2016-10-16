@@ -1,13 +1,11 @@
 import fnmatch
-import traceback
 from distutils.util import strtobool
 
 import web
-
-import api_base
+from armada_backend import api_base
+from armada_backend.utils import get_ship_name, get_ship_names
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
-from utils import get_ship_name, get_ship_names
 
 
 class List(api_base.ApiCommand):
@@ -83,7 +81,6 @@ class List(api_base.ApiCommand):
             result.update(services_list_from_catalog)
             return self.status_ok({'result': result.values()})
         except Exception as e:
-            traceback.print_exc()
             return self.status_exception("Cannot get the list of services.", e)
 
 

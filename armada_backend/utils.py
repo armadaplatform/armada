@@ -1,7 +1,6 @@
 import base64
 import json
 import logging
-import traceback
 import os
 
 import requests
@@ -58,7 +57,7 @@ def deregister_services(container_id):
             try:
                 kv.kv_remove("start_timestamp/" + container_id)
             except Exception as e:
-                traceback.print_exc()
+                get_logger().exception(e)
 
 
 def get_ship_ip():
@@ -89,7 +88,7 @@ def set_ship_name(new_name):
     try:
         os.system('/usr/local/bin/consul reload')
     except Exception as e:
-        traceback.print_exc()
+        get_logger().exception(e)
     kv.kv_remove('containers_parameters_list/{}'.format(old_name))
 
 
@@ -172,5 +171,6 @@ def run_command_in_container(command, container_id):
     try:
         exec_id = docker_api.exec_create(container_id, command)
         docker_api.exec_start(exec_id['Id'])
-    except:
-        traceback.print_exc()
+    except Exception as e:
+        get_logger().exception(e)
+

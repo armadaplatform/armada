@@ -1,13 +1,12 @@
 import base64
 import json
-import traceback
 
+import docker_client
 import web
 
-import api_base
-import docker_client
-from armada_backend.utils import get_logger
+from armada_backend import api_base
 from armada_backend.api_run_hermes import process_hermes
+from armada_backend.utils import get_logger
 from armada_command.armada_utils import split_image_path
 from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
 
@@ -118,10 +117,10 @@ class Create(api_base.ApiCommand):
                     logged_in = True
                     break
                 except Exception as e:
+                    get_logger().debug(e)
                     login_exceptions.append(e)
+
             if not logged_in:
-                for e in login_exceptions:
-                    traceback.print_tb(e.__traceback__)
                 raise login_exceptions[0]
 
     def _get_docker_api(self, dockyard_address, dockyard_user, dockyard_password):
@@ -156,9 +155,8 @@ class Create(api_base.ApiCommand):
     def POST(self):
         try:
             post_data = json.loads(web.data())
-        except:
-            traceback.print_exc()
-            return self.status_error('API Run: Invalid input JSON.')
+        except Exception as e:
+            return self.status_exception('API Run: Invalid input JSON.', e)
 
         try:
             long_container_id = self._create_service(**post_data)

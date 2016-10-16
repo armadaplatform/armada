@@ -1,6 +1,6 @@
 import os
 
-import api_base
+from armada_backend import api_base
 
 
 class GetVersion(api_base.ApiCommand):
