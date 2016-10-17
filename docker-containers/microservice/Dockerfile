@@ -3,6 +3,7 @@ MAINTAINER Cerebro <cerebro@ganymede.eu>
 
 # You can force apt-get update & upgrade on next 'armada build' by changing the date:
 ENV MICROSERVICE_APT_GET_UPDATE_DATE 2016-09-16
+ENV LANG='C.UTF-8' LC_ALL='C.UTF-8'
 
 # 'sync' is to fix "text file busy" error.
 ADD . /opt/microservice
