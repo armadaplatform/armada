@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Features
+- New base image `microservice_node6` with node v6.
+
+### Improvements
+- Upgrade go in microservice_go base image from 1.5.3 to 1.6.3.
+
+### Bug fixes
+- Generating unique ID for services while recovering
+
 ## 1.6.0 (2016-10-05)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.
