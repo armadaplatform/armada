@@ -39,7 +39,8 @@ def save_service(ship, container_id, status, params=None):
     else:
         name = get_env(container_id, 'MICROSERVICE_NAME')
         params = json.loads(base64.b64decode(get_env(container_id, 'RESTART_CONTAINER_PARAMETERS')))
-        start_timestamp = str(calendar.timegm(time.gmtime()))
+        if not start_timestamp:
+            start_timestamp = str(calendar.timegm(time.gmtime()))
     address = kv_get('ships/{}/ip'.format(ship)) or ship
     service_dict = {
         'ServiceName': name,

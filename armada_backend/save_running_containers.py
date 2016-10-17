@@ -4,11 +4,11 @@ import os
 import shutil
 import sys
 import traceback
+import time
 
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.recover_saved_containers import RECOVERY_COMPLETED_PATH
-from armada_backend.utils import get_container_parameters, get_ship_name, get_logger
-from armada_backend.utils import get_local_containers_ids
+from armada_backend.utils import get_ship_name, get_logger
 from armada_command.consul import kv
 
 
@@ -45,9 +45,7 @@ def _is_recovery_completed():
 
 def main():
     args = _parse_args()
-    if not args.force and not _is_recovery_completed():
-        get_logger().warning('Recovery is not completed. Aborting saving running containers.')
-        return
+
     saved_containers_path = args.saved_containers_path
     try:
         wait_for_consul_ready()
@@ -60,13 +58,17 @@ def main():
                 containers_parameters_dict[container] = container_dict
 
         if containers_parameters_dict:
-            _save_containers_parameters_list_in_file(containers_parameters_dict, saved_containers_path)
-            get_logger().info('Containers have been saved to {}.'.format(saved_containers_path))
             try:
                 _save_containers_parameters_list_in_kv_store(containers_parameters_dict)
                 get_logger().info('Containers have been saved to kv store.')
             except:
                 traceback.print_exc()
+            if not args.force and not _is_recovery_completed():
+                get_logger().warning('Recovery is not completed. Aborting saving running containers.')
+                return
+            _save_containers_parameters_list_in_file(containers_parameters_dict, saved_containers_path)
+            get_logger().info('Containers have been saved to {}.'.format(saved_containers_path))
+
         else:
             get_logger().info('Aborted saving container because of errors.')
     except:
