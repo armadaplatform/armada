@@ -125,13 +125,17 @@ get_docker_start_timestamp() {
 }
 
 remove_services(){
+    ship_name=$(armada info 2>/dev/null | grep '\->' | awk '{print $2}')
     ship_ip=$(armada info 2>/dev/null | grep '\->' | awk '{split($4,a,":"); print a[1]}')
-    services=$(curl -s "${ship_ip}:8500/v1/kv/ships/${ship_ip}/service/?keys" | python -c 'import sys, json; print " ".join(json.load(sys.stdin))')
+    if [ "$ship_name" == "armada" ]; then
+        ship_name=$ship_ip
+    fi
+    services=$(curl -s "${ship_ip}:8500/v1/kv/ships/${ship_name}/service/?keys" | python -c 'import sys, json; print " ".join(json.load(sys.stdin))')
     for service in $services
     do
         curl -s -X DELETE "${ship_ip}:8500/v1/kv/$service" > /dev/null
     done
-    curl -s -X DELETE "${ship_ip}:8500/v1/kv/containers_parameters_list/${ship_ip}" > /dev/null
+    curl -s -X DELETE "${ship_ip}:8500/v1/kv/containers_parameters_list/${ship_name}" > /dev/null
 }
 
 case "$1" in
