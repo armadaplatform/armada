@@ -9,8 +9,8 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell", inline: <<SCRIPT
         chmod +x /opt/armada-src/armada_command/armada_dev/*
         cp /opt/armada-src/armada_command/armada_dev/* /usr/local/bin/
-        sudo -u vagrant echo export MICROSERVICE_NAME='armada' >> /home/vagrant/.bashrc
-        sudo -u vagrant echo export ARMADA_AUTORELOAD='true' >> /home/vagrant/.bashrc
+        echo "ARMADA_AUTORELOAD='true'" >> /etc/environment
         sed -i "s#'/opt/armada'#'/opt/armada-src'#" /usr/local/bin/armada
+        ARMADA_AUTORELOAD='true' /usr/local/bin/armada-runner restart
 SCRIPT
 end
