@@ -92,7 +92,7 @@ def _load_from_list(saved_containers, ship):
     running_containers = _get_local_running_containers()
     containers_to_be_added = _multiset_difference(saved_containers, running_containers)
     for container_parameters in containers_to_be_added:
-        kv.save_service(ship, _generete_id(), 'crashed', params=container_parameters)
+        kv.save_service(ship, _generate_id(), 'crashed', params=container_parameters)
 
 
 def _load_containers_to_kv_store(saved_containers_path):
@@ -113,7 +113,7 @@ def _load_containers_to_kv_store(saved_containers_path):
 
 def _generate_id():
     prefix = 'gen_'
-    return shorten_container_id(prefix + uuid4())
+    return shorten_container_id(prefix + uuid4().hex)
 
 
 def _recover_saved_containers_from_path(saved_containers_path):
