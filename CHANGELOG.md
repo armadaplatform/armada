@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.7.0 (2016-10-18)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Features
+- New base image `microservice_node6` with node v6.
+
+### Improvements
+- Upgrade go in microservice_go base image from 1.5.3 to 1.6.3.
+- Optimized `/list` endpoint
+- Removed Consul watch `checks`
+- Consul watch `keyprefix` narrowed down to local services
+- Set locales to UTF-8 version
+
+### Bug fixes
+- Generating unique ID for services while recovering
+- Fixed autoreloading armada backed in vagrant environment
+- Fixed detecting stop of armada service in systemd
+- Fixed recovering containers
+- Removing services from Consul K/V store while armada shutdown
+
 ## 1.6.0 (2016-10-05)
 
 We do best effort to support docker versions 1.6.0 - 1.12.0 with this release.

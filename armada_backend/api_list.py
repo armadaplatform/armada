@@ -36,7 +36,7 @@ class List(api_base.ApiCommand):
             else:
                 microservices_names = list(consul_query('catalog/services').keys())
 
-            services_list_from_catalog = []
+            services_list_from_catalog = {}
 
             for microservice_name in microservices_names:
                 if microservice_name == 'consul':
@@ -77,36 +77,39 @@ class List(api_base.ApiCommand):
                             'tags': microservice_tags_dict,
                             'start_timestamp': microservice_start_timestamp,
                         }
-                        services_list_from_catalog.append(microservice_dict)
+                        services_list_from_catalog[microservice_id] = microservice_dict
 
-            result = services_list_from_catalog
-            for service_from_kv in services_list:
-                matching_services = filter(
-                    lambda service: service['microservice_id'] == service_from_kv['microservice_id'],
-                    services_list_from_catalog)
-                if not matching_services:
-                    result.append(service_from_kv)
-
-            return self.status_ok({'result': result})
+            result = services_list
+            result.update(services_list_from_catalog)
+            return self.status_ok({'result': result.values()})
         except Exception as e:
             traceback.print_exc()
             return self.status_exception("Cannot get the list of services.", e)
 
 
 def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filter_local):
-    services_list = kv.kv_list('ships/')
-    result = []
-    if not services_list:
-        return result
-    services_list = fnmatch.filter(services_list, 'ships/*/service/*')
+    if filter_local:
+        ship_list = ['containers_parameters_list/{}'.format(get_ship_name())]
+    else:
+        ship_list = kv.kv_list('containers_parameters_list/')
+    services_dict = {}
+    if not ship_list:
+        return {}
+    for ship in ship_list:
+        containers = kv.kv_get(ship)
+        if containers:
+            services_dict.update(containers)
+    services_list = services_dict.keys()
 
+    result = {}
     if not services_list:
         return result
+
     if filter_microservice_name:
         services_list = fnmatch.filter(services_list, 'ships/*/service/{}/*'.format(filter_microservice_name))
 
     for service in services_list:
-        service_dict = kv.kv_get(service)
+        service_dict = services_dict[service]
         microservice_name = service_dict['ServiceName']
         microservice_status = service_dict['Status']
         microservice_id = service_dict['ServiceID']
@@ -123,8 +126,7 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
         matches_env = (filter_env is None) or (filter_env == microservice_tags_dict.get('env'))
         matches_app_id = (filter_app_id is None) or (filter_app_id == microservice_tags_dict.get('app_id'))
 
-        if (matches_env and matches_app_id and
-                (not filter_local or fnmatch.fnmatch(service, 'ships/{}/service/*'.format(get_ship_name())))):
+        if matches_env and matches_app_id:
             microservice_dict = {
                 'name': microservice_name,
                 'status': microservice_status,
@@ -134,5 +136,5 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
                 'tags': microservice_tags_dict,
                 'start_timestamp': microservice_start_timestamp,
             }
-            result.append(microservice_dict)
+            result[microservice_id] = microservice_dict
     return result

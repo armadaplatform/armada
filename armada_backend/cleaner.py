@@ -26,14 +26,6 @@ def _get_container_id_with_subservice(service_id):
     return container_id, is_subservice
 
 
-def _mark_service_as_crashed(container_id, service_name):
-    params = get_container_parameters(container_id)
-    kv_index = 0
-    if kv.kv_list('service/{}/'.format(service_name)):
-        kv_index = int(kv.kv_list('service/{}/'.format(service_name))[-1].split('/')[2]) + 1
-    kv.save_service(service_name, kv_index, 'crashed', params, container_id)
-
-
 def _deregister_not_running_services():
     try:
         ship = get_ship_name()

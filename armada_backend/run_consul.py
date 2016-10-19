@@ -34,13 +34,17 @@ def _get_runtime_settings():
     else:
         datacenter = 'dc-' + str(random.randrange(1000000))
 
-    return consul_mode, ship_ips, datacenter
+    ship_name = runtime_settings.get('name')
+
+    return consul_mode, ship_ips, datacenter, ship_name
 
 
 def main():
-    consul_mode, ship_ips, datacenter = _get_runtime_settings()
+    consul_mode, ship_ips, datacenter, ship_name = _get_runtime_settings()
     ship_external_ip = os.environ.get('SHIP_EXTERNAL_IP', '')
-    consul_config_content = consul_config.get_consul_config(consul_mode, ship_ips, datacenter, ship_external_ip)
+    if ship_name is None:
+        ship_name = ship_external_ip
+    consul_config_content = consul_config.get_consul_config(consul_mode, ship_ips, datacenter, ship_external_ip, ship_name)
 
     with open(consul_config.CONFIG_PATH, 'w') as config_file:
         config_file.write(consul_config_content)
