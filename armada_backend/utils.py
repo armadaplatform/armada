@@ -88,6 +88,15 @@ def get_other_ship_ips():
         return []
 
 
+def get_ship_names():
+    try:
+        catalog_nodes_dict = consul_query('catalog/nodes')
+        ship_names = list(get_ship_name(consul_node['Address']) for consul_node in catalog_nodes_dict)
+        return ship_names
+    except:
+        return []
+
+
 def get_current_datacenter():
     agent_self_dict = consul_query('agent/self')
     return agent_self_dict['Config']['Datacenter']
