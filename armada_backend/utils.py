@@ -156,11 +156,3 @@ def run_command_in_container(command, container_id):
         docker_api.exec_start(exec_id['Id'])
     except:
         traceback.print_exc()
-
-
-def is_ip(name):
-    try:
-        socket.inet_aton(name)
-        return True
-    except socket.error:
-        return False
