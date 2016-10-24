@@ -7,7 +7,7 @@ import web
 import api_base
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
-from utils import get_ship_name
+from utils import get_ship_name, get_ship_names
 
 
 class List(api_base.ApiCommand):
@@ -89,16 +89,17 @@ class List(api_base.ApiCommand):
 
 def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filter_local):
     if filter_local:
-        ship_list = ['containers_parameters_list/{}'.format(get_ship_name())]
+        ship_list = [get_ship_name()]
     else:
-        ship_list = kv.kv_list('containers_parameters_list/')
+        ship_list = get_ship_names()
     services_dict = {}
     if not ship_list:
         return {}
     for ship in ship_list:
-        containers = kv.kv_get(ship)
-        if containers:
+        containers = kv.kv_get('containers_parameters_list/{}'.format(ship))
+        if containers and isinstance(containers, dict):
             services_dict.update(containers)
+
     services_list = services_dict.keys()
 
     result = {}
