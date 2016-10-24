@@ -74,7 +74,7 @@ def command_build(args):
                 "ERROR! Cannot pull from dockyard!",
             )
         retries = 0 if did_print else 3
-        base_image_path = base_image.image_path
+        base_image_path = base_image.image_path_with_tag
         if is_verbose():
             print('Fetching base image: "{base_image_path}".\n'.format(**locals()))
 
