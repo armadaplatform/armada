@@ -3,7 +3,6 @@ import json
 import logging
 import traceback
 import os
-import socket
 
 import requests
 
