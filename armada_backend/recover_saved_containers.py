@@ -2,14 +2,12 @@ import argparse
 import json
 import os
 import sys
-import traceback
 from collections import Counter
 from time import sleep
 from uuid import uuid4
 
-
 from armada_backend.api_ship import wait_for_consul_ready
-from armada_backend.utils import get_logger, get_ship_name, shorten_container_id
+from armada_backend.utils import get_logger, get_ship_name, shorten_container_id, setup_sentry
 from armada_command import armada_api
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
@@ -43,13 +41,13 @@ def _get_local_running_containers():
 
 
 def _recover_container(container_parameters):
-    get_logger().info('Recovering: {}...\n'.format(json.dumps(container_parameters)))
+    get_logger().info('Recovering: %s ...\n', json.dumps(container_parameters))
     recovery_result = armada_api.post('run', container_parameters)
     if recovery_result.get('status') == 'ok':
-        get_logger().info('Recovered container: {}'.format(json.dumps(recovery_result)))
+        get_logger().info('Recovered container: %s', json.dumps(recovery_result))
         return True
     else:
-        get_logger().error('Could not recover container: {}'.format(json.dumps(recovery_result)))
+        get_logger().error('Could not recover container: %s', json.dumps(recovery_result))
         return False
 
 
@@ -84,8 +82,7 @@ def _load_containers_to_kv_store(saved_containers_path):
         else:
             _load_from_list(saved_containers, ship)
     except:
-        traceback.print_exc()
-        get_logger().error('Unable to load from {}.'.format(saved_containers_path))
+        get_logger().exception('Unable to load from %s', saved_containers_path)
 
 
 def _generate_id():
@@ -98,13 +95,12 @@ def _recover_saved_containers_from_path(saved_containers_path):
     try:
         not_recovered = recover_containers_from_kv_store()
         if not_recovered:
-            get_logger().error('Following containers were not recovered: {}'.format(not_recovered))
+            get_logger().error('Following containers were not recovered: %s', not_recovered)
             return False
         else:
             return True
     except:
-        traceback.print_exc()
-        get_logger().error('Unable to recover from {}.'.format(saved_containers_path))
+        get_logger().exception('Unable to recover from %s.', saved_containers_path)
     return False
 
 
@@ -153,8 +149,7 @@ def _add_running_services_at_startup():
                 kv.save_service(ship, service_id, 'started')
                 get_logger().info('Added running service: {}'.format(service_id))
     except:
-        traceback.print_exc()
-        get_logger().error('Unable to add running services.')
+        get_logger().exception('Unable to add running services.')
 
 
 def recover_containers_from_kv_store():
@@ -165,7 +160,7 @@ def recover_containers_from_kv_store():
 
     recovery_retry_count = 0
     while services_to_be_recovered and recovery_retry_count < RECOVERY_RETRY_LIMIT:
-        get_logger().info("Recovering containers: {}".format(json.dumps(services_to_be_recovered)))
+        get_logger().info("Recovering containers: %s", json.dumps(services_to_be_recovered))
         services_not_recovered = []
 
         for service in services_to_be_recovered:
@@ -191,14 +186,15 @@ def recover_saved_containers_from_parameters(saved_containers):
             _load_from_dict(saved_containers, ship)
         else:
             _load_from_list(saved_containers, ship)
-    except:
-        traceback.print_exc()
+    except Exception as e:
+        get_logger().exception(e)
 
     containers_to_be_recovered = recover_containers_from_kv_store()
     return containers_to_be_recovered
 
 
 def main():
+    setup_sentry()
     try:
         args = _parse_args()
         _add_running_services_at_startup()

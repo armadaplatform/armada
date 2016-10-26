@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- Log errors to [sentry](https://github.com/getsentry/sentry). It can be enable by adding `sentry_url={url of project in sentry}` in `/etc/default/armada` config file.
+
 ## 1.7.1 (2016-10-24)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.

@@ -5,6 +5,7 @@ CONFIGS_CUSTOM_DIR = '/configs/'
 CONFIG_PATH_BASE = '/etc/opt/'
 RESTRICT_CUSTOM_CONFIG_DIRS = os.environ.get('RESTRICT_CUSTOM_CONFIG_DIRS', '').rstrip('/') + '/'
 
+
 class Volumes(object):
     def __init__(self):
         self.volumes = []
@@ -28,7 +29,8 @@ class Volumes(object):
                 continue
 
             if volume.startswith(RESTRICT_CUSTOM_CONFIG_DIRS):
-                if _is_directory_under_host_path(volume, host_path=RESTRICT_CUSTOM_CONFIG_DIRS, container_path=CONFIGS_CUSTOM_DIR):
+                if _is_directory_under_host_path(volume, host_path=RESTRICT_CUSTOM_CONFIG_DIRS,
+                                                 container_path=CONFIGS_CUSTOM_DIR):
                     used.add(volume)
                     yield volume
                 continue

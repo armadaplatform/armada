@@ -11,6 +11,7 @@ fi
 
 ARMADA_BASE_URL="https://raw.githubusercontent.com/armadaplatform/armada/${tag_or_branch}/"
 ARMADA_REPOSITORY=dockyard.armada.sh
+ARMADA_CONFIG_FILE_PATH="/etc/default/armada"
 
 command_exists() {
     command -v "$@" > /dev/null 2>&1
@@ -178,6 +179,9 @@ python_return_code=$?
 if [ ${python_return_code} != 0 ]; then
     exit 1
 fi
+
+# Make sure that config file exists
+touch ARMADA_CONFIG_FILE_PATH
 
 if command_exists systemctl; then
     start_using_systemd

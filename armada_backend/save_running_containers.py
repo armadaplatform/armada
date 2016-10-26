@@ -3,12 +3,10 @@ import json
 import os
 import shutil
 import sys
-import traceback
-import time
 
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.recover_saved_containers import RECOVERY_COMPLETED_PATH
-from armada_backend.utils import get_ship_name, get_logger
+from armada_backend.utils import get_ship_name, get_logger, setup_sentry
 from armada_command.consul import kv
 
 
@@ -44,6 +42,7 @@ def _is_recovery_completed():
 
 
 def main():
+    setup_sentry()
     args = _parse_args()
 
     saved_containers_path = args.saved_containers_path
@@ -61,8 +60,8 @@ def main():
             try:
                 _save_containers_parameters_list_in_kv_store(containers_parameters_dict)
                 get_logger().info('Containers have been saved to kv store.')
-            except:
-                traceback.print_exc()
+            except Exception as e:
+                get_logger().exception(e)
             if not args.force and not _is_recovery_completed():
                 get_logger().warning('Recovery is not completed. Aborting saving running containers.')
                 return
@@ -71,8 +70,8 @@ def main():
 
         else:
             get_logger().info('Aborted saving container because of errors.')
-    except:
-        traceback.print_exc()
+    except Exception as e:
+        get_logger().exception(e)
         sys.exit(1)
 
 

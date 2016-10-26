@@ -3,8 +3,8 @@ import os
 import random
 import shutil
 
-import consul_config
-from utils import get_logger
+from armada_backend import consul_config
+from armada_backend.utils import get_logger, setup_sentry
 
 
 def _get_runtime_settings():
@@ -40,6 +40,7 @@ def _get_runtime_settings():
 
 
 def main():
+    setup_sentry()
     consul_mode, ship_ips, datacenter, ship_name = _get_runtime_settings()
     ship_external_ip = os.environ.get('SHIP_EXTERNAL_IP', '')
     if ship_name is None:
@@ -50,7 +51,7 @@ def main():
         config_file.write(consul_config_content)
 
     command = '/usr/local/bin/consul agent -config-file {config_path}'.format(config_path=consul_config.CONFIG_PATH)
-    get_logger().info('RUNNING: {}'.format(command))
+    get_logger().info('RUNNING: %s', command)
 
     args = command.split()
     os.execv(args[0], args)

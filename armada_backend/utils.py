@@ -1,19 +1,37 @@
 import base64
 import json
 import logging
-import traceback
 import os
 
 import requests
+from raven import Client, setup_logging
+from raven.handlers.logging import SentryHandler
 
 from armada_backend import docker_client
+from armada_command._version import __version__
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_get
 from armada_command.consul.consul import consul_query
+from armada_command.ship_config import get_ship_config
+
+sentry_ignore_exceptions = ['KeyboardInterrupt']
 
 
 def shorten_container_id(long_container_id):
     return long_container_id[:12]
+
+
+def setup_sentry():
+    sentry_url = get_ship_config().get('sentry_url', '')
+
+    sentry_client = Client(sentry_url,
+                           release=__version__,
+                           auto_log_stacks=True,
+                           ignore_exceptions=sentry_ignore_exceptions)
+    handler = SentryHandler(sentry_client, level=logging.WARNING)
+    setup_logging(handler)
+
+    return sentry_client
 
 
 def get_logger():
@@ -39,7 +57,7 @@ def deregister_services(container_id):
             try:
                 kv.kv_remove("start_timestamp/" + container_id)
             except Exception as e:
-                traceback.print_exc()
+                get_logger().exception(e)
 
 
 def get_ship_ip():
@@ -70,7 +88,7 @@ def set_ship_name(new_name):
     try:
         os.system('/usr/local/bin/consul reload')
     except Exception as e:
-        traceback.print_exc()
+        get_logger().exception(e)
     kv.kv_remove('containers_parameters_list/{}'.format(old_name))
 
 
@@ -137,7 +155,8 @@ def get_local_containers_ids():
     list_response = response.json()
     services_from_api = list_response['result']
     return list(set(service['container_id'] for service in services_from_api if service['status'] not in ['recovering',
-                                                                                                          'crashed']))
+                                                                                                  'crashed']))
+
 
 def is_container_running(container_id):
     docker_api = docker_client.api()
@@ -153,5 +172,5 @@ def run_command_in_container(command, container_id):
     try:
         exec_id = docker_api.exec_create(container_id, command)
         docker_api.exec_start(exec_id['Id'])
-    except:
-        traceback.print_exc()
+    except Exception as e:
+        get_logger().exception(e)

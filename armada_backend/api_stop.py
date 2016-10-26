@@ -1,10 +1,8 @@
-import traceback
-
-import api_base
-import docker_client
-from utils import deregister_services, is_container_running, get_logger, run_command_in_container
 import fnmatch
-from utils import get_ship_name
+
+from armada_backend import api_base, docker_client
+from armada_backend.utils import deregister_services, is_container_running, get_logger, run_command_in_container
+from armada_backend.utils import get_ship_name
 from armada_command.consul.kv import kv_remove, kv_list, kv_get
 
 
@@ -38,17 +36,17 @@ class Stop(api_base.ApiCommand):
             last_exception = None
             try:
                 deregister_services(container_id)
-            except:
-                traceback.print_exc()
+            except Exception as e:
+                get_logger().exception(e)
             for i in range(3):
                 try:
                     docker_api.stop(container_id)
                     kv_remove(key[0])
                 except Exception as e:
+                    get_logger().debug(e, exc_info=True)
                     last_exception = e
-                    traceback.print_exc()
                 if not is_container_running(container_id):
                     break
             if is_container_running(container_id):
-                get_logger().error('Could not stop container: {}'.format(container_id))
+                get_logger().error('Could not stop container: %s', container_id)
                 raise last_exception
