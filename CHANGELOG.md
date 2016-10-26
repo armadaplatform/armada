@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.1 (2016-10-24)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Bug fixes
+- Fixed bug in `/list` endpoint in clusters with old backups in K/V store
+
 ## 1.7.0 (2016-10-18)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
