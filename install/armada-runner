@@ -165,6 +165,10 @@ case "$1" in
             -e DOCKER_START_TIMESTAMP=${docker_start_timestamp} \
             -e RESTRICT_CUSTOM_CONFIG_DIRS=${RESTRICT_CUSTOM_CONFIG_DIRS}"
 
+        if [ -n "${privileged}" ]; then
+            run_options+=" --privileged=true"
+        fi
+
         if [ "$ARMADA_AUTORELOAD" == "true" ]; then
             run_options+=" -v /opt/armada-src/armada_backend:/opt/armada-docker/armada_backend -e ARMADA_AUTORELOAD=true"
         fi
