@@ -5,6 +5,9 @@
 ### Bug fixes
 - Fix getting services list when microservice_env is not set 
 
+### Improvements
+- Disable timeout in systemd service
+
 ## 1.8.0 (2016-10-31)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
