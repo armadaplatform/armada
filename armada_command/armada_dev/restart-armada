@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 docker rm -f $(docker ps | grep -e "->8300" | awk '{print $1}')
-sudo service armada restart
+sudo /usr/local/bin/armada-runner restart
