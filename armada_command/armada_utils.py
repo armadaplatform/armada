@@ -53,10 +53,16 @@ def get_matched_containers(microservice_name_or_container_id_prefix):
     if services_list:
         for service in services_list:
             service_dict = kv.kv_get(service)
-            if service_dict['Status'] not in ['crashed', 'not-recovered', 'recovering']:
-                continue
             container_id = service_dict['container_id']
             service_name = service_dict['ServiceName']
+
+            if service_dict['Status'] == 'started':
+                try:
+                    instances = consul_query('catalog/service/{}'.format(service_name))
+                    if container_id in [i['ServiceID'].split(':')[0] for i in instances]:
+                        continue
+                except Exception as e:
+                    pass
 
             if microservice_name_or_container_id_prefix == service_name:
                 matched_containers_by_name.append(service_dict)
