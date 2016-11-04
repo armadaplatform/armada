@@ -15,7 +15,7 @@ def _consul_discover(service_name):
     services = armada_api.get_json('list', params)
     service_addresses = set()
     for service in services:
-        if service['status'] != 'critical':
+        if service['status'] in ['passing','warning']:
             service_addresses.add(service['address'])
     return service_addresses
 
