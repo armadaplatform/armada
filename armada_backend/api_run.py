@@ -1,5 +1,4 @@
 import json
-import traceback
 
 import web
 
@@ -12,15 +11,13 @@ class Run(Create, Start):
     def POST(self):
         try:
             post_data = json.loads(web.data())
-        except:
-            traceback.print_exc()
-            return self.status_error('API Run: Invalid input JSON.')
+        except Exception as e:
+            return self.status_exception('API Run: Invalid input JSON.', e)
 
         try:
             short_container_id, service_endpoints = self._run_service(post_data)
             return self.status_ok({'container_id': short_container_id, 'endpoints': service_endpoints})
         except Exception as e:
-            traceback.print_exc()
             return self.status_exception("Cannot run service", e)
 
     def _run_service(self, run_parameters):

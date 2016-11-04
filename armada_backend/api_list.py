@@ -1,13 +1,11 @@
 import fnmatch
-import traceback
 from distutils.util import strtobool
 
 import web
-
-import api_base
+from armada_backend import api_base
+from armada_backend.utils import get_ship_name, get_ship_names, get_logger
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
-from utils import get_ship_name, get_ship_names
 
 
 class List(api_base.ApiCommand):
@@ -83,7 +81,6 @@ class List(api_base.ApiCommand):
             result.update(services_list_from_catalog)
             return self.status_ok({'result': result.values()})
         except Exception as e:
-            traceback.print_exc()
             return self.status_exception("Cannot get the list of services.", e)
 
 
@@ -119,10 +116,13 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
         not_available = 'n/a'
 
         microservice_tags_dict = {}
-        if service_dict['params']['microservice_env']:
-            microservice_tags_dict['env'] = service_dict['params']['microservice_env']
-        if service_dict['params']['microservice_app_id']:
-            microservice_tags_dict['app_id'] = service_dict['params']['microservice_app_id']
+        try:
+            if service_dict['params']['microservice_env']:
+                microservice_tags_dict['env'] = service_dict['params']['microservice_env']
+            if service_dict['params']['microservice_app_id']:
+                microservice_tags_dict['app_id'] = service_dict['params']['microservice_app_id']
+        except KeyError as e:
+            get_logger().warning(repr(e))
 
         matches_env = (filter_env is None) or (filter_env == microservice_tags_dict.get('env'))
         matches_app_id = (filter_app_id is None) or (filter_app_id == microservice_tags_dict.get('app_id'))

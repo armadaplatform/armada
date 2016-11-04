@@ -1,9 +1,8 @@
 import base64
 import json
-import traceback
 
-import docker_client
-from api_run import Run
+from armada_backend import docker_client
+from armada_backend.api_run import Run
 from armada_backend.api_stop import Stop
 from armada_backend.utils import shorten_container_id
 from armada_command import armada_api
@@ -23,7 +22,6 @@ class Restart(Run, Stop):
             short_container_id = shorten_container_id(new_container_id)
             return self.status_ok({'container_id': short_container_id, 'endpoints': service_endpoints})
         except Exception as e:
-            traceback.print_exc()
             return self.status_exception("Unable to restart service", e)
 
     def _restart_service(self, container_id, target_ship=None, force_restart=False):

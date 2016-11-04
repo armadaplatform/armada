@@ -1,7 +1,8 @@
 import json
 
-import consul_config
-from armada_backend.utils import get_ship_name, get_other_ship_ips, get_current_datacenter, is_ship_commander
+from armada_backend import consul_config
+from armada_backend.utils import get_ship_name, get_other_ship_ips, get_current_datacenter, is_ship_commander, \
+    setup_sentry
 from armada_command.dockyard import alias
 
 
@@ -57,6 +58,7 @@ def _init_dockyards():
 
 
 def main():
+    setup_sentry()
     if not alias.get_initialized():
         _init_dockyards()
         alias.set_initialized()

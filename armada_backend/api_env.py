@@ -1,5 +1,4 @@
-import api_base
-import docker_client
+from armada_backend import api_base, docker_client
 
 
 class GetEnv(api_base.ApiCommand):

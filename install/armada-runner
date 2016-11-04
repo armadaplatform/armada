@@ -159,6 +159,7 @@ case "$1" in
             -v /etc/opt:/etc/opt \
             -v /opt/armada-docker-client/docker-$docker_version:/usr/bin/docker \
             -v /var/run/docker.sock:/var/run/docker.sock \
+            -v /etc/default/armada:/etc/default/armada \
             -v ${RESTRICT_CUSTOM_CONFIG_DIRS}:/configs:ro \
             -e SHIP_EXTERNAL_IP=${external_ip} \
             -e MICROSERVICE_NAME=armada \

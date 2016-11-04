@@ -3,7 +3,7 @@ MAINTAINER Cerebro <cerebro@ganymede.eu>
 
 ENV ARMADA_APT_GET_UPDATE_DATE 2016-08-03
 RUN apt-get update && apt-get install -y python python-dev python-pip unzip rsync openssh-server libffi-dev libssl-dev
-RUN pip install paramiko web.py docker-py==1.7.1
+RUN pip install paramiko web.py docker-py==1.7.1 raven contextlib2
 
 # Consul
 RUN wget https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip -O consul.zip
@@ -21,7 +21,7 @@ RUN cd /opt/armada-docker/armada_backend/scripts && chmod +x * && sync && ./setu
 ADD ./install/armada /usr/local/bin/armada
 RUN chmod +x /usr/local/bin/armada
 
-ENV ARMADA_VERSION 1.7.1
+ENV ARMADA_VERSION 1.8.1
 RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_command/_version.py
 
 ENV PYTHONPATH /opt/armada-docker:$PYTHONPATH

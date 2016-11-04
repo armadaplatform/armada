@@ -4,7 +4,7 @@ import time
 
 import requests
 
-from armada_backend.utils import get_container_ssh_address, get_logger
+from armada_backend.utils import get_container_ssh_address, get_logger, setup_sentry
 from armada_command import armada_api
 
 HERMES_DIRECTORY = '/etc/opt'
@@ -68,11 +68,12 @@ def _fetch_hermes_from_couriers(courier_addresses):
             if response.text.strip() != 'ok':
                 raise Exception('Error response from courier:\n{}'.format(response.text))
         except Exception as e:
-            get_logger().error('Fetching all sources from courier {} failed:'.format(courier_address))
+            get_logger().error('Fetching all sources from courier %s failed:', courier_address)
             get_logger().exception(e)
 
 
 def main():
+    setup_sentry()
     _wait_for_armada_start()
 
     # We fetch data from courier as soon as possible to cover most common case of 1 courier running.

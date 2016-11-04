@@ -1,6 +1,6 @@
 import requests
 
-import api_base
+from armada_backend import api_base
 from armada_backend.utils import get_ship_name, get_ship_ip
 from armada_command import armada_api
 from armada_command.consul.consul import consul_query
