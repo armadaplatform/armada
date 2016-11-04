@@ -25,6 +25,14 @@ if [ -f /etc/default/$BASE ]; then
     . /etc/default/$BASE
 fi
 
+notify(){
+    echo "${1}"
+    systemctl --version > /dev/null 2>&1
+    if [ $? == 0 ]; then
+        systemd-notify "${1}"
+    fi
+}
+
 set_external_ip() {
     if [ -n "${default_interface}" ]; then
         external_ip=$(ifconfig ${default_interface} | grep 'inet ' | awk '{print $2}' | cut -d: -f2 | head -1 | tr -d '\n')
@@ -67,7 +75,7 @@ fail_if_armada_is_running() {
 }
 
 wait_for_armada_running() {
-    echo "Waiting for ${ARMADA_DESC} running state..."
+    notify --status="Waiting for ${ARMADA_DESC} running state..."
     set_external_ip
     wait_timeout=30
     is_armada_running=0
@@ -78,12 +86,12 @@ wait_for_armada_running() {
     done
 
     if [ ${wait_timeout} -le 0 ]; then
-        echo "Waiting for ${ARMADA_DESC} running state timed out :("
+        notify --status="Waiting for ${ARMADA_DESC} running state timed out :("
         exit 1
     fi
 
     touch ${ARMADA_LOCK_FILE} 2>/dev/null
-    echo "${ARMADA_DESC} is running"
+    notify --status="${ARMADA_DESC} is running"
 }
 
 stop_armada() {
@@ -94,7 +102,7 @@ stop_armada() {
         && docker rm -f ${armada_containerid}
     rm -f "${ARMADA_CONTAINERID_FILE}" 2>/dev/null
     rm -f "${ARMADA_LOCK_FILE}" 2>/dev/null
-    echo "${ARMADA_DESC} has been stopped"
+    notify --status="${ARMADA_DESC} has been stopped"
 }
 
 docker_server_version() {
