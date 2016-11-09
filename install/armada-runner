@@ -217,7 +217,7 @@ case "$1" in
 
         $0 start
         if [ $? != 0 ]; then
-            exit $?
+            exit 1
         fi
         ;;
 
