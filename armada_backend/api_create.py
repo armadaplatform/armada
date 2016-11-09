@@ -124,7 +124,7 @@ class Create(api_base.ApiCommand):
                 raise login_exceptions[0]
 
     def _get_docker_api(self, dockyard_address, dockyard_user, dockyard_password):
-        docker_api = docker_client.api()
+        docker_api = docker_client.api(timeout=30)
         self._login_to_dockyard(docker_api, dockyard_address, dockyard_user, dockyard_password)
         return docker_api
 
