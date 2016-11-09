@@ -174,7 +174,7 @@ case "$1" in
             -e DOCKER_START_TIMESTAMP=${docker_start_timestamp} \
             -e RESTRICT_CUSTOM_CONFIG_DIRS=${RESTRICT_CUSTOM_CONFIG_DIRS}"
 
-        if [ -n "${privileged}" ]; then
+        if [ "${privileged}" == "true" -o "${privileged}" == "True" ]; then
             run_options+=" --privileged=true"
         fi
 

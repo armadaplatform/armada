@@ -1,6 +1,5 @@
 import base64
 import json
-import os
 
 import web
 
@@ -9,6 +8,7 @@ from armada_backend.api_run_hermes import process_hermes
 from armada_backend.utils import get_logger
 from armada_command.armada_utils import split_image_path
 from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
+from armada_command.ship_config import get_ship_config
 
 
 class Create(api_base.ApiCommand):
@@ -140,7 +140,7 @@ class Create(api_base.ApiCommand):
 
     def _create_host_config(self, docker_api, resource_limits, binds, port_bindings):
         resource_limits = resource_limits or {}
-        privileged = docker_api.inspect_container(os.environ['HOSTNAME'])['HostConfig']['Privileged']
+        privileged = get_ship_config().get('privileged') in ['true', 'True']
         host_config = docker_api.create_host_config(
             privileged=privileged,
             publish_all_ports=True,

@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- Privilege mode of docker containers can be specified in `etc/default/armada`
+- Privilege mode of docker containers can be specified in `/etc/default/armada`
 
 ## 1.8.1 (2016-11-03)
 
