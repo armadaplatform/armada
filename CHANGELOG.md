@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fixed stopping services in `started` state.
+
 ## 1.8.1 (2016-11-03)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.

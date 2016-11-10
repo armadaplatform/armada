@@ -55,7 +55,7 @@ def command_ssh(args):
     if not microservice_name:
         raise ValueError('No microservice name supplied.')
 
-    instances = [i for i in armada_utils.get_matched_containers(microservice_name) if 'kv_index' not in i]
+    instances = [i for i in armada_utils.get_matched_containers(microservice_name) if 'Status' not in i]
 
     if args.local:
         instances = [i for i in instances if armada_utils.is_local_container(i['ServiceID'])]
