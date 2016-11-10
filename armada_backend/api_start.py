@@ -6,7 +6,7 @@ from armada_command.consul.kv import save_service
 
 class Start(api_base.ApiCommand):
     def _start_container(self, long_container_id):
-        docker_api = docker_client.api()
+        docker_api = docker_client.api(timeout=30)
         docker_api.start(long_container_id)
 
         service_endpoints = {}

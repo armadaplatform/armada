@@ -216,8 +216,9 @@ case "$1" in
         stop_armada
 
         $0 start
-        if [ $? != 0 ]; then
-            exit 1
+        code=$?
+        if [ $code -ne 0 ]; then
+            exit $code
         fi
         ;;
 
