@@ -5,6 +5,9 @@ import os
 
 import requests
 from raven import Client, setup_logging
+
+from raven.contrib.webpy.utils import get_data_from_request
+
 from raven.handlers.logging import SentryHandler
 
 from armada_backend import docker_client
@@ -15,19 +18,34 @@ from armada_command.consul.consul import consul_query
 from armada_command.ship_config import get_ship_config
 
 sentry_ignore_exceptions = ['KeyboardInterrupt']
+sentry_include_path = ['armada_command', 'armada_backend']
 
 
 def shorten_container_id(long_container_id):
     return long_container_id[:12]
 
 
-def setup_sentry():
+class WebSentryClient(Client):
+    def capture(self, event_type, data=None, date=None, time_spent=None, extra=None, stack=None, tags=None, **kwargs):
+        request_data = get_data_from_request()
+        data.update(request_data)
+
+        return super(WebSentryClient, self).capture(event_type, data, date, time_spent, extra, stack, tags, **kwargs)
+
+
+def setup_sentry(is_web=False):
     sentry_url = get_ship_config().get('sentry_url', '')
 
-    sentry_client = Client(sentry_url,
-                           release=__version__,
-                           auto_log_stacks=True,
-                           ignore_exceptions=sentry_ignore_exceptions)
+    client_class = WebSentryClient if is_web else Client
+    tags = {'ship_IP': get_external_ip()}
+
+    sentry_client = client_class(sentry_url,
+                                 include_paths=sentry_include_path,
+                                 release=__version__,
+                                 auto_log_stacks=True,
+                                 ignore_exceptions=sentry_ignore_exceptions,
+                                 tags=tags)
+
     handler = SentryHandler(sentry_client, level=logging.WARNING)
     setup_logging(handler)
 
@@ -60,7 +78,20 @@ def deregister_services(container_id):
                 get_logger().exception(e)
 
 
+def get_external_ip():
+    """
+    It get current external IP address
+    """
+
+    return os.environ.get('SHIP_EXTERNAL_IP', '')
+
+
 def get_ship_ip():
+    """
+    It get ship advertise IP address.
+    It can be different than external IP, when external IP changes after ship first start.
+    """
+
     agent_self_dict = consul_query('agent/self')
     return agent_self_dict['Config']['AdvertiseAddr']
 
