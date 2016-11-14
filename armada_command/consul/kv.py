@@ -58,6 +58,8 @@ def update_service_status(status, ship=None, name=None, container_id=None, key=N
     if not key:
         key = 'ships/{}/service/{}/{}'.format(ship, name, container_id)
     service_dict = kv_get(key)
+    if status == 'crashed' and service_dict['Status'] in ['not-recovered', 'recovering']:
+        return
     service_dict['Status'] = status
     kv_set(key, service_dict)
 
