@@ -19,7 +19,7 @@ start_using_initd() {
 }
 
 start_using_systemd() {
-    $sh_c "rm /etc/init.d/armada"
+    $sh_c "rm -f /etc/init.d/armada"
     $sh_c "systemctl daemon-reload"
     $sh_c "systemctl enable armada.service"
     $sh_c "systemctl restart armada.service"

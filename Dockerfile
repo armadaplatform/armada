@@ -18,7 +18,7 @@ ADD . /opt/armada-docker
 RUN ln -s /opt/armada-docker/microservice_templates /opt/templates
 RUN cd /opt/armada-docker/armada_backend/scripts && chmod +x * && sync && ./setup_ssh.sh
 
-ADD ./install/armada /usr/local/bin/armada
+ADD ./packaging/bin/armada /usr/local/bin/armada
 RUN chmod +x /usr/local/bin/armada
 
 ENV ARMADA_VERSION 1.8.2
