@@ -1,9 +1,34 @@
 # Changelog
 
-## Unreleased
+## 1.8.2 (2016-11-14)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Bug fixes
+- Fixed stopping services in `started` state.
+
+### Improvements
+- Send request data to sentry, add tag ship_IP to events.
+
+## 1.8.1 (2016-11-03)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Bug fixes
+- Fix getting services list when microservice_env is not set 
+
+### Improvements
+- Disable timeout in systemd service
+
+## 1.8.0 (2016-10-31)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
 
 ### Features
 - Log errors to [sentry](https://github.com/getsentry/sentry). It can be enable by adding `sentry_url={url of project in sentry}` in `/etc/default/armada` config file.
+
+### Bug fixes
+- Armada builds from base image with proper tag. 
 
 ## 1.7.1 (2016-10-24)
 
