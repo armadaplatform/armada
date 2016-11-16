@@ -58,5 +58,5 @@ def main():
 
 
 if __name__ == '__main__':
-    setup_sentry()
+    setup_sentry(is_web=True)
     main()

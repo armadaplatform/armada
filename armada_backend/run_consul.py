@@ -4,7 +4,7 @@ import random
 import shutil
 
 from armada_backend import consul_config
-from armada_backend.utils import get_logger, setup_sentry
+from armada_backend.utils import get_logger, setup_sentry, get_external_ip
 
 
 def _get_runtime_settings():
@@ -42,7 +42,7 @@ def _get_runtime_settings():
 def main():
     setup_sentry()
     consul_mode, ship_ips, datacenter, ship_name = _get_runtime_settings()
-    ship_external_ip = os.environ.get('SHIP_EXTERNAL_IP', '')
+    ship_external_ip = get_external_ip()
     if ship_name is None:
         ship_name = ship_external_ip
     consul_config_content = consul_config.get_consul_config(consul_mode, ship_ips, datacenter, ship_external_ip, ship_name)
