@@ -20,7 +20,10 @@ class Stop(api_base.ApiCommand):
     def _stop_service(self, container_id):
         ship = get_ship_name()
         service_list = kv_list('ships/{}/service/'.format(ship))
-        key = fnmatch.filter(service_list, '*/{}'.format(container_id))[0] if service_list else None
+        try:
+            key = fnmatch.filter(service_list, '*/{}'.format(container_id))[0] if service_list else None
+        except (IndexError, TypeError):
+            key = None
 
         if not is_container_running(container_id):
             if key:
