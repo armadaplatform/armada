@@ -174,9 +174,10 @@ trap "$sh_c 'rm -f /tmp/docker_compatibility.py'" EXIT
 
 echo "Downloading armada image..."
 $sh_c "docker pull ${ARMADA_REPOSITORY}/armada"
+set +e
 $sh_c "python /tmp/docker_compatibility.py tag ${ARMADA_REPOSITORY}/armada armada"
 python_return_code=$?
-
+set -e
 if [ ${python_return_code} != 0 ]; then
     exit 1
 fi

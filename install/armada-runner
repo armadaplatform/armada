@@ -158,7 +158,6 @@ case "$1" in
         docker_version=$(docker_server_version)
 
         run_options="-d \
-            --privileged=true \
             --cidfile ${ARMADA_CONTAINERID_FILE} \
             -p 2201:22 \
             -p ${ARMADA_PORT}:80 \
@@ -174,6 +173,10 @@ case "$1" in
             -e MICROSERVICE_NAME=armada \
             -e DOCKER_START_TIMESTAMP=${docker_start_timestamp} \
             -e RESTRICT_CUSTOM_CONFIG_DIRS=${RESTRICT_CUSTOM_CONFIG_DIRS}"
+
+        if [ "${privileged}" == "true" -o "${privileged}" == "True" ]; then
+            run_options+=" --privileged=true"
+        fi
 
         if [ "$ARMADA_AUTORELOAD" == "true" ]; then
             run_options+=" -v /opt/armada-src/armada_backend:/opt/armada-docker/armada_backend -e ARMADA_AUTORELOAD=true"
@@ -213,8 +216,9 @@ case "$1" in
         stop_armada
 
         $0 start
-        if [ $? != 0 ]; then
-            exit $?
+        code=$?
+        if [ $code -ne 0 ]; then
+            exit $code
         fi
         ;;
 
