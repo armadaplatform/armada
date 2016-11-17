@@ -43,10 +43,9 @@ def _deregister_not_running_services():
         deregister_services(container_id)
 
     services_ids = kv.kv_list('ships/{}/service/'.format(ship)) or []
-    containers_ids = _get_running_container_ids()
     for service_id in services_ids:
         container_id = service_id.split('/')[-1]
-        if container_id not in containers_ids:
+        if container_id not in running_containers_ids:
             kv.update_service_status('crashed', key=service_id)
             deregister_services(container_id)
 

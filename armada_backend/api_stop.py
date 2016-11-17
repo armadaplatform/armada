@@ -20,10 +20,14 @@ class Stop(api_base.ApiCommand):
     def _stop_service(self, container_id):
         ship = get_ship_name()
         service_list = kv_list('ships/{}/service/'.format(ship))
-        if service_list:
-            key = fnmatch.filter(service_list, '*/{}'.format(container_id))
+        try:
+            key = fnmatch.filter(service_list, '*/{}'.format(container_id))[0]
+        except (IndexError, TypeError):
+            key = None
+
         if not is_container_running(container_id):
-            kv_remove(key[0])
+            if key:
+                kv_remove(key)
             try:
                 deregister_services(container_id)
             except Exception as e:
@@ -43,11 +47,12 @@ class Stop(api_base.ApiCommand):
             for i in range(3):
                 try:
                     docker_api.stop(container_id)
-                    kv_remove(key[0])
                 except Exception as e:
                     get_logger().debug(e, exc_info=True)
                     last_exception = e
                 if not is_container_running(container_id):
+                    if key:
+                        kv_remove(key)
                     break
             if is_container_running(container_id):
                 get_logger().error('Could not stop container: %s', container_id)
