@@ -8,5 +8,8 @@ DEFAULT_CONTAINER_MEMORY_LIMIT=500M
 # It's required in systems with selinux enabled to prevent changing selinux context.
 #RESTRICT_CUSTOM_CONFIG_DIRS=
 
+# Run containers in privileged mode
+privileged=true
+
 # Log errors to sentry (https://github.com/getsentry/sentry).
 #sentry_url=
