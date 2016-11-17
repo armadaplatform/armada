@@ -21,7 +21,7 @@ class Stop(api_base.ApiCommand):
         ship = get_ship_name()
         service_list = kv_list('ships/{}/service/'.format(ship))
         try:
-            key = fnmatch.filter(service_list, '*/{}'.format(container_id))[0] if service_list else None
+            key = fnmatch.filter(service_list, '*/{}'.format(container_id))[0]
         except (IndexError, TypeError):
             key = None
 
