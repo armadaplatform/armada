@@ -2,3 +2,4 @@
 .vagrant/
 *.pyc
 *.BAK
+/dist/

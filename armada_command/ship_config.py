@@ -11,7 +11,7 @@ def get_ship_config():
         lines = f.readlines()
     for line in lines:
         line = line.strip()
-        if not line:
+        if not line or line.startswith('#'):
             continue
         key, value = line.split('=', 1)
         result[key.strip()] = value.strip().strip('\'"')

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
+set -e
 
+IMAGE_TAG="${1-latest}"
 IMAGE_PATH="/opt/armada-src/"
 IMAGE_NAME="armada"
 DOCKERFILE_PATH="${IMAGE_PATH}Dockerfile"
@@ -18,4 +20,4 @@ docker pull ${DOCKYARD_ADDRESS}/${BASE_IMAGE_NAME}
 python ${TAG_CMD} ${DOCKYARD_ADDRESS}/${BASE_IMAGE_NAME} ${BASE_IMAGE_NAME}
 
 echo "Building image \"${IMAGE_NAME}\" from path ${IMAGE_PATH} ..."
-docker build -t ${IMAGE_NAME} ${IMAGE_PATH}
+docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_PATH}
