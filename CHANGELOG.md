@@ -1,13 +1,13 @@
 # Changelog
-## Unreleased
-
-### Features
-- Build deb, rpm and amazon linux package
 
 ## Unreleased
 
 ### Features
-- Privilege mode of docker containers can be specified in `/etc/default/armada`
+- Build deb, rpm and amazon linux package.
+- Privilege mode of docker containers can be specified in `/etc/default/armada`.
+
+### Bug fixes
+- Fix keeping stopped services in `crashed` state after `armada restart`.
 
 ## 1.8.2 (2016-11-14)
 
