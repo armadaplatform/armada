@@ -1,11 +1,13 @@
 import base64
 import json
+from docker.errors import NotFound
 
 from armada_backend import docker_client
 from armada_backend.api_run import Run
 from armada_backend.api_stop import Stop
 from armada_backend.utils import shorten_container_id
 from armada_command import armada_api
+from armada_command.consul.kv import kv_get, kv_list
 
 
 class Restart(Run, Stop):
@@ -25,14 +27,21 @@ class Restart(Run, Stop):
             return self.status_exception("Unable to restart service", e)
 
     def _restart_service(self, container_id, target_ship=None, force_restart=False):
-        docker_api = docker_client.api()
-        docker_inspect = docker_api.inspect_container(container_id)
+        try:
+            docker_api = docker_client.api()
+            docker_inspect = docker_api.inspect_container(container_id)
 
-        restart_parameters = {}
-        for env_var in docker_inspect['Config']['Env']:
-            env_key, env_value = (env_var.strip('"').split('=', 1) + [''])[:2]
-            if env_key == 'RESTART_CONTAINER_PARAMETERS':
-                restart_parameters = json.loads(base64.b64decode(env_value))
+            restart_parameters = {}
+            for env_var in docker_inspect['Config']['Env']:
+                env_key, env_value = (env_var.strip('"').split('=', 1) + [''])[:2]
+                if env_key == 'RESTART_CONTAINER_PARAMETERS':
+                    restart_parameters = json.loads(base64.b64decode(env_value))
+        except NotFound:
+            service_list = kv_list('ships/')
+            for service in service_list:
+                if service.endswith(container_id):
+                    key = service
+            restart_parameters = kv_get(key)['params']
 
         if target_ship:
             return self._restart_service_remote(container_id, restart_parameters,
