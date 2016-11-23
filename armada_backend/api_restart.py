@@ -27,27 +27,31 @@ class Restart(Run, Stop):
             return self.status_exception("Unable to restart service", e)
 
     def _restart_service(self, container_id, target_ship=None, force_restart=False):
-        try:
-            docker_api = docker_client.api()
-            docker_inspect = docker_api.inspect_container(container_id)
+        restart_parameters = self._get_restart_parameters(container_id)
 
-            restart_parameters = {}
-            for env_var in docker_inspect['Config']['Env']:
-                env_key, env_value = (env_var.strip('"').split('=', 1) + [''])[:2]
-                if env_key == 'RESTART_CONTAINER_PARAMETERS':
-                    restart_parameters = json.loads(base64.b64decode(env_value))
-        except NotFound:
-            service_list = kv_list('ships/')
-            for service in service_list:
-                if service.endswith(container_id):
-                    key = service
-            restart_parameters = kv_get(key)['params']
+        if not restart_parameters:
+            raise Exception('Could not get RESTART_CONTAINER_PARAMETERS. Container ID: {}'.format(container_id))
 
         if target_ship:
             return self._restart_service_remote(container_id, restart_parameters,
                                                 target_ship, force_restart)
         else:
             return self._restart_service_local(container_id, restart_parameters)
+
+    def _get_restart_parameters(self, container_id):
+        try:
+            docker_api = docker_client.api()
+            docker_inspect = docker_api.inspect_container(container_id)
+
+            for env_var in docker_inspect['Config']['Env']:
+                env_key, env_value = (env_var.strip('"').split('=', 1) + [''])[:2]
+                if env_key == 'RESTART_CONTAINER_PARAMETERS':
+                    return json.loads(base64.b64decode(env_value))
+        except NotFound:
+            service_list = kv_list('ships/')
+            for service in service_list:
+                if service.split('/')[-1] == container_id:
+                    return kv_get(service).get('params')
 
     def _restart_service_local(self, container_id, restart_parameters):
         new_container_id = self._create_service(**restart_parameters)
