@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fixed restarting crashed services.
+
 ## 1.9.0 (2016-11-17)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
