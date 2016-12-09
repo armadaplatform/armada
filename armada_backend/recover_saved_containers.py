@@ -126,7 +126,7 @@ def _get_crashed_services():
     for service in services_list:
         service_dict = kv.kv_get(service)
         microservice_status = service_dict['Status']
-        if microservice_status == 'crashed':
+        if microservice_status in ['crashed', 'not-recovered']:
             crashed_services.append(service)
     return crashed_services
 
@@ -167,13 +167,14 @@ def recover_containers_from_kv_store():
             service_parameters = kv.kv_get(service)['params']
             if not _recover_container(service_parameters):
                 services_not_recovered.append(service)
-                if recovery_retry_count == (RECOVERY_RETRY_LIMIT - 1):
-                    kv.update_service_status('not-recovered', key=service)
             else:
                 kv.kv_remove(service)
         sleep(DELAY_BETWEEN_RECOVER_RETRY_SECONDS)
-        services_to_be_recovered = _get_crashed_services()
+        services_to_be_recovered = services_not_recovered
         recovery_retry_count += 1
+
+    for service in services_to_be_recovered:
+        kv.update_service_status('not-recovered', key=service)
 
     return services_to_be_recovered
 
