@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.9.2 (2016-12-12)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
 
 ### Bug fixes
 - Fixed bug where not recovered containers stayed with `recovering` status.
