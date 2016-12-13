@@ -4,12 +4,13 @@ import argparse
 import os
 import sys
 
-from armada_command.docker_utils.compatibility import docker_backend
 from armada_command.armada_utils import execute_local_command, is_verbose
+from armada_command.docker_utils.compatibility import docker_backend
 from armada_command.docker_utils.images import ArmadaImageFactory, InvalidImagePathException
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, print_http_dockyard_unavailability_warning
 from armada_command.dockyard.dockyard import dockyard_factory
+from armada_utils import ArmadaCommandException
 
 
 def parse_args():
@@ -26,30 +27,36 @@ def add_arguments(parser):
                         help='Build from image from dockyard with this alias. '
                              "Use 'local' to force using local repository.")
     parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
-    parser.add_argument('-s', '--squash', action='store_true', help='Squash image.')
+    parser.add_argument('-s', '--squash', action='store_true', help='Squash image. Does not work with -f/--file.')
+    parser.add_argument('-f', '--file', default='Dockerfile',
+                        help='Path to the Dockerfile. Does not work with -s/--squash.')
 
 
-def _get_base_image_name():
-    with open('Dockerfile') as dockerfile:
+def _get_base_image_name(dockerfile_path):
+    with open(dockerfile_path) as dockerfile:
         for line in dockerfile:
             if line.startswith('FROM '):
                 return line.split()[1]
 
 
 def command_build(args):
+    dockerfile_path = args.file
     if args.squash:
+        if dockerfile_path != 'Dockerfile':
+            raise ArmadaCommandException('You cannot use -f/--file flag together with -s/--squash.')
         chain_run_commands()
-    base_image_name = _get_base_image_name()
+
+    if not os.path.exists(dockerfile_path):
+        print('ERROR: {} not found.'.format(dockerfile_path), file=sys.stderr)
+        return
+
+    base_image_name = _get_base_image_name(dockerfile_path)
     dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(base_image_name, is_run_locally=True)
 
     try:
         image = ArmadaImageFactory(args.microservice_name, dockyard_alias, os.environ.get('MICROSERVICE_NAME'))
     except InvalidImagePathException:
         raise ValueError('No microservice name supplied.')
-
-    if not os.path.exists('Dockerfile'):
-        print('ERROR: Dockerfile not found in current directory', file=sys.stderr)
-        return
 
     base_image = ArmadaImageFactory(base_image_name, dockyard_alias)
     if base_image.is_remote():
@@ -87,7 +94,7 @@ def command_build(args):
             tag_command = docker_backend.build_tag_command(base_image_path, base_image_name)
             assert execute_local_command(tag_command, stream_output=True, retries=1)[0] == 0
 
-    build_command = 'docker build -t {} .'.format(image.image_name_with_tag)
+    build_command = 'docker build -f {} -t {} .'.format(dockerfile_path, image.image_name_with_tag)
     assert execute_local_command(build_command, stream_output=True)[0] == 0
 
     if args.squash:
