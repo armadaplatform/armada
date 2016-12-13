@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- You can now point path to Dockerfile in `armada build` using `-f/-file` flag (like `docker build`).
+- You can now point path to Dockerfile in `armada build` using `--file` flag (like `docker build`).
 
 ## 1.9.2 (2016-12-12)
 

@@ -27,8 +27,8 @@ def add_arguments(parser):
                         help='Build from image from dockyard with this alias. '
                              "Use 'local' to force using local repository.")
     parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
-    parser.add_argument('-s', '--squash', action='store_true', help='Squash image. Does not work with -f/--file.')
-    parser.add_argument('-f', '--file', default='Dockerfile',
+    parser.add_argument('-s', '--squash', action='store_true', help='Squash image. Does not work with --file.')
+    parser.add_argument('--file', default='Dockerfile',
                         help='Path to the Dockerfile. Does not work with -s/--squash.')
 
 
@@ -43,7 +43,7 @@ def command_build(args):
     dockerfile_path = args.file
     if args.squash:
         if dockerfile_path != 'Dockerfile':
-            raise ArmadaCommandException('You cannot use -f/--file flag together with -s/--squash.')
+            raise ArmadaCommandException('You cannot use --file flag together with -s/--squash.')
         chain_run_commands()
 
     if not os.path.exists(dockerfile_path):
