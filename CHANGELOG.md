@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- You can now point path to Dockerfile in `armada build` using `--file` flag (like `docker build`).
+
 ## 1.9.2 (2016-12-12)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
