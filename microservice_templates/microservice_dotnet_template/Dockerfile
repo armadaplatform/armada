@@ -1,5 +1,5 @@
 FROM microservice_dotnet
-MAINTAINER Adam Marszałek <sceeter89@outlook.com>
+MAINTAINER Cerebro <cerebro@ganymede.eu>
 
 
 ADD . /opt/_MICROSERVICE_DOTNET_TEMPLATE_
