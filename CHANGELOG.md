@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Features
+- Add `-vv/--verbose` flag to `armada create`.
+
 ### Improvements
 - Separated supervisor configs for `armada_agent` and `register_in_service_discovery` to make overriding the latter
     in services easier.
