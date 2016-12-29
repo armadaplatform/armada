@@ -1,0 +1,15 @@
+DEFAULT_CONTAINER_MEMORY_LIMIT=500M
+
+# Set network interface to use
+# While it's not set armada will use host default interface.
+#default_interface=
+
+# Restrict possible config directories. By default root directory is mounted inside armada container in read-only mode, to verify existence of `--config` paths.
+# It's required in systems with selinux enabled to prevent changing selinux context.
+#RESTRICT_CUSTOM_CONFIG_DIRS=
+
+# Run containers in privileged mode
+privileged=true
+
+# Log errors to sentry (https://github.com/getsentry/sentry).
+#sentry_url=

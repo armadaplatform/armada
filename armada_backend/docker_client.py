@@ -9,8 +9,8 @@ class DockerException(Exception):
     pass
 
 
-def api():
-    return docker.Client(base_url='unix://' + DOCKER_SOCKET_PATH, version='1.18', timeout=11)
+def api(timeout=11):
+    return docker.Client(base_url='unix://' + DOCKER_SOCKET_PATH, version='1.18', timeout=timeout)
 
 
 def _get_error_from_docker_pull_event(event):

@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.10.0 (2016-12-15)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Features
+- You can now point path to Dockerfile in `armada build` using `--file` flag (like `docker build`).
+
+## 1.9.2 (2016-12-12)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Bug fixes
+- Fixed bug where not recovered containers stayed with `recovering` status.
+
+## 1.9.1 (2016-11-29)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Bug fixes
+- Fixed restarting crashed services.
+
+## 1.9.0 (2016-11-17)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Features
+- Build deb, rpm and amazon linux package.
+- Privilege mode of docker containers can be specified in `/etc/default/armada`.
+
+### Bug fixes
+- Fix keeping stopped services in `crashed` state after `armada restart`.
+
 ## 1.8.2 (2016-11-14)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.

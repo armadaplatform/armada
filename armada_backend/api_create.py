@@ -8,6 +8,7 @@ from armada_backend.api_run_hermes import process_hermes
 from armada_backend.utils import get_logger
 from armada_command.armada_utils import split_image_path
 from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
+from armada_command.ship_config import get_ship_config
 
 
 class Create(api_base.ApiCommand):
@@ -123,7 +124,7 @@ class Create(api_base.ApiCommand):
                 raise login_exceptions[0]
 
     def _get_docker_api(self, dockyard_address, dockyard_user, dockyard_password):
-        docker_api = docker_client.api()
+        docker_api = docker_client.api(timeout=30)
         self._login_to_dockyard(docker_api, dockyard_address, dockyard_user, dockyard_password)
         return docker_api
 
@@ -139,8 +140,9 @@ class Create(api_base.ApiCommand):
 
     def _create_host_config(self, docker_api, resource_limits, binds, port_bindings):
         resource_limits = resource_limits or {}
+        privileged = get_ship_config().get('privileged', 'false').lower() == 'true'
         host_config = docker_api.create_host_config(
-            privileged=True,
+            privileged=privileged,
             publish_all_ports=True,
             binds=binds,
             port_bindings=port_bindings,

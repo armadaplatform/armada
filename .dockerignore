@@ -5,3 +5,4 @@
 *.BAK
 docker-containers/
 *.md
+/dist/
