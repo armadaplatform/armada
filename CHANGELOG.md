@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Separated supervisor configs for `armada_agent` and `register_in_service_discovery` to make overriding the latter
+    in services easier.
+
 ## 1.10.0 (2016-12-15)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
