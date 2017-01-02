@@ -68,8 +68,7 @@ def add_arguments(parser):
     parser.add_argument('--env',
                         help='Name of environments (separated by ":") in which container will be run. '
                              'E.g. "production", "production/external", "dev/test:production" '
-                             'If not provided it will use MICROSERVICE_ENV env variable.',
-                        default=os.environ.get('MICROSERVICE_ENV'))
+                             'If not provided it will use MICROSERVICE_ENV env variable.')
     parser.add_argument('--app_id',
                         help='Application or game for which this instance of microservice is dedicated. '
                              'It will be used to mount additional configs specific for that app/game.')
@@ -120,7 +119,11 @@ def command_run(args):
     payload.update_environment(args.e)
     payload.update_ports(args.publish)
     payload.update_volumes(args.volumes)
-    payload.update_microservice_vars(args.rename, args.env, args.app_id)
+    if not args.env and not args.hidden_is_restart:
+        env = os.environ.get('MICROSERVICE_ENV')
+    else:
+        env = args.env
+    payload.update_microservice_vars(args.rename, env, args.app_id)
     payload.update_run_command(vagrant_dev, args.env, image.image_name)
     payload.update_resource_limits(args.cpu_shares, args.memory, args.memory_swap, args.cgroup_parent)
     payload.update_configs(args.configs)
