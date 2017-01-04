@@ -9,8 +9,7 @@ import traceback
 
 import armada_api
 import armada_utils
-from scripts.utils import suppress_version_check
-from armada_command.consul import kv
+from armada_command.command_run import _is_vagrant_dev, are_we_in_vagrant
 
 
 def parse_args():
@@ -60,39 +59,41 @@ def command_restart(args):
 
             container_id = instance['ServiceID'].split(':')[0]
             is_run_locally = armada_utils.is_local_container(container_id) and not args.ship
+            vagrant = are_we_in_vagrant()
 
-            if is_run_locally:
-                result = json.loads(armada_api.get('env/{container_id}/ARMADA_RUN_COMMAND'.format(**locals())))
-                if result['status'] == 'ok':
-                    stop_command = 'armada stop {container_id}'.format(**locals())
-                    run_command = base64.b64decode(result['value'])
-                    with suppress_version_check():
-                        assert armada_utils.execute_local_command(stop_command, stream_output=True, retries=3)[0] == 0
-                        assert armada_utils.execute_local_command(run_command, stream_output=True, retries=5)[0] == 0
-                    if instances_count > 1:
-                        print()
-                else:
-                    raise armada_utils.ArmadaCommandException(result['error'])
+            result = json.loads(armada_api.get('env/{container_id}/RESTART_CONTAINER_PARAMETERS'.format(**locals())))
+            restart_container_parameters = json.loads(base64.b64decode(result['value']))
+
+            hidden_vagrant_dev = '--hidden_vagrant_dev' in restart_container_parameters.get('run_command', '')
+            image_path = restart_container_parameters.get('image_path', '')
+            if '/' not in image_path:
+                dockyard_alias = 'local'
+                image_name = image_path.split(':')[0]
             else:
-                payload = {'container_id': container_id}
-                if args.ship:
-                    payload['target_ship'] = args.ship
-                    payload['force'] = args.force
+                dockyard_alias = image_path.split('/')[0]
+                image_name = image_path.split('/')[-1].split(':')[0]
 
-                print('Checking if there is new image version. May take few minutes if download is needed...')
-                ship_name = instance['Address']
-                result = armada_api.post('restart', payload, ship_name=ship_name)
+            vagrant_dev = _is_vagrant_dev(hidden_vagrant_dev, dockyard_alias, image_name)
 
-                if result['status'] == 'ok':
-                    new_container_id = result['container_id']
-                    print('Service has been restarted and is running in container {new_container_id} '
-                          'available at addresses:'.format(**locals()))
-                    for service_address, docker_port in result['endpoints'].iteritems():
-                        print('  {0} ({1})'.format(service_address, docker_port))
-                    if instances_count > 1:
-                        print()
-                else:
-                    raise armada_utils.ArmadaCommandException(result['error'])
+            payload = {'container_id': container_id, 'vagrant_dev': vagrant_dev}
+            if args.ship:
+                payload['target_ship'] = args.ship
+                payload['force'] = args.force
+
+            print('Checking if there is new image version. May take few minutes if download is needed...')
+            ship_name = instance['Address']
+            result = armada_api.post('restart', payload, ship_name=ship_name)
+
+            if result['status'] == 'ok':
+                new_container_id = result['container_id']
+                print('Service has been restarted and is running in container {new_container_id} '
+                      'available at addresses:'.format(**locals()))
+                for service_address, docker_port in result['endpoints'].iteritems():
+                    print('  {0} ({1})'.format(service_address, docker_port))
+                if instances_count > 1:
+                    print()
+            else:
+                raise armada_utils.ArmadaCommandException(result['error'])
         except armada_utils.ArmadaCommandException as e:
             print("ArmadaCommandException: {0}".format(str(e)))
             were_errors = True
