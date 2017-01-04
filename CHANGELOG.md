@@ -8,6 +8,7 @@
 ### Improvements
 - Separated supervisor configs for `armada_agent` and `register_in_service_discovery` to make overriding the latter
     in services easier.
+- Python3 version in base image `microservice_python3` has been upgraded from python3.4 to python3.6.
 
 ## 1.10.0 (2016-12-15)
 
