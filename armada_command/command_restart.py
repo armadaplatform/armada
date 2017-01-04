@@ -9,7 +9,7 @@ import traceback
 
 import armada_api
 import armada_utils
-from armada_command.command_run import _is_vagrant_dev, are_we_in_vagrant
+from armada_command.command_run import _is_vagrant_dev
 
 
 def parse_args():
@@ -58,22 +58,8 @@ def command_restart(args):
                 print('[{0}/{1}]'.format(i + 1, instances_count))
 
             container_id = instance['ServiceID'].split(':')[0]
-            is_run_locally = armada_utils.is_local_container(container_id) and not args.ship
-            vagrant = are_we_in_vagrant()
 
-            result = json.loads(armada_api.get('env/{container_id}/RESTART_CONTAINER_PARAMETERS'.format(**locals())))
-            restart_container_parameters = json.loads(base64.b64decode(result['value']))
-
-            hidden_vagrant_dev = '--hidden_vagrant_dev' in restart_container_parameters.get('run_command', '')
-            image_path = restart_container_parameters.get('image_path', '')
-            if '/' not in image_path:
-                dockyard_alias = 'local'
-                image_name = image_path.split(':')[0]
-            else:
-                dockyard_alias = image_path.split('/')[0]
-                image_name = image_path.split('/')[-1].split(':')[0]
-
-            vagrant_dev = _is_vagrant_dev(hidden_vagrant_dev, dockyard_alias, image_name)
+            vagrant_dev = is_local_development(args.ship, container_id)
 
             payload = {'container_id': container_id, 'vagrant_dev': vagrant_dev}
             if args.ship:
@@ -102,3 +88,23 @@ def command_restart(args):
             were_errors = True
     if were_errors:
         sys.exit(1)
+
+
+def is_local_development(ship, container_id):
+    is_run_locally = armada_utils.is_local_container(container_id) and not ship
+
+    result = json.loads(armada_api.get('env/{container_id}/RESTART_CONTAINER_PARAMETERS'.format(**locals())))
+    restart_container_parameters = json.loads(base64.b64decode(result['value']))
+
+    hidden_vagrant_dev = '--hidden_vagrant_dev' in restart_container_parameters.get('run_command', '')
+    image_path = restart_container_parameters.get('image_path', '')
+    if '/' not in image_path:
+        dockyard_alias = 'local'
+        image_name = image_path.split(':')[0]
+    else:
+        dockyard_alias = image_path.split('/')[0]
+        image_name = image_path.split('/')[-1].split(':')[0]
+
+    vagrant_dev = _is_vagrant_dev(hidden_vagrant_dev, dockyard_alias, image_name)
+
+    return vagrant_dev and is_run_locally
