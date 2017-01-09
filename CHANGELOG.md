@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- Base image for services created using DotNET Core 1.0
+- Template for sample "Hello, world!" REST service.
+
 ## 1.10.0 (2016-12-15)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
