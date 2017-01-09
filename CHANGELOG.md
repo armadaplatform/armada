@@ -4,6 +4,8 @@
 
 ### Features
 - Add `-vv/--verbose` flag to `armada create`.
+- Base image for services created using DotNET Core 1.0
+- Template for sample "Hello, world!" REST service.
 
 ### Improvements
 - Separated supervisor configs for `armada_agent` and `register_in_service_discovery` to make overriding the latter
