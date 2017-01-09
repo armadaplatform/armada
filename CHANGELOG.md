@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+- Base image for services created using DotNET Core 1.0
+- Template for sample "Hello, world!" REST service.
+
 ### Bug fixes
 - Fixed bug where restarting service started without `env` was setting `MICROSERVICE_ENV` environment variable as `env`.
 
