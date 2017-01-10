@@ -10,4 +10,4 @@ ADD . /opt/microservice
 RUN cd /opt/microservice/scripts && chmod +x * && sync && ./install_packages.sh && ./setup_supervisor.sh
 RUN mkdir /var/opt/service-registration/
 
-CMD ["/usr/bin/python3.4", "/opt/microservice/src/bootstrap_microservice.py"]
+CMD ["/usr/bin/python3", "/opt/microservice/src/bootstrap_microservice.py"]

@@ -6,6 +6,7 @@
 - Add `-vv/--verbose` flag to `armada create`.
 - Base image for services created using DotNET Core 1.0
 - Template for sample "Hello, world!" REST service.
+- Base image `microservice_python3.5` is now **deprecated** in favor of upgraded `microservice_python3` with python3.6.
 
 ### Improvements
 - Separated supervisor configs for `armada_agent` and `register_in_service_discovery` to make overriding the latter
