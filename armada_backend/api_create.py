@@ -50,6 +50,11 @@ class Create(api_base.ApiCommand):
             'resource_limits': resource_limits,
             'configs': configs,
         }
+
+        dev = environment.get('ARMADA_VAGRANT_DEV')
+        if dev:
+            restart_parameters['image_path'] = image_path.split('/', 1)[-1]
+
         environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(json.dumps(restart_parameters, sort_keys=True))
         environment['ARMADA_RUN_COMMAND'] = base64.b64encode(run_command)
         environment['MICROSERVICE_NAME'] = microservice_name
@@ -91,6 +96,10 @@ class Create(api_base.ApiCommand):
         dockyard_address, image_name, image_tag = split_image_path(image_path)
         docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
         self._pull_latest_image(docker_api, image_path)
+        dev = environment.get('ARMADA_VAGRANT_DEV')
+        if dev:
+            self._tag_local_image(docker_api, image_path)
+            image_path = '{}:{}'.format(image_name, image_tag)
 
         host_config = self._create_host_config(docker_api, resource_limits, volume_bindings, port_bindings)
         container_info = docker_api.create_container(image_path,
@@ -137,6 +146,11 @@ class Create(api_base.ApiCommand):
                 if "ping attempt failed" in str(e):
                     raise RuntimeError(INSECURE_REGISTRY_ERROR_MSG.format(header="ERROR!", address=dockyard_address))
                 raise e
+
+    def _tag_local_image(self, docker_api, image_path):
+        dockyard_address, image_name, image_tag = split_image_path(image_path)
+        if dockyard_address:
+            docker_client.docker_tag(docker_api, dockyard_address, image_name, image_tag)
 
     def _create_host_config(self, docker_api, resource_limits, binds, port_bindings):
         resource_limits = resource_limits or {}
