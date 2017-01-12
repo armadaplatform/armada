@@ -6,6 +6,9 @@
 - Base image for services created using DotNET Core 1.0
 - Template for sample "Hello, world!" REST service.
 
+### Bug fixes
+- Fixed bug where restarting service started without `env` was setting `MICROSERVICE_ENV` environment variable as `env`.
+
 ## 1.10.0 (2016-12-15)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.

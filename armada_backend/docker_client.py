@@ -26,3 +26,10 @@ def docker_pull(docker_api, dockyard_address, image_name, image_tag):
         error = _get_error_from_docker_pull_event(event)
         if error:
             raise DockerException('Cannot pull image {}:{}, error: {}'.format(image_address, image_tag, error))
+
+
+def docker_tag(docker_api, dockyard_address, image_name, image_tag):
+    image_address = dockyard_address + '/' + image_name
+    tag_output = docker_api.tag(image_address, image_name, tag=image_tag)
+    if not tag_output:
+        raise DockerException('Cannot tag image {}:{}'.format(image_address, image_tag))
