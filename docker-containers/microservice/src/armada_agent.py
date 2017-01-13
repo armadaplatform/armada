@@ -1,27 +1,26 @@
 from __future__ import print_function
 
-import os
-import sys
+import calendar
 import glob
 import json
-import time
+import os
 import random
-import socket
 import signal
-import calendar
-import requests
-import threading
-import traceback
+import socket
 import subprocess
+import sys
+import threading
+import time
+import traceback
 from datetime import datetime
 from functools import wraps, partial
 
+import requests
 from requests.exceptions import HTTPError
 
+from common.consul import consul_query, consul_post, consul_get, consul_put
 from common.docker_client import get_docker_inspect
 from register_in_service_discovery import REGISTRATION_DIRECTORY
-from common.consul import consul_query, consul_post, consul_get, consul_put
-
 
 HEALTH_CHECKS_PERIOD = 10
 HEALTH_CHECKS_TIMEOUT = 10
@@ -92,11 +91,12 @@ def retry(num_retries, action=None, expected_exception=Exception):
                         print_exc()
 
                     if action:
-                        assert callable(action)
                         action()
 
                     counter += 1
+
         return wrapper
+
     return decorator
 
 

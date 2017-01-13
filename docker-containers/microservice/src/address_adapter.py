@@ -2,7 +2,7 @@ import socket
 
 import web
 
-from common.consul import consul_query
+from common.service_discovery import get_services
 
 
 class AddressAdapterException(Exception):
@@ -11,17 +11,6 @@ class AddressAdapterException(Exception):
 
 class SubservicesCache(object):
     subservices = {}
-    advertise_address = None
-
-    def get_advertise_address(self):
-        if self.advertise_address:
-            return self.advertise_address
-        try:
-            agent_self_dict = consul_query('agent/self')
-            self.advertise_address = agent_self_dict['Config']['AdvertiseAddr']
-        except:
-            raise AddressAdapterException('Could not acquire advertise IP address.')
-        return self.advertise_address
 
     def get_subservice_address(self, subservice):
         if subservice in self.subservices:
@@ -31,15 +20,13 @@ class SubservicesCache(object):
             service_id = '{container_id}:{subservice}'.format(**locals())
         else:
             service_id = container_id
-        services_dict = consul_query('agent/services')
-        if service_id in services_dict:
-            advertise_address = self.get_advertise_address()
-            subservice_port = services_dict[service_id]['Port']
-            subservice_address = '{advertise_address}:{subservice_port}'.format(**locals())
-            self.subservices[subservice] = subservice_address
-            return subservice_address
-        else:
-            raise AddressAdapterException('Could not find subservice: {subservice}.'.format(**locals()))
+        local_services = get_services({'local': '1'})
+        for service in local_services:
+            if service['microservice_id'] == service_id:
+                subservice_address = service['address']
+                self.subservices[subservice] = subservice_address
+                return subservice_address
+        raise AddressAdapterException('Could not find subservice: {subservice}.'.format(**locals()))
 
 
 subservice_cache = SubservicesCache()
