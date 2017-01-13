@@ -1,8 +1,8 @@
 FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
-ENV ARMADA_APT_GET_UPDATE_DATE 2016-08-03
-RUN apt-get update && apt-get install -y python python-dev python-pip unzip rsync openssh-server libffi-dev libssl-dev
+ENV ARMADA_APT_GET_UPDATE_DATE 2016-12-29
+RUN apt-get update && apt-get install -y rsync openssh-server libffi-dev libssl-dev
 RUN pip install paramiko web.py docker-py==1.7.1 raven contextlib2
 
 # Consul
