@@ -1,10 +1,19 @@
 # Changelog
 
-## Unreleased
+## 1.11.0 (2017-01-13)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
 
 ### Features
+- Add `-vv/--verbose` flag to `armada create`.
 - Base image for services created using DotNET Core 1.0
 - Template for sample "Hello, world!" REST service.
+- Base image `microservice_python3.5` is now **deprecated** in favor of upgraded `microservice_python3` with python3.6.
+
+### Improvements
+- Separated supervisor configs for `armada_agent` and `register_in_service_discovery` to make overriding the latter
+    in services easier.
+- Python3 version in base image `microservice_python3` has been upgraded from python3.4 to python3.6.
 
 ### Bug fixes
 - Fixed bug where restarting service started without `env` was setting `MICROSERVICE_ENV` environment variable as `env`.

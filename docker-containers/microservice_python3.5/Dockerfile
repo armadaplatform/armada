@@ -11,3 +11,5 @@ RUN pip3.5 install -U requests armada
 ADD . /opt/microservice_python3.5
 
 ENV PYTHONPATH /opt/microservice_python3.5/src
+
+RUN echo 'echo "WARNING: Base image microservice_python3.5 has been deprecated. Use microservice_python3 instead."' >> /etc/bash.bashrc
