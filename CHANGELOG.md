@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fixed cleaning crashed services on not promoted ships.
+
 ## 1.11.0 (2017-01-13)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
