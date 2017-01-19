@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Bug fixes
+- Fix building pip packages in `microservice_python3`.
 - Fixed cleaning crashed services on not promoted ships.
 
 ## 1.11.0 (2017-01-13)
