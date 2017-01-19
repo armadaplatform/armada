@@ -26,5 +26,6 @@ def main():
     with SyncOpen(VERSION_CACHE_FILE_PATH, 'w') as f:
         json.dump(data, f)
 
+
 if __name__ == '__main__':
     main()

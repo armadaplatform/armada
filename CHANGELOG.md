@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+- Add flag `--is-single-instance` to `register_in_service_discovery.py` script.
+- Add `-vv/--verbose` flag to all armada commands.
+
 ### Bug fixes
 - Fix building pip packages in `microservice_python3`.
 - Fixed cleaning crashed services on not promoted ships.

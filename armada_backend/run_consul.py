@@ -45,7 +45,8 @@ def main():
     ship_external_ip = get_external_ip()
     if ship_name is None:
         ship_name = ship_external_ip
-    consul_config_content = consul_config.get_consul_config(consul_mode, ship_ips, datacenter, ship_external_ip, ship_name)
+    consul_config_content = consul_config.get_consul_config(consul_mode, ship_ips, datacenter, ship_external_ip,
+                                                            ship_name)
 
     with open(consul_config.CONFIG_PATH, 'w') as config_file:
         config_file.write(consul_config_content)
