@@ -85,6 +85,5 @@ def get_env(container_id, env):
     response.raise_for_status()
     result = response.json()
     if result['status'] != 'ok':
-        raise ArmadaApiException(
-            'Armada API did not return correct status: {0}'.format(result))
+        raise ArmadaApiException('Armada API did not return correct status: {0}'.format(result))
     return result['value']
