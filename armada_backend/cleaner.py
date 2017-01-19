@@ -10,7 +10,8 @@ from armada_command.consul.consul import consul_query
 
 def _get_local_services():
     all_services = consul_query('agent/services')
-    del all_services['consul']
+    if 'consul' in all_services:
+        del all_services['consul']
     return all_services
 
 
