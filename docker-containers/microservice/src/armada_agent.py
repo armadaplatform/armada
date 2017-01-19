@@ -3,10 +3,10 @@ from __future__ import print_function
 import calendar
 import glob
 import json
+import logging
 import os
 import random
 import signal
-import socket
 import subprocess
 import sys
 import threading
@@ -20,6 +20,7 @@ from requests.exceptions import HTTPError
 
 from common.consul import consul_query, consul_post, consul_get, consul_put
 from common.docker_client import get_docker_inspect
+from common.service_discovery import register_service_in_armada, UnsupportedArmadaApiException
 from register_in_service_discovery import REGISTRATION_DIRECTORY
 
 HEALTH_CHECKS_PERIOD = 10
@@ -60,14 +61,16 @@ def _register_service(consul_service_data):
     print_err('Successfully registered.', '\n')
 
 
-def _store_start_timestamp(container_id, container_created_string):
+def _datetime_string_to_timestamp(datetime_string):
     # Converting "2014-12-11T09:24:13.852579969Z" to an epoch timestamp
-    docker_timestamp = container_created_string[:-4]
-    epoch_timestamp = str(calendar.timegm(datetime.strptime(
-        docker_timestamp, "%Y-%m-%dT%H:%M:%S.%f").timetuple()))
+    return calendar.timegm(datetime.strptime(
+        datetime_string[:-4], "%Y-%m-%dT%H:%M:%S.%f").timetuple())
+
+
+def _store_start_timestamp(container_id, container_created_timestamp):
     key = "kv/start_timestamp/" + container_id
     if consul_get(key).status_code == requests.codes.not_found:
-        response = consul_put(key, epoch_timestamp)
+        response = consul_put(key, str(container_created_timestamp))
         assert response.status_code == requests.codes.ok
 
 
@@ -120,21 +123,39 @@ def _register_service_from_file(file_path):
         registration_service_data = json.load(f)
 
     service_id = registration_service_data['service_id']
+    service_name = registration_service_data['service_name']
+    service_port = registration_service_data['service_port']
+    is_single_instance = registration_service_data['is_single_instance']
+    service_tags = _create_tags()
+
+    container_id = service_id.split(':')[0]
+    docker_inspect = get_docker_inspect(container_id)
+    container_created_timestamp = _datetime_string_to_timestamp(docker_inspect["Created"])
+
+    try:
+        register_service_in_armada(service_id, service_name, service_port, service_tags, container_created_timestamp,
+                                   is_single_instance)
+        return
+    except UnsupportedArmadaApiException as e:
+        logging.exception(e)
+        logging.warning("Armada is using older API than service. '--is-single-instance' flag won't be available until "
+                        "armada is upgraded.")
+    except Exception as e:
+        logging.exception(e)
+
     if _exists_service(service_id):
         return
 
     consul_service_data = {
         'ID': service_id,
-        'Name': registration_service_data['service_name'],
-        'Port': registration_service_data['service_port'],
+        'Name': service_name,
+        'Port': service_port,
         'Check': {
             'TTL': '15s',
         }
     }
-
-    tags = _create_tags()
-    if tags:
-        consul_service_data['Tags'] = tags
+    if service_tags:
+        consul_service_data['Tags'] = service_tags
 
     print_err('\nconsul_service_data:\n{0}\n'.format(json.dumps(consul_service_data)))
 
@@ -144,11 +165,8 @@ def _register_service_from_file(file_path):
         print_err('ERROR on registering service:')
         traceback.print_exc()
 
-    container_id = socket.gethostname()
-    docker_inspect = get_docker_inspect(socket.gethostname())
-
     try:
-        _store_start_timestamp(container_id, docker_inspect["Created"])
+        _store_start_timestamp(container_id, container_created_timestamp)
     except:
         print_err('ERROR on storing timestamp:')
         traceback.print_exc()

@@ -1,16 +1,8 @@
-import argparse
+import json
 import os
 import subprocess
-import json
 
-from armada_command.consul import kv
 from armada_utils import get_matched_containers
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='Performs diagnostic check on a microservice')
-    add_arguments(parser)
-    return parser.parse_args()
 
 
 def add_arguments(parser):

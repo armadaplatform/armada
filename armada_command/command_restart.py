@@ -1,18 +1,11 @@
 from __future__ import print_function
 
-import argparse
 import os
 import sys
 import traceback
 
 import armada_api
 import armada_utils
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='Restart running docker containers.')
-    add_arguments(parser)
-    return parser.parse_args()
 
 
 def add_arguments(parser):
@@ -25,7 +18,6 @@ def add_arguments(parser):
     parser.add_argument('--ship', metavar="SHIP_NAME", help="Restart on another ship.", default=None)
     parser.add_argument('-f', '--force', default=False, action='store_true',
                         help="Force restarting on another ship despite mounted volumes or static ports.")
-    parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
 
 
 def command_restart(args):

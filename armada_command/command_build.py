@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import argparse
 import os
 import sys
 
@@ -13,12 +12,6 @@ from armada_command.dockyard.dockyard import dockyard_factory
 from armada_utils import ArmadaCommandException
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description='build armada image')
-    add_arguments(parser)
-    return parser.parse_args()
-
-
 def add_arguments(parser):
     parser.add_argument('microservice_name', nargs='?',
                         help='Name of the microservice to be built. '
@@ -26,7 +19,6 @@ def add_arguments(parser):
     parser.add_argument('-d', '--dockyard',
                         help='Build from image from dockyard with this alias. '
                              "Use 'local' to force using local repository.")
-    parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
     parser.add_argument('-s', '--squash', action='store_true', help='Squash image. Does not work with --file.')
     parser.add_argument('--file', default='Dockerfile',
                         help='Path to the Dockerfile. Does not work with -s/--squash.')

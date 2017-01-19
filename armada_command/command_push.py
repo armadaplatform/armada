@@ -1,22 +1,15 @@
 from __future__ import print_function
 
-import argparse
 import os
 import pwd
 import socket
 
-from armada_command.docker_utils.compatibility import docker_backend
 from armada_command.armada_utils import ArmadaCommandException, execute_local_command
+from armada_command.docker_utils.compatibility import docker_backend
 from armada_command.docker_utils.images import ArmadaImageFactory, InvalidImagePathException
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import print_http_dockyard_unavailability_warning
 from armada_command.dockyard.dockyard import dockyard_factory
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='push armada image to dockyard')
-    add_arguments(parser)
-    return parser.parse_args()
 
 
 def add_arguments(parser):
@@ -26,7 +19,6 @@ def add_arguments(parser):
                              'If not provided it will use MICROSERVICE_NAME env variable.'
                              'You can also override default registry address, by passing full image path,  '
                              'e.g. dockyard.example.com:5000/my-service')
-    parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
     parser.add_argument('-d', '--dockyard',
                         help='Push image to dockyard with this alias.')
 

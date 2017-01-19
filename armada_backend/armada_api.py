@@ -2,6 +2,7 @@ import os
 
 import web
 
+from api_register import Register
 from armada_backend.api_create import Create
 from armada_backend.api_env import GetEnv
 from armada_backend.api_images import Images
@@ -29,7 +30,7 @@ def _get_module_path_to_class(c):
 
 
 def main():
-    reload = os.environ.get('ARMADA_AUTORELOAD') == 'true'
+    autoreload = os.environ.get('ARMADA_AUTORELOAD') == 'true'
     urls = (
         '/health', Health.__name__,
 
@@ -44,6 +45,7 @@ def main():
         '/stop', _get_module_path_to_class(Stop),
         '/restart', _get_module_path_to_class(Restart),
         '/recover', _get_module_path_to_class(Recover),
+        '/register', _get_module_path_to_class(Register),
 
         '/ssh-address', _get_module_path_to_class(SshAddress),
         '/hermes_address', _get_module_path_to_class(HermesAddress),
@@ -53,7 +55,7 @@ def main():
         '/list', _get_module_path_to_class(List),
         '/info', _get_module_path_to_class(Info),
     )
-    app = web.application(urls, globals(), autoreload=reload)
+    app = web.application(urls, globals(), autoreload=autoreload)
     app.run()
 
 

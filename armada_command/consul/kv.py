@@ -1,11 +1,13 @@
 import base64
-import json
 import calendar
-import time
+import json
 import os
+import time
+
 import requests
 
 from armada_command.consul.consul import consul_put, consul_delete, consul_query
+from armada_command.exceptions import ArmadaApiException
 
 DOCKER_SOCKET_PATH = '/var/run/docker.sock'
 
@@ -29,7 +31,7 @@ def kv_list(key):
     return consul_query('kv/{key}?keys'.format(**locals()))
 
 
-def save_service(ship, container_id, status, params=None):
+def save_container(ship, container_id, status, params=None):
     try:
         start_timestamp = kv_get('start_timestamp/{}'.format(container_id))
     except:
@@ -54,7 +56,7 @@ def save_service(ship, container_id, status, params=None):
     kv_set('ships/{}/service/{}/{}'.format(ship, name, container_id), service_dict)
 
 
-def update_service_status(status, ship=None, name=None, container_id=None, key=None):
+def update_container_status(status, ship=None, name=None, container_id=None, key=None):
     if not key:
         key = 'ships/{}/service/{}/{}'.format(ship, name, container_id)
     service_dict = kv_get(key)
@@ -83,5 +85,6 @@ def get_env(container_id, env):
     response.raise_for_status()
     result = response.json()
     if result['status'] != 'ok':
-        raise ArmadaApiException('Armada API did not return correct status: {0}'.format(result))
+        raise ArmadaApiException(
+            'Armada API did not return correct status: {0}'.format(result))
     return result['value']

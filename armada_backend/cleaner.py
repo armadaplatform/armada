@@ -2,7 +2,7 @@ import random
 import time
 
 from armada_backend import docker_client
-from armada_backend.utils import deregister_services, shorten_container_id, get_container_parameters, get_ship_ip, \
+from armada_backend.utils import deregister_services, shorten_container_id, get_ship_ip, \
     get_ship_name, setup_sentry
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
@@ -39,15 +39,35 @@ def _deregister_not_running_services():
             continue
         if not is_subservice:
             name = services[service_id]['Service']
-            kv.update_service_status('crashed', ship=ship, name=name, container_id=container_id)
+            kv.update_container_status('crashed', ship=ship, name=name, container_id=container_id)
         deregister_services(container_id)
 
-    services_ids = kv.kv_list('ships/{}/service/'.format(ship)) or []
-    for service_id in services_ids:
-        container_id = service_id.split('/')[-1]
+    all_valid_container_ids = set()
+    all_valid_container_ids.update(running_containers_ids)
+
+    services_keys = kv.kv_list('ships/{}/service/'.format(ship)) or []
+    for service_key in services_keys:
+        container_id = service_key.split('/')[-1]
+        all_valid_container_ids.add(container_id)
         if container_id not in running_containers_ids:
-            kv.update_service_status('crashed', key=service_id)
+            kv.update_container_status('crashed', key=service_key)
             deregister_services(container_id)
+
+    _clean_up_kv_store(all_valid_container_ids)
+
+
+def _clean_up_kv_store(all_valid_container_ids):
+    start_timestamp_keys = kv.kv_list('start_timestamp/') or []
+    for key in start_timestamp_keys:
+        container_id = key.split('/')[-1]
+        if container_id not in all_valid_container_ids:
+            kv.kv_remove(key)
+
+    is_single_instance_keys = kv.kv_list('is_single_instance/') or []
+    for key in is_single_instance_keys:
+        container_id = key.split('/')[-1].split(':')[0]
+        if container_id not in all_valid_container_ids:
+            kv.kv_remove(key)
 
 
 def main():

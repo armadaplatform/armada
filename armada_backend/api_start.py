@@ -1,7 +1,7 @@
 from armada_backend import api_base, docker_client
 from armada_backend.utils import shorten_container_id, get_ship_name
+from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
-from armada_command.consul.kv import save_service
 
 
 class Start(api_base.ApiCommand):
@@ -17,7 +17,7 @@ class Start(api_base.ApiCommand):
 
         ship = get_ship_name()
         container_id = shorten_container_id(long_container_id)
-        save_service(ship, container_id, status='started')
+        kv.save_container(ship, container_id, status='started')
 
         for container_port, host_address in docker_inspect['NetworkSettings']['Ports'].items():
             service_endpoints['{0}:{1}'.format(service_ip, host_address[0]['HostPort'])] = container_port

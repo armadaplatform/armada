@@ -8,11 +8,8 @@ import traceback
 import requests
 
 from armada_command.consul.consul import consul_query
+from armada_command.exceptions import ArmadaApiException
 from armada_utils import is_verbose, print_err, ship_name_to_ip, is_ip
-
-
-class ArmadaApiException(Exception):
-    pass
 
 
 def __are_we_in_armada_container():

@@ -1,16 +1,9 @@
 from __future__ import print_function
 
-import argparse
 import json
 import sys
 
 import armada_api
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='Recover saved containers from file.')
-    add_arguments(parser)
-    return parser.parse_args()
 
 
 def add_arguments(parser):

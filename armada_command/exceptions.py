@@ -1,0 +1,2 @@
+class ArmadaApiException(Exception):
+    pass

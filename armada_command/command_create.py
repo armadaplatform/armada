@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import argparse
 import os
 import shutil
 import tempfile
@@ -9,18 +8,11 @@ from armada_command.armada_utils import execute_local_command, ArmadaCommandExce
 from armada_command.dockyard import dockyard
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description='Create skeleton for new microservice.')
-    add_arguments(parser)
-    return parser.parse_args()
-
-
 def add_arguments(parser):
     parser.add_argument('name',
                         help='Name of the created microservice.')
     parser.add_argument('-b', '--base-template', default='python',
                         help='Base microservice template. Possible choices: python, python3, node')
-    parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
 
 
 def _replace_in_file_content(file_path, old, new):

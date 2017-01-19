@@ -8,12 +8,6 @@ import shlex
 import armada_utils
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description='ssh into docker container.')
-    add_arguments(parser)
-    return parser.parse_args()
-
-
 def add_arguments(parser):
     parser.add_argument('microservice_name', nargs='?',
                         help='Name of the microservice or container_id to ssh into. '
@@ -36,8 +30,8 @@ def prompt_select_instance(instances):
     template = "\t{i}) {name} {address}:{port} {id} {local}"
     for i, instance in enumerate(instances):
         local = "(local)" if armada_utils.is_local_container(instance['ServiceID']) else ""
-        print(template.format(i=i+1, name=instance['ServiceName'], address=instance['Address'], port=instance['ServicePort'],
-                              id=instance['ServiceID'],  local=local))
+        print(template.format(i=i + 1, name=instance['ServiceName'], address=instance['Address'],
+                              port=instance['ServicePort'], id=instance['ServiceID'], local=local))
     try:
         selection = int(raw_input("Please select one: "))
         if 0 >= selection > len(instances):
