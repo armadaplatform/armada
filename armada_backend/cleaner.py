@@ -65,9 +65,6 @@ def _clean_up_kv_store():
 
     services = armada_api.get_json('list')
     valid_container_ids = set(service.get('container_id') for service in services)
-    sys.stderr.write('services={} valid_containter_ids={}'.format(json.dumps(services, indent=4),
-                                                                  json.dumps(list(valid_container_ids), indent=4)))
-    sys.stderr.flush()
 
     start_timestamp_keys = kv.kv_list('start_timestamp/') or []
     for key in start_timestamp_keys:
