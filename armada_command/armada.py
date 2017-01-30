@@ -22,6 +22,7 @@ import command_ssh
 import command_stop
 import command_version
 from _version import __version__
+from armada_command import command_shutdown
 from armada_command.scripts.update import version_check
 from armada_logging import log_command
 from armada_utils import set_verbose, is_verbose
@@ -50,7 +51,8 @@ def parse_args():
 
     parser_shutdown_help = 'gently remove ship from armada and prepare for service shutdown'
     parser_shutdown = subparsers.add_parser('shutdown', help=parser_shutdown_help, description=parser_shutdown_help)
-    parser_shutdown.set_defaults(func=command_shutdown)
+    command_shutdown.add_arguments(parser_shutdown)
+    parser_shutdown.set_defaults(func=command_shutdown.command_shutdown)
 
     parser_dockyard_help = 'manage dockyard aliases'
     parser_dockyard = subparsers.add_parser('dockyard', help=parser_dockyard_help, description=parser_dockyard_help)
@@ -132,11 +134,6 @@ def command_join(args):
 
 def command_promote(args):
     result = armada_api.post('promote')
-    armada_api.print_result_from_armada_api(result)
-
-
-def command_shutdown(args):
-    result = armada_api.post('shutdown')
     armada_api.print_result_from_armada_api(result)
 
 

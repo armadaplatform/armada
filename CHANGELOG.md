@@ -7,10 +7,13 @@
     have at most one available (status 'passing' or 'warning') instance in armada service discovery mechanisms. The
     other instances will receive status 'standby'.
 - Add `-vv/--verbose` flag to all armada commands.
+- `armada shutdown` now removes by default previously joined ships from `/opt/armada/runtime_settings.json`. Use
+    `--keep-joined` flag for old behavior.
 
 ### Bug fixes
 - Fix building pip packages in `microservice_python3`.
 - Fixed cleaning crashed services on not promoted ships.
+- Fix stop and restart of armada service on systemd.
 
 ## 1.11.0 (2017-01-13)
 
