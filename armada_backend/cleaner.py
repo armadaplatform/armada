@@ -1,8 +1,7 @@
 import json
 import random
-import time
-
 import sys
+import time
 
 from armada_backend import docker_client
 from armada_backend.utils import deregister_services, shorten_container_id, get_ship_ip, \
@@ -55,14 +54,14 @@ def _deregister_not_running_services():
             deregister_services(container_id)
 
 
-next_kv_clean_up_timestamp = time.time() # + random.randint(3600, 2 * 3600)
+next_kv_clean_up_timestamp = time.time() + random.randint(3600, 2 * 3600)
 
 
 def _clean_up_kv_store():
     global next_kv_clean_up_timestamp
     if time.time() < next_kv_clean_up_timestamp:
         return
-    next_kv_clean_up_timestamp = time.time() # + random.randint(3 * 3600, 5 * 3600)
+    next_kv_clean_up_timestamp = time.time() + random.randint(3 * 3600, 5 * 3600)
 
     services = armada_api.get_json('list')
     valid_container_ids = set(service.get('container_id') for service in services)

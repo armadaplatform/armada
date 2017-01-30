@@ -74,6 +74,10 @@ def deregister_services(container_id):
                 kv.kv_remove("start_timestamp/" + container_id)
             except Exception as e:
                 get_logger().exception(e)
+            try:
+                kv.kv_remove("is_single_instance/" + service_id)
+            except Exception as e:
+                get_logger().exception(e)
 
 
 def get_external_ip():

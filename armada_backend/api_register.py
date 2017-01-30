@@ -17,9 +17,7 @@ def _exists_service(service_id):
 
 def register_service_in_consul(microservice_data):
     if _exists_service(microservice_data['microservice_id']):
-        sys.stderr.write('{} exists\n'.format(microservice_data['microservice_id']))
         return
-    sys.stderr.write('{} not exists\n'.format(microservice_data['microservice_id']))
     consul_service_data = {
         'ID': microservice_data['microservice_id'],
         'Name': microservice_data['microservice_name'],
