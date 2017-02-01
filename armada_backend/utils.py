@@ -75,7 +75,7 @@ def deregister_services(container_id):
             except Exception as e:
                 get_logger().exception(e)
             try:
-                kv.kv_remove("is_single_instance/" + service_id)
+                kv.kv_remove("single_active_instance/" + service_id)
             except Exception as e:
                 get_logger().exception(e)
 

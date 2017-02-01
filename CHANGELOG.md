@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- Add flag `--is-single-instance` to `register_in_service_discovery.py` script. Services registered with this flag will
+- Add flag `--single-active-instance` to `register_in_service_discovery.py` script. Services registered with this flag will
     have at most one available (status 'passing' or 'warning') instance in armada service discovery mechanisms. The
     other instances will receive status 'standby'.
 - Add `-vv/--verbose` flag to all armada commands.

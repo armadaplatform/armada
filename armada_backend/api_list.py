@@ -69,9 +69,9 @@ class List(api_base.ApiCommand):
                         except:
                             microservice_start_timestamp = None
                         try:
-                            is_single_instance = kv.kv_get("is_single_instance/" + microservice_id)
+                            single_active_instance = kv.kv_get("single_active_instance/" + microservice_id)
                         except:
-                            is_single_instance = False
+                            single_active_instance = False
                         microservice_dict = {
                             'name': microservice_name,
                             'address': microservice_address,
@@ -80,13 +80,13 @@ class List(api_base.ApiCommand):
                             'status': microservice_computed_status,
                             'tags': microservice_tags_dict,
                             'start_timestamp': microservice_start_timestamp,
-                            'is_single_instance': is_single_instance,
+                            'single_active_instance': single_active_instance,
                         }
                         services_list_from_catalog[microservice_id] = microservice_dict
 
             result = services_list
             result.update(services_list_from_catalog)
-            result = _choose_single_instances(result)
+            result = _choose_active_instances(result)
             return self.status_ok({'result': result.values()})
         except Exception as e:
             return self.status_exception("Cannot get the list of services.", e)
@@ -121,7 +121,7 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
         microservice_id = service_dict['ServiceID']
         container_id = service_dict['container_id']
         microservice_start_timestamp = service_dict['start_timestamp']
-        is_single_instance = service_dict.get('is_single_instance', False)
+        single_active_instance = service_dict.get('single_active_instance', False)
         not_available = 'n/a'
 
         microservice_tags_dict = {}
@@ -145,25 +145,25 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
                 'container_id': container_id,
                 'tags': microservice_tags_dict,
                 'start_timestamp': microservice_start_timestamp,
-                'is_single_instance': is_single_instance,
+                'single_active_instance': single_active_instance,
             }
             result[microservice_id] = microservice_dict
     return result
 
 
-def _choose_single_instances(services_dicts):
+def _choose_active_instances(services_dicts):
     result = services_dicts
-    running_services_with_single_instances = {}
+    running_services_with_single_active_instances = {}
     for microservice_id, service_dict in services_dicts.items():
-        if service_dict.get('is_single_instance') and service_dict['status'] in ('passing', 'warning'):
-            key = 'chosen_single_instance/{},env={},app_id={}'.format(service_dict['name'],
+        if service_dict.get('single_active_instance') and service_dict['status'] in ('passing', 'warning'):
+            key = 'chosen_active_instance/{},env={},app_id={}'.format(service_dict['name'],
                                                                       service_dict['tags'].get('env') or '',
                                                                       service_dict['tags'].get('app_id') or '')
-            if key not in running_services_with_single_instances:
-                running_services_with_single_instances[key] = set()
-            running_services_with_single_instances[key].add(microservice_id)
+            if key not in running_services_with_single_active_instances:
+                running_services_with_single_active_instances[key] = set()
+            running_services_with_single_active_instances[key].add(microservice_id)
 
-    for key, running_microservice_ids in running_services_with_single_instances.items():
+    for key, running_microservice_ids in running_services_with_single_active_instances.items():
         currently_picked_instance = kv.kv_get(key)
         if currently_picked_instance not in running_microservice_ids:
             currently_picked_instance = random.choice(list(running_microservice_ids))

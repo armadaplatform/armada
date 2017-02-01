@@ -31,14 +31,14 @@ def get_service_to_addresses():
 
 
 def register_service_in_armada(microservice_id, microservice_name, microservice_port, microservice_tags,
-                               container_created_timestamp, is_single_instance):
+                               container_created_timestamp, single_active_instance):
     post_data = {
         'microservice_id': microservice_id,
         'microservice_name': microservice_name,
         'microservice_port': microservice_port,
         'microservice_tags': microservice_tags,
         'container_created_timestamp': container_created_timestamp,
-        'is_single_instance': is_single_instance,
+        'single_active_instance': single_active_instance,
     }
     response = requests.post(_get_armada_url() + 'register', json=post_data)
     if response.status_code == 404 and response.text == 'not found':

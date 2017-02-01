@@ -125,7 +125,7 @@ def _register_service_from_file(file_path):
     service_id = registration_service_data['service_id']
     service_name = registration_service_data['service_name']
     service_port = registration_service_data['service_port']
-    is_single_instance = registration_service_data['is_single_instance']
+    single_active_instance = registration_service_data['single_active_instance']
     service_tags = _create_tags()
 
     container_id = service_id.split(':')[0]
@@ -134,12 +134,12 @@ def _register_service_from_file(file_path):
 
     try:
         register_service_in_armada(service_id, service_name, service_port, service_tags, container_created_timestamp,
-                                   is_single_instance)
+                                   single_active_instance)
         return
     except UnsupportedArmadaApiException as e:
         logging.exception(e)
-        logging.warning("Armada is using older API than service. '--is-single-instance' flag won't be available until "
-                        "armada is upgraded.")
+        logging.warning("Armada is using older API than service. '--single-active-instance' flag won't be available "
+                        "until armada is upgraded.")
     except Exception as e:
         logging.exception(e)
 

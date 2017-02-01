@@ -72,8 +72,8 @@ def _clean_up_kv_store():
         if container_id not in valid_container_ids:
             kv.kv_remove(key)
 
-    is_single_instance_keys = kv.kv_list('is_single_instance/') or []
-    for key in is_single_instance_keys:
+    single_active_instance_keys = kv.kv_list('single_active_instance/') or []
+    for key in single_active_instance_keys:
         container_id = key.split('/')[-1].split(':')[0]
         if container_id not in valid_container_ids:
             kv.kv_remove(key)

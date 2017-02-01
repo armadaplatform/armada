@@ -34,8 +34,8 @@ def register_service_in_consul(microservice_data):
 
     kv_set('start_timestamp/{}'.format(container_id), str(microservice_data['container_created_timestamp']))
 
-    key = 'is_single_instance/{}'.format(microservice_data['microservice_id'])
-    if microservice_data.get('is_single_instance'):
+    key = 'single_active_instance/{}'.format(microservice_data['microservice_id'])
+    if microservice_data.get('single_active_instance'):
         kv_set(key, True)
     else:
         kv_remove(key)
