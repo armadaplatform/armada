@@ -5,9 +5,7 @@ import os
 
 import requests
 from raven import Client, setup_logging
-
 from raven.contrib.webpy.utils import get_data_from_request
-
 from raven.handlers.logging import SentryHandler
 
 from armada_backend import docker_client
@@ -74,6 +72,10 @@ def deregister_services(container_id):
             consul_get('agent/service/deregister/{service_id}'.format(**locals()))
             try:
                 kv.kv_remove("start_timestamp/" + container_id)
+            except Exception as e:
+                get_logger().exception(e)
+            try:
+                kv.kv_remove("single_active_instance/" + service_id)
             except Exception as e:
                 get_logger().exception(e)
 
@@ -185,8 +187,8 @@ def get_local_containers_ids():
     response.raise_for_status()
     list_response = response.json()
     services_from_api = list_response['result']
-    return list(set(service['container_id'] for service in services_from_api if service['status'] not in ['recovering',
-                                                                                                  'crashed']))
+    return list(set(service['container_id']
+                    for service in services_from_api if service['status'] not in ['recovering', 'crashed']))
 
 
 def is_container_running(container_id):

@@ -1,18 +1,17 @@
 from __future__ import print_function
 
+import json
 import os
 import sys
 import time
-import json
+from distutils.version import StrictVersion
 from functools import wraps
 from subprocess import Popen
-from distutils.version import StrictVersion
 
 from armada_command import armada_api
-from armada_command.ship_config import get_ship_config
-from armada_command.scripts.utils import suppress_exception, get_logger, SyncOpen, is_valid_response
 from armada_command.scripts.update_config import VERSION_CACHE_FILE_PATH, SYNC_INTERVAL, DISPLAY_INTERVAL
-
+from armada_command.scripts.utils import suppress_exception, get_logger, SyncOpen, is_valid_response
+from armada_command.ship_config import get_ship_config
 
 logger = get_logger(__file__)
 
@@ -60,7 +59,7 @@ def _version_check():
 
         message = 'You are using armada version {}, however version {} is available. ' \
                   'You should consider upgrading armada via "bash <(curl -sL http://armada.sh/install)"' \
-                  .format(armada_api.get('version'), data['latest_version'])
+            .format(armada_api.get('version'), data['latest_version'])
         print('\n' + message, file=sys.stderr)
 
         data['displayed'] = time.time()
@@ -76,6 +75,7 @@ def _check_for_updates():
     except ValueError:
         return 1
 
+
 _suppress_check = 'SUPPRESS_VERSION_CHECK' in os.environ
 
 
@@ -85,4 +85,5 @@ def version_check(fun):
         fun()
         if not _suppress_check and _check_for_updates() and _valid_cache():
             _version_check()
+
     return wrapper

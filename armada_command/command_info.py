@@ -1,21 +1,10 @@
 from __future__ import print_function
 
-import argparse
 import sys
 from collections import Counter
 
 import armada_api
 from armada_utils import print_table
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='Show list of ships within current armada.')
-    add_arguments(parser)
-    return parser.parse_args()
-
-
-def add_arguments(parser):
-    parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
 
 
 def command_info(args):

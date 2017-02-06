@@ -9,7 +9,7 @@ import time
 import haproxy
 
 sys.path.append('/opt/microservice/src')
-import common.consul
+import common.service_discovery
 
 MICROSERVICE_ENV = os.environ.get('MICROSERVICE_ENV') or None
 MICROSERVICE_APP_ID = os.environ.get('MICROSERVICE_APP_ID') or None
@@ -71,7 +71,7 @@ def main():
         try:
             port_to_services = read_magellan_configs()
             if port_to_services is not None:
-                service_to_addresses = common.consul.get_service_to_addresses()
+                service_to_addresses = common.service_discovery.get_service_to_addresses()
                 port_to_addresses = match_port_to_addresses(port_to_services, service_to_addresses)
                 haproxy.update_from_mapping(port_to_addresses)
         except Exception as e:

@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import argparse
 import os
 import sys
 import traceback
@@ -8,13 +7,6 @@ import traceback
 import armada_api
 import armada_utils
 from armada_command.armada_utils import ArmadaCommandException
-from armada_command.consul import kv
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='Stop running docker containers.')
-    add_arguments(parser)
-    return parser.parse_args()
 
 
 def add_arguments(parser):

@@ -1,9 +1,12 @@
+import json
 import random
+import sys
 import time
 
 from armada_backend import docker_client
-from armada_backend.utils import deregister_services, shorten_container_id, get_container_parameters, get_ship_ip, \
+from armada_backend.utils import deregister_services, shorten_container_id, get_ship_ip, \
     get_ship_name, setup_sentry
+from armada_command import armada_api
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
 
@@ -40,21 +43,47 @@ def _deregister_not_running_services():
             continue
         if not is_subservice:
             name = services[service_id]['Service']
-            kv.update_service_status('crashed', ship=ship, name=name, container_id=container_id)
+            kv.update_container_status('crashed', ship=ship, name=name, container_id=container_id)
         deregister_services(container_id)
 
-    services_ids = kv.kv_list('ships/{}/service/'.format(ship)) or []
-    for service_id in services_ids:
-        container_id = service_id.split('/')[-1]
+    services_keys = kv.kv_list('ships/{}/service/'.format(ship)) or []
+    for service_key in services_keys:
+        container_id = service_key.split('/')[-1]
         if container_id not in running_containers_ids:
-            kv.update_service_status('crashed', key=service_id)
+            kv.update_container_status('crashed', key=service_key)
             deregister_services(container_id)
+
+
+next_kv_clean_up_timestamp = time.time() + random.randint(3600, 2 * 3600)
+
+
+def _clean_up_kv_store():
+    global next_kv_clean_up_timestamp
+    if time.time() < next_kv_clean_up_timestamp:
+        return
+    next_kv_clean_up_timestamp = time.time() + random.randint(3 * 3600, 5 * 3600)
+
+    services = armada_api.get_json('list')
+    valid_container_ids = set(service.get('container_id') for service in services)
+
+    start_timestamp_keys = kv.kv_list('start_timestamp/') or []
+    for key in start_timestamp_keys:
+        container_id = key.split('/')[-1]
+        if container_id not in valid_container_ids:
+            kv.kv_remove(key)
+
+    single_active_instance_keys = kv.kv_list('single_active_instance/') or []
+    for key in single_active_instance_keys:
+        container_id = key.split('/')[-1].split(':')[0]
+        if container_id not in valid_container_ids:
+            kv.kv_remove(key)
 
 
 def main():
     setup_sentry()
     while True:
         _deregister_not_running_services()
+        _clean_up_kv_store()
         time.sleep(60 + random.uniform(-5, 5))
 
 

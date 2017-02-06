@@ -3,7 +3,7 @@ import fnmatch
 from armada_backend import api_base, docker_client
 from armada_backend.utils import deregister_services, is_container_running, get_logger, run_command_in_container
 from armada_backend.utils import get_ship_name
-from armada_command.consul.kv import kv_remove, kv_list, kv_get
+from armada_command.consul.kv import kv_remove, kv_list
 
 
 class Stop(api_base.ApiCommand):

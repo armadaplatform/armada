@@ -1,4 +1,5 @@
 #!/bin/bash
+
 BASE=armada
 
 # modify these in /etc/default/$BASE (/etc/default/armada)
@@ -15,9 +16,8 @@ DOCKER_PID_FILE='/var/run/docker.pid'
 
 PATH=$PATH:/usr/local/bin
 
-log_message()
-{
-    current_time=`date "+%Y-%m-%d %H:%M:%S"`
+log_message() {
+    current_time=$(date "+%Y-%m-%d %H:%M:%S")
     echo $1
     echo "[${current_time}] $1" >> ${ARMADA_LOGFILE}
 }
@@ -31,7 +31,7 @@ if [ -f /opt/armada/version ]; then
 fi
 
 
-notify(){
+notify() {
     echo "${1}"
     systemctl --version > /dev/null 2>&1
     if [ $? == 0 ]; then
@@ -69,11 +69,11 @@ fail_unless_can_run_docker() {
 }
 
 fail_if_armada_is_running() {
-    armada_containerid=`cat "${ARMADA_CONTAINERID_FILE}" 2>/dev/null`
+    armada_containerid=$(cat "${ARMADA_CONTAINERID_FILE}" 2>/dev/null)
     if [ -n "${armada_containerid}" ]; then
         docker inspect ${armada_containerid} > /dev/null 2>&1
         if [ "$?" == "0" ]; then
-            echo "Container ID file found: ${ARMADA_CONTAINERID_FILE}. Remove it before restarting armada."
+            echo "Container ID file found: ${ARMADA_CONTAINERID_FILE} Remove it before restarting armada."
             exit 1
         fi
     fi
@@ -102,10 +102,13 @@ wait_for_armada_running() {
 
 stop_armada() {
     armada_containerid=$(cat "${ARMADA_CONTAINERID_FILE}" 2>/dev/null)
-    [ -n "${armada_containerid}" ] \
-        && docker inspect ${armada_containerid} > /dev/null 2>&1 \
-        && armada shutdown \
-        && docker rm -f ${armada_containerid}
+    if [ -n "${armada_containerid}" ]; then
+        docker inspect ${armada_containerid} > /dev/null 2>&1
+        if [ $? == 0 ]; then
+            armada shutdown --keep-joined
+            docker rm -f ${armada_containerid}
+        fi
+    fi
     rm -f "${ARMADA_CONTAINERID_FILE}" 2>/dev/null
     rm -f "${ARMADA_LOCK_FILE}" 2>/dev/null
     notify --status="${ARMADA_DESC} has been stopped"
@@ -124,7 +127,7 @@ get_docker_start_timestamp() {
     date -d "$(ps -p $docker_pid -o lstart=)" +'%s'
 }
 
-remove_services(){
+remove_services() {
     ship_name=$(armada info 2>/dev/null | grep '\->' | awk '{print $2}')
     ship_ip=$(armada info 2>/dev/null | grep '\->' | awk '{split($4,a,":"); print a[1]}')
     if [ "$ship_name" == "armada" ]; then
@@ -146,8 +149,6 @@ case "$1" in
         log_message "Starting ${ARMADA_DESC}..."
 
         fail_if_armada_is_running
-
-        docker rm -f `docker ps -a | grep "8300->8300" | awk '{print $1}'` 2>/dev/null
 
         set_external_ip
 
@@ -174,11 +175,11 @@ case "$1" in
             -e DOCKER_START_TIMESTAMP=${docker_start_timestamp} \
             -e RESTRICT_CUSTOM_CONFIG_DIRS=${RESTRICT_CUSTOM_CONFIG_DIRS}"
 
-        if [ "${privileged}" == "true" -o "${privileged}" == "True" ]; then
+        if [ "${privileged,,}" == "true" ]; then
             run_options+=" --privileged=true"
         fi
 
-        if [ "$ARMADA_AUTORELOAD" == "true" ]; then
+        if [ "${ARMADA_AUTORELOAD,,}" == "true" ]; then
             run_options+=" -v /opt/armada-src/armada_backend:/opt/armada-docker/armada_backend -e ARMADA_AUTORELOAD=true"
         fi
 
@@ -228,7 +229,7 @@ case "$1" in
         ;;
 
     status)
-        armada_containerid=`cat "${ARMADA_CONTAINERID_FILE}" 2>/dev/null`
+        armada_containerid=$(cat "${ARMADA_CONTAINERID_FILE}" 2>/dev/null)
         if [ ! -n "${armada_containerid}" ]; then
             echo ${ARMADA_DESC} is not running.
             exit 1

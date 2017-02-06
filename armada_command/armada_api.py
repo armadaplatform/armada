@@ -7,12 +7,10 @@ import traceback
 
 import requests
 
-from armada_command.consul.consul import consul_query
+from armada_command.consul.consul import consul_query, ConsulException
+from armada_command.exceptions import ArmadaApiException
+from armada_command.scripts.utils import get_logger
 from armada_utils import is_verbose, print_err, ship_name_to_ip, is_ip
-
-
-class ArmadaApiException(Exception):
-    pass
 
 
 def __are_we_in_armada_container():
@@ -23,10 +21,14 @@ def __get_armada_address(ship_name=None):
     if not ship_name:
         if __are_we_in_armada_container():
             return 'http://127.0.0.1'
-        agent_services_dict = consul_query('agent/services')
-        for service in agent_services_dict.values():
-            if service['Service'] == 'armada':
-                return 'http://127.0.0.1:{}'.format(service['Port'])
+        try:
+            agent_services_dict = consul_query('agent/services')
+            for service in agent_services_dict.values():
+                if service['Service'] == 'armada':
+                    return 'http://127.0.0.1:{}'.format(service['Port'])
+        except ConsulException as e:
+            get_logger(__file__).warning('Could not get armada port from consul ({}), falling back to 8900.'.format(e))
+            return 'http://127.0.0.1:8900'
     else:
         if not is_ip(ship_name):
             ship_ip = ship_name_to_ip(ship_name)

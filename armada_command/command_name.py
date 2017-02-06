@@ -1,16 +1,8 @@
-import argparse
-
 import armada_api
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="Get/Set name for this ship.")
-    return parser.parse_args()
 
 
 def add_arguments(parser):
     parser.add_argument('name', help='New name for the ship', nargs='?', default='')
-    parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
 
 
 def command_name(args):
