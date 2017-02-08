@@ -1,11 +1,9 @@
-import json
 import random
-import sys
 import time
 
 from armada_backend import docker_client
 from armada_backend.utils import deregister_services, shorten_container_id, get_ship_ip, \
-    get_ship_name, setup_sentry
+    get_ship_name, setup_sentry, get_logger
 from armada_command import armada_api
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
@@ -54,14 +52,19 @@ def _deregister_not_running_services():
             deregister_services(container_id)
 
 
-next_kv_clean_up_timestamp = time.time() + random.randint(3600, 2 * 3600)
+def get_next_kv_clean_up_timestamp():
+    return time.time() + random.randint(30 * 60, 60 * 60)
+
+
+next_kv_clean_up_timestamp = get_next_kv_clean_up_timestamp()
 
 
 def _clean_up_kv_store():
     global next_kv_clean_up_timestamp
     if time.time() < next_kv_clean_up_timestamp:
         return
-    next_kv_clean_up_timestamp = time.time() + random.randint(3 * 3600, 5 * 3600)
+    get_logger().info('Cleaning up kv-store:')
+    next_kv_clean_up_timestamp = get_next_kv_clean_up_timestamp()
 
     services = armada_api.get_json('list')
     valid_container_ids = set(service.get('container_id') for service in services)
@@ -70,13 +73,16 @@ def _clean_up_kv_store():
     for key in start_timestamp_keys:
         container_id = key.split('/')[-1]
         if container_id not in valid_container_ids:
+            get_logger().info('Removing key: {}'.format(key))
             kv.kv_remove(key)
 
     single_active_instance_keys = kv.kv_list('single_active_instance/') or []
     for key in single_active_instance_keys:
         container_id = key.split('/')[-1].split(':')[0]
         if container_id not in valid_container_ids:
+            get_logger().info('Removing key: {}'.format(key))
             kv.kv_remove(key)
+    get_logger().info('Finished cleaning up kv-store.')
 
 
 def main():
