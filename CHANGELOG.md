@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Log info about removed kv entries in armada cleaner.
+
 ## 1.12.0 (2017-02-06)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
