@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fix running `add-apt-repository` in `microservice_python3`.
+- Fix building armada development version.
+
+### Improvements
+- Log exceptions in consul query.
+
 ## 1.12.1 (2017-02-21)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
