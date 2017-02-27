@@ -10,6 +10,8 @@ RUN rm /usr/bin/x86_64-linux-gnu-gcc && ln -s /usr/bin/x86_64-linux-gnu-gcc-4.9 
 RUN rm /usr/bin/python3 && ln -s /usr/bin/python3.6 /usr/bin/python3
 RUN cd /tmp && wget https://bootstrap.pypa.io/get-pip.py && sync && python3 get-pip.py && rm get-pip.py
 RUN pip3 install -U requests armada
+#pin python to version 3.4
+RUN sed -i 's/\/usr\/bin\/python3/\/usr\/bin\/python3.4/' /usr/bin/add-apt-repository
 
 ADD . /opt/microservice_python3
 
