@@ -21,3 +21,5 @@ python ${TAG_CMD} ${DOCKYARD_ADDRESS}/${BASE_IMAGE_NAME} ${BASE_IMAGE_NAME}
 
 echo "Building image \"${IMAGE_NAME}\" from path ${IMAGE_PATH} ..."
 docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_PATH}
+
+sudo sh -c "echo ARMADA_VERSION=\"${IMAGE_TAG}\" > /opt/armada/version"
