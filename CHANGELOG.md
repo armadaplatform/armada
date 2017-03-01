@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.12.2 (2017-03-01)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
 
 ### Bug fixes
 - Fix running `add-apt-repository` in `microservice_python3`.
