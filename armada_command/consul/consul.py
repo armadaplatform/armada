@@ -2,8 +2,12 @@ import json
 
 import requests
 
+from armada_command.scripts.utils import get_logger
+
 CONSUL_ADDRESS = 'localhost:8500'
 CONSUL_TIMEOUT_IN_SECONDS = 10
+
+logger = get_logger(__file__)
 
 
 class ConsulException(Exception):
@@ -46,5 +50,10 @@ def consul_query(query, consul_address=None):
         if response.status_code == 404:
             return None
         return json.loads(response.text)
-    except:
+    except Exception as e:
+        if 'response' in locals() and hasattr(response, 'text'):
+            logger.debug(response.text)
+
+        logger.debug(e, exc_info=True)
+
         raise ConsulException(url=__get_consul_url(query, consul_address))
