@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- (EXPERIMENTAL) Stub of new command `armada deploy`, currently it can only restart services and may be unstable. In
+- **[EXPERIMENTAL]** Stub of new command `armada deploy`, currently it can only restart services and may be unstable. In
     the future it will restart and run missing instances up to the requested number.
 
 ## 1.12.2 (2017-03-01)
