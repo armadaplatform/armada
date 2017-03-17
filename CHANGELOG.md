@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- (EXPERIMENTAL) Stub of new command `armada deploy`, currently it can only restart services and may be unstable. In
+    the future it will restart and run missing instances up to the requested number.
+
 ## 1.12.2 (2017-03-01)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.

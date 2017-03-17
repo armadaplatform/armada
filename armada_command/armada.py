@@ -22,6 +22,7 @@ import command_ssh
 import command_stop
 import command_version
 from _version import __version__
+from armada_command import command_deploy
 from armada_command import command_shutdown
 from armada_command.scripts.update import version_check
 from armada_logging import log_command
@@ -72,6 +73,11 @@ def parse_args():
     parser_run = subparsers.add_parser('run', help=parser_run_help, description=parser_run_help)
     command_run.add_arguments(parser_run)
     parser_run.set_defaults(func=command_run.command_run)
+
+    parser_deploy_help = 'EXPERIMENTAL! deploy (restart and run) microservices'
+    parser_deploy = subparsers.add_parser('deploy', help=parser_deploy_help, description=parser_deploy_help)
+    command_deploy.add_arguments(parser_deploy)
+    parser_deploy.set_defaults(func=command_deploy.command_deploy)
 
     parser_stop_help = 'stop container with microservice'
     parser_stop = subparsers.add_parser('stop', help=parser_stop_help, description=parser_stop_help)
