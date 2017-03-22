@@ -74,7 +74,7 @@ def parse_args():
     command_run.add_arguments(parser_run)
     parser_run.set_defaults(func=command_run.command_run)
 
-    parser_deploy_help = 'EXPERIMENTAL! deploy (restart and run) microservices'
+    parser_deploy_help = 'EXPERIMENTAL! deploy (restart and/or run) microservices'
     parser_deploy = subparsers.add_parser('deploy', help=parser_deploy_help, description=parser_deploy_help)
     command_deploy.add_arguments(parser_deploy)
     parser_deploy.set_defaults(func=command_deploy.command_deploy)

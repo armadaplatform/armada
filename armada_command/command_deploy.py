@@ -3,7 +3,7 @@ from armada_command.command_restart import command_restart
 
 
 def add_arguments(parser):
-    parser.add_argument('-n', '--num-instances', help='Number of instances that should be deployed.', type=int,
+    parser.add_argument('-n', '--num-of-instances', help='Number of instances that should be deployed.', type=int,
                         default=1)
     command_run.add_arguments(parser)
 
