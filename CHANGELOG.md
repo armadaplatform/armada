@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- **[EXPERIMENTAL]** Stub of the command `armada deploy`. Currently this command is an alias for `armada restart -a`,
+- **[EXPERIMENTAL]** Stub of new command `armada deploy`. Currently this command is an alias for `armada restart -a`,
     however it accepts all arguments accepted by `armada run` command, as well as desired number of instances for given
     microservice. Eventually this command will be responsible for deploying new version of microservice: if it's already
     running then it will perform restart, otherwise it'll launch as many instances as needed to satisfy requirements.
