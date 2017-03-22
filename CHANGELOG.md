@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- **[EXPERIMENTAL]** Stub of new command `armada deploy`. Currently this command is an alias for `armada restart -a`,
+    however it accepts all arguments accepted by `armada run` command, as well as desired number of instances for given
+    microservice. Eventually this command will be responsible for deploying new version of microservice: if it's already
+    running then it will perform restart, otherwise it'll launch as many instances as needed to satisfy requirements.
+
+
 ## 1.12.2 (2017-03-01)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
