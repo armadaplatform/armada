@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.13.0 (2017-03-22)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
 
 ### Features
 - **[EXPERIMENTAL]** Stub of new command `armada deploy`. Currently this command is an alias for `armada restart -a`,
