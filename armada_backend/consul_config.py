@@ -30,6 +30,7 @@ def get_consul_config(consul_mode, ship_ips, datacenter, ship_external_ip, ship_
         'client_addr': '0.0.0.0',
         'data_dir': '/var/opt/consul-{datacenter}-{consul_mode}'.format(**locals()),
         'leave_on_terminate': True,
+        'performance': {'raft_multiplier': 1},
     }
 
     if consul_mode == ConsulMode.BOOTSTRAP:
