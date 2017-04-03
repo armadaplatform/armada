@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.14.0 (2017-04-03)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
 ## 1.13.0 (2017-03-22)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
