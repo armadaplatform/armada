@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y rsync openssh-server libffi-dev libssl-
 RUN pip install paramiko web.py docker-py==1.7.1 raven contextlib2
 
 # Consul
-RUN wget https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip -O consul.zip
+RUN wget https://releases.hashicorp.com/consul/0.7.5/consul_0.7.5_linux_amd64.zip -O consul.zip
 RUN unzip consul.zip && mv consul /usr/local/bin && rm -f consul.zip
 
 ADD ./armada_backend/supervisor/* /etc/supervisor/conf.d/
