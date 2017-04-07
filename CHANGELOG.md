@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Cron clear sessions files in PHP Docker container
+
 ## 1.14.0 (2017-04-03)
 
 ### Improvements

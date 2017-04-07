@@ -20,6 +20,6 @@ ADD . /opt/microservice_php
 RUN chmod +x /opt/microservice_php/run_apache2.sh
 
 # Remove old session files (every 10 min)
-RUN (crontab -l; echo "*/10 * * * * find /var/lib/php5/ -name \"sess_*\" -type f -cmin +\$(/usr/lib/php5/maxlifetime) -print0 | xargs -r -0 rm") | crontab -
+RUN (crontab -l; echo "0 2 * * * find /var/lib/php5/ -name \"sess_*\" -type f -cmin +\$(/usr/lib/php5/maxlifetime) -print0 | xargs -r -0 rm") | crontab -
 
 EXPOSE 80
