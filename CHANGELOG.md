@@ -7,6 +7,8 @@
 
 ## 1.14.0 (2017-04-03)
 
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
 ### Improvements
 - Update consul from v0.6.4 to v0.7.5.
 
