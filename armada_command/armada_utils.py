@@ -1,10 +1,10 @@
 from __future__ import print_function
 
+import fnmatch
 import os
+import socket
 import subprocess
 import sys
-import socket
-import fnmatch
 
 from armada_command.consul.consul import consul_query
 from consul import kv
@@ -67,7 +67,8 @@ def get_matched_containers(microservice_name_or_container_id_prefix):
             if microservice_name_or_container_id_prefix == service_name:
                 matched_containers_by_name.append(service_dict)
 
-            if container_id.startswith(microservice_name_or_container_id_prefix) and ":" not in service_dict['ServiceID']:
+            if container_id.startswith(microservice_name_or_container_id_prefix) \
+                    and ":" not in service_dict['ServiceID']:
                 matched_containers_by_id.append(service_dict)
 
     matched_containers_by_name_count = len(matched_containers_by_name)

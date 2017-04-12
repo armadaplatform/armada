@@ -6,19 +6,13 @@ import sys
 
 import armada_api
 from armada_command.armada_payload import RunPayload
-from armada_command.armada_utils import ArmadaCommandException, is_verbose, is_ip, ship_ip_to_name
+from armada_command.armada_utils import ArmadaCommandException, is_verbose
 from armada_command.docker_utils.images import ArmadaImageFactory, select_latest_image, InvalidImagePathException
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default
 from armada_command.ship_config import get_ship_config
 
 CONFIG_PATH_BASE = '/etc/opt/'
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='Run docker container with microservice.')
-    add_arguments(parser)
-    return parser.parse_args()
 
 
 def are_we_in_vagrant():
@@ -52,7 +46,6 @@ def add_arguments(parser):
                         help='Additional volumes for storage to be mounted to the container. '
                              'Formatted: "[host_path:]docker_path" '
                              'If host_path is not provided it will be the same as docker_path.')
-    parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
     parser.add_argument('--hidden_vagrant_dev', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--hidden_is_restart', action='store_true', help=argparse.SUPPRESS)
 

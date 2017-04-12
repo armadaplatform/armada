@@ -1,10 +1,10 @@
 from __future__ import print_function
 
+import argparse
+import json
 import os
 import re
-import json
 import socket
-import argparse
 
 from common.docker_client import get_docker_inspect
 
@@ -28,6 +28,10 @@ def _add_arguments(parser):
                         help='Name of the subservice. It will be visible in Armada as: '
                              '[microservice_name]:[subservice_name].')
     parser.add_argument('-c', '--health_check', help="Alternative health check path for this service.", default=None)
+    parser.add_argument('--single-active-instance', action='store_true',
+                        help="Service discovery mechanisms will return max. 1 working instance of such service. "
+                             "The rest will have status 'standby'.",
+                        default=False)
 
 
 def _create_service_file(service_filename, service_registration_data):
@@ -66,12 +70,14 @@ def main():
         "service_port": service_port,
         "service_name": full_service_name,
         "service_container_port": args.port,
+        "single_active_instance": args.single_active_instance,
     }
 
     if args.health_check:
         service_data["service_health_check_path"] = args.health_check
 
     _create_service_file(service_filename, service_data)
+
 
 if __name__ == '__main__':
     main()

@@ -22,14 +22,17 @@ import command_ssh
 import command_stop
 import command_version
 from _version import __version__
-from armada_utils import set_verbose, is_verbose
+from armada_command import command_deploy
+from armada_command import command_shutdown
 from armada_command.scripts.update import version_check
 from armada_logging import log_command
+from armada_utils import set_verbose, is_verbose
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--version', action='version', version=__version__)
+    parser.add_argument('-V', '--version', action='version', version=__version__)
+    parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
 
     subparsers = parser.add_subparsers(dest='subparser_command')
 
@@ -49,7 +52,8 @@ def parse_args():
 
     parser_shutdown_help = 'gently remove ship from armada and prepare for service shutdown'
     parser_shutdown = subparsers.add_parser('shutdown', help=parser_shutdown_help, description=parser_shutdown_help)
-    parser_shutdown.set_defaults(func=command_shutdown)
+    command_shutdown.add_arguments(parser_shutdown)
+    parser_shutdown.set_defaults(func=command_shutdown.command_shutdown)
 
     parser_dockyard_help = 'manage dockyard aliases'
     parser_dockyard = subparsers.add_parser('dockyard', help=parser_dockyard_help, description=parser_dockyard_help)
@@ -63,13 +67,17 @@ def parse_args():
 
     parser_info_help = 'show list of ships within current armada'
     parser_info = subparsers.add_parser('info', help=parser_info_help, description=parser_info_help)
-    command_info.add_arguments(parser_info)
     parser_info.set_defaults(func=command_info.command_info)
 
     parser_run_help = 'run container with microservice'
     parser_run = subparsers.add_parser('run', help=parser_run_help, description=parser_run_help)
     command_run.add_arguments(parser_run)
     parser_run.set_defaults(func=command_run.command_run)
+
+    parser_deploy_help = 'EXPERIMENTAL! deploy (restart and/or run) microservices'
+    parser_deploy = subparsers.add_parser('deploy', help=parser_deploy_help, description=parser_deploy_help)
+    command_deploy.add_arguments(parser_deploy)
+    parser_deploy.set_defaults(func=command_deploy.command_deploy)
 
     parser_stop_help = 'stop container with microservice'
     parser_stop = subparsers.add_parser('stop', help=parser_stop_help, description=parser_stop_help)
@@ -108,13 +116,15 @@ def parse_args():
 
     parser_version_help = 'display armada version'
     parser_version = subparsers.add_parser('version', help=parser_version_help, description=parser_version_help)
-    command_version.add_arguments(parser_version)
     parser_version.set_defaults(func=command_version.command_version)
 
     parser_diagnose_help = 'run diagnostic check on a container'
     parser_diagnose = subparsers.add_parser('diagnose', help=parser_diagnose_help, description=parser_diagnose_help)
     command_diagnose.add_arguments(parser_diagnose)
     parser_diagnose.set_defaults(func=command_diagnose.command_diagnose)
+
+    for subparser in subparsers.choices.values():
+        subparser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
 
     args = parser.parse_args()
     return args
@@ -130,11 +140,6 @@ def command_join(args):
 
 def command_promote(args):
     result = armada_api.post('promote')
-    armada_api.print_result_from_armada_api(result)
-
-
-def command_shutdown(args):
-    result = armada_api.post('shutdown')
     armada_api.print_result_from_armada_api(result)
 
 

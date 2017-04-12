@@ -17,7 +17,10 @@ ADD . /opt/microservice
 RUN cd /opt/microservice/scripts && chmod +x * && sync && ./install_packages.sh && ./setup_supervisor.sh
 RUN mkdir /var/opt/service-registration/
 
+<<<<<<< HEAD
 RUN apt-get install -y net-tools cron
 RUN apt-get install -y netcat
 
+=======
+>>>>>>> master
 CMD ["/usr/bin/python3", "/opt/microservice/src/bootstrap_microservice.py"]

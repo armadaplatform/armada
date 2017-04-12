@@ -1,5 +1,81 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Cron clear sessions files in PHP Docker container
+
+## 1.14.0 (2017-04-03)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Improvements
+- Update consul from v0.6.4 to v0.7.5.
+
+## 1.13.0 (2017-03-22)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Features
+- **[EXPERIMENTAL]** Stub of new command `armada deploy`. Currently this command is an alias for `armada restart -a`,
+    however it accepts all arguments accepted by `armada run` command, as well as desired number of instances for given
+    microservice. Eventually this command will be responsible for deploying new version of microservice: if it's already
+    running then it will perform restart, otherwise it'll launch as many instances as needed to satisfy requirements.
+
+
+## 1.12.2 (2017-03-01)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Bug fixes
+- Fix running `add-apt-repository` in `microservice_python3`.
+- Fix building armada development version.
+
+### Improvements
+- Log exceptions in consul query.
+
+## 1.12.1 (2017-02-21)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Improvements
+- Log info about removed kv entries in armada cleaner.
+
+## 1.12.0 (2017-02-06)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Features
+- Add flag `--single-active-instance` to `register_in_service_discovery.py` script. Services registered with this flag will
+    have at most one available (status 'passing' or 'warning') instance in armada service discovery mechanisms. The
+    other instances will receive status 'standby'.
+- Add `-vv/--verbose` flag to all armada commands.
+- `armada shutdown` now removes by default previously joined ships from `/opt/armada/runtime_settings.json`. Use
+    `--keep-joined` flag for old behavior.
+
+### Bug fixes
+- Fix building pip packages in `microservice_python3`.
+- Fixed cleaning crashed services on not promoted ships.
+- Fix stop and restart of armada service on systemd.
+
+## 1.11.0 (2017-01-13)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
+
+### Features
+- Add `-vv/--verbose` flag to `armada create`.
+- Base image for services created using DotNET Core 1.0
+- Template for sample "Hello, world!" REST service.
+- Base image `microservice_python3.5` is now **deprecated** in favor of upgraded `microservice_python3` with python3.6.
+
+### Improvements
+- Separated supervisor configs for `armada_agent` and `register_in_service_discovery` to make overriding the latter
+    in services easier.
+- Python3 version in base image `microservice_python3` has been upgraded from python3.4 to python3.6.
+
+### Bug fixes
+- Fixed bug where restarting service started without `env` was setting `MICROSERVICE_ENV` environment variable as `env`.
+
 ## 1.10.0 (2016-12-15)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.

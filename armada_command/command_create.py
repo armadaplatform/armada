@@ -1,17 +1,11 @@
 from __future__ import print_function
+
 import os
-import argparse
-import tempfile
 import shutil
+import tempfile
 
 from armada_command.armada_utils import execute_local_command, ArmadaCommandException
 from armada_command.dockyard import dockyard
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='Create skeleton for new microservice.')
-    add_arguments(parser)
-    return parser.parse_args()
 
 
 def add_arguments(parser):

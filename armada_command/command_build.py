@@ -1,8 +1,6 @@
 from __future__ import print_function
 
-import argparse
 import os
-import sys
 
 from armada_command.armada_utils import execute_local_command, is_verbose
 from armada_command.docker_utils.compatibility import docker_backend
@@ -13,12 +11,6 @@ from armada_command.dockyard.dockyard import dockyard_factory
 from armada_utils import ArmadaCommandException
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description='build armada image')
-    add_arguments(parser)
-    return parser.parse_args()
-
-
 def add_arguments(parser):
     parser.add_argument('microservice_name', nargs='?',
                         help='Name of the microservice to be built. '
@@ -26,7 +18,6 @@ def add_arguments(parser):
     parser.add_argument('-d', '--dockyard',
                         help='Build from image from dockyard with this alias. '
                              "Use 'local' to force using local repository.")
-    parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
     parser.add_argument('-s', '--squash', action='store_true', help='Squash image. Does not work with --file.')
     parser.add_argument('--file', default='Dockerfile',
                         help='Path to the Dockerfile. Does not work with -s/--squash.')
@@ -47,8 +38,7 @@ def command_build(args):
         chain_run_commands()
 
     if not os.path.exists(dockerfile_path):
-        print('ERROR: {} not found.'.format(dockerfile_path), file=sys.stderr)
-        return
+        raise ArmadaCommandException('ERROR: {} not found.'.format(dockerfile_path))
 
     base_image_name = _get_base_image_name(dockerfile_path)
     dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(base_image_name, is_run_locally=True)
@@ -56,7 +46,7 @@ def command_build(args):
     try:
         image = ArmadaImageFactory(args.microservice_name, dockyard_alias, os.environ.get('MICROSERVICE_NAME'))
     except InvalidImagePathException:
-        raise ValueError('No microservice name supplied.')
+        raise ArmadaCommandException('No microservice name supplied.')
 
     base_image = ArmadaImageFactory(base_image_name, dockyard_alias)
     if base_image.is_remote():
@@ -69,8 +59,7 @@ def command_build(args):
                 base_image = ArmadaImageFactory(base_image_name, dockyard_alias)
                 was_fallback_dockyard = False
             if was_fallback_dockyard or not base_image.exists():
-                print('Base image {base_image} not found. Aborting.'.format(**locals()))
-                sys.exit(1)
+                raise ArmadaCommandException('Base image {base_image} not found. Aborting.'.format(**locals()))
         dockyard_dict = dockyard.get_dockyard_dict(dockyard_alias)
         did_print = False
         d = dockyard_factory(dockyard_dict.get('address'), dockyard_dict.get('user'), dockyard_dict.get('password'))

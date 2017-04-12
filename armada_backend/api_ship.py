@@ -2,9 +2,10 @@ import json
 import logging
 import os
 import time
+import xmlrpclib
 from socket import gethostname
 
-import xmlrpclib
+import web
 
 from armada_backend import api_base, consul_config
 from armada_backend.runtime_settings import override_runtime_settings
@@ -141,20 +142,32 @@ class Promote(api_base.ApiCommand):
 
 class Shutdown(api_base.ApiCommand):
     def POST(self):
-        # 'startsecs=0' is to avoid restarting consul after `consul leave`.
-        os.system('sed -i \'/autorestart=true/cautorestart=false\' /etc/supervisor/conf.d/consul.conf')
-        os.system('echo startsecs=0 >> /etc/supervisor/conf.d/consul.conf')
+        try:
+            # 'startsecs=0' is to avoid restarting consul after `consul leave`.
+            os.system('sed -i \'/autorestart=true/cautorestart=false\' /etc/supervisor/conf.d/consul.conf')
+            os.system('echo startsecs=0 >> /etc/supervisor/conf.d/consul.conf')
 
-        os.system('supervisorctl update consul')
+            os.system('supervisorctl update consul')
 
-        # As 'supervisorctl update' will restart Consul, we have to wait for it to be running.
-        while True:
-            try:
-                get_current_datacenter()
-                break
-            except:
-                pass
+            # As 'supervisorctl update' will restart Consul, we have to wait for it to be running.
+            deadline = time.time() + 15
+            while time.time() < deadline:
+                try:
+                    get_current_datacenter()
+                    break
+                except:
+                    time.sleep(1)
 
-        deregister_services(gethostname())
-        os.system('consul leave')
+            deregister_services(gethostname())
+            os.system('consul leave')
+        finally:
+            post_data = json.loads(web.data() or '{}')
+            runtime_settings_path = '/opt/armada/runtime_settings.json'
+            if not post_data.get('keep-joined') and os.path.isfile(runtime_settings_path):
+                with open(runtime_settings_path) as f:
+                    runtime_settings = json.load(f)
+                runtime_settings['ships'] = []
+                runtime_settings['is_commander'] = True
+                with open(runtime_settings_path, 'w') as f:
+                    json.dump(runtime_settings, f, sort_keys=True, indent=4)
         return self.status_ok({'message': 'Shutdown complete.'})

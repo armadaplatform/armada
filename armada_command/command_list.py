@@ -1,16 +1,9 @@
 from __future__ import print_function
 
-import argparse
 import datetime
 
 from armada_command.armada_api import get_json
 from armada_utils import print_table
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='Show list of running microservices.')
-    add_arguments(parser)
-    return parser.parse_args()
 
 
 def add_arguments(parser):
