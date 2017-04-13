@@ -33,7 +33,7 @@ def command_list(args):
     output_rows = None
 
     if not args.quiet:
-        output_header = ('Name', 'Address', 'ID', 'Status', 'Tags')
+        output_header = ('Name', 'Address', 'ID', 'Status', 'Env', 'AppID')
         if args.uptime:
             output_header += ("Created (UTC)",)
         output_rows = [output_header]
@@ -42,10 +42,9 @@ def command_list(args):
         if args.quiet:
             print(str(service['container_id']))
         else:
-            service_tags_pretty = [str(x) + ':' + str(service['tags'][x])
-                                   for x in sorted(service['tags'])] if service['tags'] else '-'
+            service_tags = service['tags']
             output_row = (service['name'], service['address'], service['container_id'], service['status'],
-                          service_tags_pretty)
+                          service_tags.get('env') or '-', service_tags.get('app_id') or '-')
             if args.uptime:
                 creation_time = epoch_to_iso(service['start_timestamp'])
                 output_row += (creation_time,)
