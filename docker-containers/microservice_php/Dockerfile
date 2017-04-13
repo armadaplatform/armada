@@ -2,9 +2,9 @@ FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
 ENV MICROSERVICE_PHP_APT_GET_UPDATE_DATE 2015-05-25
+RUN LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php
 RUN apt-get update
-
-RUN apt-get install -y apache2 php5 php5-mysql php5-curl
+RUN apt-get install -y apache2 php5.6 php5.6-mysql php5.6-curl php5.6-mbstring
 
 # Enable cron.
 RUN echo "Etc/UTC" > /etc/timezone \     && dpkg-reconfigure -f noninteractive tzdata
