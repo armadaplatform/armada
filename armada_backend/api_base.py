@@ -1,8 +1,7 @@
-import json
-
 import web
 
 from armada_backend.utils import get_logger
+from armada_command.scripts.compat import json
 
 
 def _create_response_with_error(error_msg=None):

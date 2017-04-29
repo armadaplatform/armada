@@ -1,4 +1,4 @@
-import json
+from armada_command.scripts.compat import json
 
 CONFIG_PATH = '/etc/consul.config'
 

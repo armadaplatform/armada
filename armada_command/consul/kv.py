@@ -1,6 +1,5 @@
 import base64
 import calendar
-import json
 import os
 import time
 
@@ -8,6 +7,7 @@ import requests
 
 from armada_command.consul.consul import consul_put, consul_delete, consul_query
 from armada_command.exceptions import ArmadaApiException
+from armada_command.scripts.compat import json
 
 DOCKER_SOCKET_PATH = '/var/run/docker.sock'
 

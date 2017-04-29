@@ -1,10 +1,9 @@
-import json
-
 import web
 
 from armada_backend.api_create import Create
 from armada_backend.api_start import Start
 from armada_backend.utils import shorten_container_id
+from armada_command.scripts.compat import json
 
 
 class Run(Create, Start):

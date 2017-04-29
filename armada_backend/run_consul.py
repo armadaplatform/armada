@@ -1,10 +1,10 @@
-import json
 import os
 import random
 import shutil
 
 from armada_backend import consul_config
 from armada_backend.utils import get_logger, setup_sentry, get_external_ip
+from armada_command.scripts.compat import json
 
 
 def _get_runtime_settings():

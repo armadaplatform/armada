@@ -1,7 +1,6 @@
-import json
-
 import requests
 
+from armada_command.scripts.compat import json
 from armada_command.scripts.utils import get_logger
 
 CONSUL_ADDRESS = 'localhost:8500'

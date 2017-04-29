@@ -1,9 +1,9 @@
-import json
 import time
 
 import requests
 
 from armada_command import armada_api
+from armada_command.scripts.compat import json
 from armada_command.scripts.update import VERSION_CACHE_FILE_PATH
 from armada_command.scripts.utils import get_logger, SyncOpen, suppress_exception, is_valid_response
 

@@ -2,8 +2,8 @@ FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
 ENV ARMADA_APT_GET_UPDATE_DATE 2016-12-29
-RUN apt-get update && apt-get install -y rsync openssh-server libffi-dev libssl-dev
-RUN pip install paramiko web.py docker-py==1.7.1 raven contextlib2
+RUN apt-get update && apt-get install -y rsync openssh-server libffi-dev libssl-dev python-dev
+RUN pip install paramiko web.py docker-py==1.7.1 raven contextlib2 ujson
 
 # Consul
 RUN wget https://releases.hashicorp.com/consul/0.7.5/consul_0.7.5_linux_amd64.zip -O consul.zip

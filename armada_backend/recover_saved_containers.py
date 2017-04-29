@@ -1,5 +1,4 @@
 import argparse
-import json
 import os
 import sys
 from collections import Counter
@@ -11,6 +10,7 @@ from armada_backend.utils import get_logger, get_ship_name, shorten_container_id
 from armada_command import armada_api
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
+from armada_command.scripts.compat import json
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
 RECOVERY_RETRY_LIMIT = 5

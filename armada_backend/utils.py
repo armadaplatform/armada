@@ -1,5 +1,4 @@
 import base64
-import json
 import logging
 import os
 
@@ -13,6 +12,7 @@ from armada_command._version import __version__
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_get
 from armada_command.consul.consul import consul_query
+from armada_command.scripts.compat import json
 from armada_command.ship_config import get_ship_config
 
 sentry_ignore_exceptions = ['KeyboardInterrupt']

@@ -1,11 +1,10 @@
-import json
 import logging
 import os
 import time
-import xmlrpclib
 from socket import gethostname
 
 import web
+import xmlrpclib
 
 from armada_backend import api_base, consul_config
 from armada_backend.runtime_settings import override_runtime_settings
@@ -14,6 +13,7 @@ from armada_backend.utils import deregister_services, get_current_datacenter, ge
 from armada_command import armada_api
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query, consul_put
+from armada_command.scripts.compat import json
 
 
 def _get_current_consul_mode():

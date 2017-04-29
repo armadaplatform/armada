@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import json
 import os
 import sys
 import time
@@ -9,6 +8,7 @@ from functools import wraps
 from subprocess import Popen
 
 from armada_command import armada_api
+from armada_command.scripts.compat import json
 from armada_command.scripts.update_config import VERSION_CACHE_FILE_PATH, SYNC_INTERVAL, DISPLAY_INTERVAL
 from armada_command.scripts.utils import suppress_exception, get_logger, SyncOpen, is_valid_response
 from armada_command.ship_config import get_ship_config

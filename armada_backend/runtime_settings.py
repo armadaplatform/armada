@@ -1,9 +1,8 @@
-import json
-
 from armada_backend import consul_config
 from armada_backend.utils import get_ship_name, get_other_ship_ips, get_current_datacenter, is_ship_commander, \
     setup_sentry
 from armada_command.dockyard import alias
+from armada_command.scripts.compat import json
 
 
 def _save_runtime_settings():
