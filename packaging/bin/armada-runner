@@ -180,7 +180,7 @@ case "$1" in
         fi
 
         if [ "${ARMADA_AUTORELOAD,,}" == "true" ]; then
-            run_options+=" -v /opt/armada-src/armada_backend:/opt/armada-docker/armada_backend -e ARMADA_AUTORELOAD=true"
+            run_options+=" -v /opt/armada-src/:/opt/armada-docker/ -e ARMADA_AUTORELOAD=true"
         fi
 
         docker run $run_options "armada:${ARMADA_VERSION}" >> "${ARMADA_LOGFILE}" 2>&1
