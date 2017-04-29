@@ -5,7 +5,7 @@ from distutils.util import strtobool
 import web
 
 from armada_backend import api_base
-from armada_backend.utils import get_ship_name, get_ship_names, get_logger
+from armada_backend.utils import get_ship_name, get_logger
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
 
@@ -93,17 +93,14 @@ class List(api_base.ApiCommand):
 
 
 def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filter_local):
+    ships_key = 'ships'
     if filter_local:
-        ship_list = [get_ship_name()]
-    else:
-        ship_list = get_ship_names()
-    services_dict = {}
-    if not ship_list:
+        ships_key = "{}/{}".format(ships_key, get_ship_name())
+
+    services_dict = kv.kv_get_recurse(ships_key)
+
+    if not services_dict:
         return {}
-    for ship in ship_list:
-        containers = kv.kv_get('containers_parameters_list/{}'.format(ship))
-        if containers and isinstance(containers, dict):
-            services_dict.update(containers)
 
     services_list = services_dict.keys()
 
