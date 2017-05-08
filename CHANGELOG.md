@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.15.0 (2017-05-08)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
 
 ### Features
 - Show "Env" and "AppID" as separate columns, instead of "Tags", in `armada list`.
