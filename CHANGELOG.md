@@ -2,8 +2,13 @@
 
 ## Unreleased
 
+### Features
+- Show "Env" and "AppID" as separate columns, instead of "Tags", in `armada list`.
+
 ### Improvements
-- Cron clear sessions files in PHP Docker container
+- Cron clear sessions files in PHP Docker container.
+- Use Ubuntu 16.04 instead of 14.04 as base in {{microservice}} image.
+- Upgrade HAProxy from 1.6 to 1.7.
 
 ## 1.14.0 (2017-04-03)
 
