@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fix missing npm in `microservice_node` image based on Ubuntu 16.04.
+- Add link to php config at /etc/php5 in `microservice_php` for compatibility with pre Ubuntu 16.04 images.
+
 ## 1.15.0 (2017-05-08)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.

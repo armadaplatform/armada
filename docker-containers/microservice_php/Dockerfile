@@ -6,6 +6,8 @@ RUN LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php
 RUN apt-get update
 RUN apt-get install -y apache2 php5.6 php5.6-mysql php5.6-curl php5.6-mbstring
 
+RUN ln -s /etc/php/5.6 /etc/php5
+
 # Enable cron.
 RUN echo "Etc/UTC" > /etc/timezone \     && dpkg-reconfigure -f noninteractive tzdata
 
