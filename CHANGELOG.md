@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.15.1 (2017-05-12)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
 
 ### Bug fixes
 - Fix node version in `microservice_node` image based on Ubuntu 16.04.
