@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Bug fixes
-- Fix missing npm in `microservice_node` image based on Ubuntu 16.04.
+- Fix node version in `microservice_node` image based on Ubuntu 16.04.
 - Add link to php config at /etc/php5 in `microservice_php` for compatibility with pre Ubuntu 16.04 images.
 
 ## 1.15.0 (2017-05-08)
