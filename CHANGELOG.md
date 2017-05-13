@@ -1,17 +1,20 @@
 # Changelog
-
 ## Unreleased
 
 ### Features
+- Add `DISTRIB_CODENAME`=xenial and `DISTRIB_RELEASE`=16.04 environmental variables.
+- Add `less` and `sudo` to `microservice`
 - You can now set retention for containers backups stored in `/opt/armada/saved_containers_backup/`. To do that, set
     `SAVED_CONTAINERS_BACKUP_RETENTION=N` variable (where `N` is integer with number of days stored) in
     `/etc/default/armada` on host.
+    
+### Improvements
+- Don't install old `gcc` version in `microservice_python3`.
+- Regular cleaning duplicated containers backup in `/opt/armada/saved_containers_backup/`.
 
 ### Bug fixes
 - Fix clearing sessions files in PHP Docker container.
 
-### Improvements
-- Regular cleaning duplicated containers backup in `/opt/armada/saved_containers_backup/`.
 
 ## 1.15.1 (2017-05-12)
 
