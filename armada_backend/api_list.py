@@ -36,6 +36,14 @@ class List(api_base.ApiCommand):
             else:
                 microservices_names = list(consul_query('catalog/services').keys())
 
+            start_timestamps = kv.kv_get_recurse('start_timestamp/') or {}
+
+            single_active_instances = kv.kv_get_recurse('single_active_instance/')
+            if single_active_instances:
+                single_active_instances_list = single_active_instances.keys()
+            else:
+                single_active_instances_list = []
+
             services_list_from_catalog = {}
 
             for microservice_name in microservices_names:
@@ -64,14 +72,9 @@ class List(api_base.ApiCommand):
                     if (matches_env and matches_app_id and
                             (not filter_local or microservice_id in local_microservices_ids)):
                         microservice_address = microservice_ip + ':' + microservice_port
-                        try:
-                            microservice_start_timestamp = kv.kv_get("start_timestamp/" + container_id)
-                        except:
-                            microservice_start_timestamp = None
-                        try:
-                            single_active_instance = kv.kv_get("single_active_instance/" + microservice_id)
-                        except:
-                            single_active_instance = False
+                        microservice_start_timestamp = start_timestamps.get(container_id, None)
+                        single_active_instance = microservice_id in single_active_instances_list
+
                         microservice_dict = {
                             'name': microservice_name,
                             'address': microservice_address,
@@ -109,7 +112,7 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
         return result
 
     if filter_microservice_name:
-        services_list = fnmatch.filter(services_list, 'ships/*/service/{}/*'.format(filter_microservice_name))
+        services_list = fnmatch.filter(services_list, '*/service/{}/*'.format(filter_microservice_name))
 
     for service in services_list:
         service_dict = services_dict[service]
