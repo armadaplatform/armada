@@ -6,7 +6,7 @@
 - Fix clearing sessions files in PHP Docker container.
 
 ### Improvements
-- Script for cleaning duplicated containers backup in `/opt/armada/saved_containers_backup/`.
+- Regular cleaning duplicated containers backup in `/opt/armada/saved_containers_backup/`.
 
 ## 1.15.1 (2017-05-12)
 
