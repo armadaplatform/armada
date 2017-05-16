@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+- You can now set retention for containers backups stored in `/opt/armada/saved_containers_backup/`. To do that, set
+    `SAVED_CONTAINERS_BACKUP_RETENTION=N` variable (where `N` is integer with number of days stored) in
+    `/etc/default/armada` on host.
+
 ### Bug fixes
 - Fix clearing sessions files in PHP Docker container.
 
