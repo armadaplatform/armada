@@ -1,12 +1,25 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- You can now set retention for containers backups stored in `/opt/armada/saved_containers_backup/`. To do that, set
+    `SAVED_CONTAINERS_BACKUP_RETENTION=N` variable (where `N` is integer with number of days stored) in
+    `/etc/default/armada` on host.
+
+### Bug fixes
+- Fix clearing sessions files in PHP Docker container.
+
+### Improvements
+- Regular cleaning duplicated containers backup in `/opt/armada/saved_containers_backup/`.
+
 ## 1.15.1 (2017-05-12)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
 
 ### Bug fixes
 - Fix node version in `microservice_node` image based on Ubuntu 16.04.
-- Add link to php config at /etc/php5 in `microservice_php` for compatibility with pre Ubuntu 16.04 images.
+- Add link to php config at `/etc/php5` in `microservice_php` for compatibility with pre Ubuntu 16.04 images.
 
 ## 1.15.0 (2017-05-08)
 
