@@ -1,5 +1,7 @@
 # Changelog
-## Unreleased
+## 1.16.0 (2017-05-18)
+
+We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
 
 ### Features
 - Add `DISTRIB_CODENAME`=xenial and `DISTRIB_RELEASE`=16.04 environmental variables.
