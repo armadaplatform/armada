@@ -5,6 +5,7 @@ MAINTAINER Cerebro <cerebro@ganymede.eu>
 ENV MICROSERVICE_APT_GET_UPDATE_DATE 2016-12-29
 
 ENV LANG='C.UTF-8' LC_ALL='C.UTF-8'
+ENV DISTRIB_CODENAME=xenial DISTRIB_RELEASE=16.04
 
 # 'sync' is to fix "text file busy" error.
 ADD . /opt/microservice
