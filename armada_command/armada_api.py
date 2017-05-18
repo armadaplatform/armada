@@ -1,16 +1,16 @@
 from __future__ import print_function
 
-import json
 import os
 import sys
 import traceback
 
 import requests
+from armada_utils import is_verbose, print_err, ship_name_to_ip, is_ip
 
 from armada_command.consul.consul import consul_query, ConsulException
 from armada_command.exceptions import ArmadaApiException
+from armada_command.scripts.compat import json
 from armada_command.scripts.utils import get_logger
-from armada_utils import is_verbose, print_err, ship_name_to_ip, is_ip
 
 
 def __are_we_in_armada_container():

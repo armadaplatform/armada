@@ -1,4 +1,3 @@
-import json
 import socket
 import time
 
@@ -6,6 +5,7 @@ import requests
 
 from armada_backend.utils import get_container_ssh_address, get_logger, setup_sentry
 from armada_command import armada_api
+from armada_command.scripts.compat import json
 
 HERMES_DIRECTORY = '/etc/opt'
 

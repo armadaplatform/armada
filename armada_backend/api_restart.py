@@ -1,5 +1,5 @@
 import base64
-import json
+
 from docker.errors import NotFound
 
 from armada_backend import docker_client
@@ -8,6 +8,7 @@ from armada_backend.api_stop import Stop
 from armada_backend.utils import shorten_container_id
 from armada_command import armada_api
 from armada_command.consul.kv import kv_get, kv_list
+from armada_command.scripts.compat import json
 
 
 class Restart(Run, Stop):

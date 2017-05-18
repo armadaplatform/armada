@@ -11,8 +11,10 @@
 ### Improvements
 - Don't install old `gcc` version in `microservice_python3`.
 - Regular cleaning duplicated containers backup in `/opt/armada/saved_containers_backup/`.
+- Optimize armada list.
 
 ### Bug fixes
+- Fix autoreloading armada development version.
 - Fix clearing sessions files in PHP Docker container.
 
 

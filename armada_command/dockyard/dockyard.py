@@ -1,15 +1,15 @@
 from __future__ import print_function
 
-import json
 import os
 from datetime import datetime
-from urlparse import urlparse
 
 import requests
 from requests.exceptions import SSLError
+from urlparse import urlparse
 
-from armada_command.dockyard import alias
 from armada_command import armada_api
+from armada_command.dockyard import alias
+from armada_command.scripts.compat import json
 
 
 class DockyardException(Exception):

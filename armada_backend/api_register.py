@@ -1,10 +1,9 @@
-import json
-
 import web
 
 from armada_backend import api_base
 from armada_command.consul.consul import consul_post, consul_query
 from armada_command.consul.kv import kv_set, kv_remove
+from armada_command.scripts.compat import json
 
 
 def _exists_service(service_id):

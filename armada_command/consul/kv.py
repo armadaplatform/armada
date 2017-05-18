@@ -1,6 +1,5 @@
 import base64
 import calendar
-import json
 import os
 import time
 
@@ -8,6 +7,7 @@ import requests
 
 from armada_command.consul.consul import consul_put, consul_delete, consul_query
 from armada_command.exceptions import ArmadaApiException
+from armada_command.scripts.compat import json
 
 DOCKER_SOCKET_PATH = '/var/run/docker.sock'
 
@@ -17,6 +17,13 @@ def kv_get(key):
     if query_result is None:
         return None
     return json.loads(base64.b64decode(query_result[0]['Value']))
+
+
+def kv_get_recurse(key):
+    query_result = consul_query('kv/{key}?recurse=true'.format(**locals()))
+    if query_result is None:
+        return None
+    return {item['Key'].replace(key,''): json.loads(base64.b64decode(item['Value'])) for item in query_result}
 
 
 def kv_set(key, value):

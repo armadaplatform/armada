@@ -1,9 +1,10 @@
 from __future__ import print_function
 
-import json
 import sys
 
 import armada_api
+
+from armada_command.scripts.compat import json
 
 
 def add_arguments(parser):

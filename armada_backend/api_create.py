@@ -1,5 +1,5 @@
 import base64
-import json
+from armada_command.scripts.compat import json
 
 import web
 

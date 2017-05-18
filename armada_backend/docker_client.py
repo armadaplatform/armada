@@ -1,6 +1,6 @@
-import json
-
 import docker
+
+from armada_command.scripts.compat import json
 
 DOCKER_SOCKET_PATH = '/var/run/docker.sock'
 

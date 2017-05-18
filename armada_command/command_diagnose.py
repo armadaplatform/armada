@@ -1,8 +1,9 @@
-import json
 import os
 import subprocess
 
 from armada_utils import get_matched_containers
+
+from armada_command.scripts.compat import json
 
 
 def add_arguments(parser):

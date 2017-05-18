@@ -5,7 +5,7 @@ from distutils.util import strtobool
 import web
 
 from armada_backend import api_base
-from armada_backend.utils import get_ship_name, get_ship_names, get_logger
+from armada_backend.utils import get_ship_name, get_logger
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
 
@@ -36,6 +36,14 @@ class List(api_base.ApiCommand):
             else:
                 microservices_names = list(consul_query('catalog/services').keys())
 
+            start_timestamps = kv.kv_get_recurse('start_timestamp/') or {}
+
+            single_active_instances = kv.kv_get_recurse('single_active_instance/')
+            if single_active_instances:
+                single_active_instances_list = single_active_instances.keys()
+            else:
+                single_active_instances_list = []
+
             services_list_from_catalog = {}
 
             for microservice_name in microservices_names:
@@ -64,14 +72,9 @@ class List(api_base.ApiCommand):
                     if (matches_env and matches_app_id and
                             (not filter_local or microservice_id in local_microservices_ids)):
                         microservice_address = microservice_ip + ':' + microservice_port
-                        try:
-                            microservice_start_timestamp = kv.kv_get("start_timestamp/" + container_id)
-                        except:
-                            microservice_start_timestamp = None
-                        try:
-                            single_active_instance = kv.kv_get("single_active_instance/" + microservice_id)
-                        except:
-                            single_active_instance = False
+                        microservice_start_timestamp = start_timestamps.get(container_id, None)
+                        single_active_instance = microservice_id in single_active_instances_list
+
                         microservice_dict = {
                             'name': microservice_name,
                             'address': microservice_address,
@@ -93,17 +96,14 @@ class List(api_base.ApiCommand):
 
 
 def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filter_local):
+    ships_key = 'ships'
     if filter_local:
-        ship_list = [get_ship_name()]
-    else:
-        ship_list = get_ship_names()
-    services_dict = {}
-    if not ship_list:
+        ships_key = "{}/{}".format(ships_key, get_ship_name())
+
+    services_dict = kv.kv_get_recurse(ships_key)
+
+    if not services_dict:
         return {}
-    for ship in ship_list:
-        containers = kv.kv_get('containers_parameters_list/{}'.format(ship))
-        if containers and isinstance(containers, dict):
-            services_dict.update(containers)
 
     services_list = services_dict.keys()
 
@@ -112,7 +112,7 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
         return result
 
     if filter_microservice_name:
-        services_list = fnmatch.filter(services_list, 'ships/*/service/{}/*'.format(filter_microservice_name))
+        services_list = fnmatch.filter(services_list, '*/service/{}/*'.format(filter_microservice_name))
 
     for service in services_list:
         service_dict = services_dict[service]
