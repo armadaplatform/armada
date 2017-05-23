@@ -2,7 +2,7 @@
 set -e
 
 IMAGE_TAG="${1-latest}"
-IMAGE_PATH="/opt/armada-src/"
+IMAGE_PATH="$(dirname "${BASH_SOURCE[0]}")/../../"
 IMAGE_NAME="armada"
 DOCKERFILE_PATH="${IMAGE_PATH}Dockerfile"
 DOCKYARD_ADDRESS="dockyard.armada.sh"
