@@ -1,4 +1,9 @@
 # Changelog
+## Unreleased
+
+### Bug fixes
+- Fix `armada list` when one of ships was renamed.
+
 ## 1.16.0 (2017-05-18)
 
 We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
