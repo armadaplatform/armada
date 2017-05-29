@@ -111,7 +111,11 @@ def _get_running_services(filter_microservice_name, filter_env, filter_app_id, f
 
 
 def _parse_single_ship(services_dict, filter_microservice_name, filter_env, filter_app_id):
-    services_list = services_dict.keys()
+    try:
+        services_list = services_dict.keys()
+    except AttributeError:
+        services_list = None
+
     result = {}
     if not services_list:
         return result
