@@ -32,11 +32,6 @@ def _get_base_image_name(dockerfile_path):
 
 def command_build(args):
     dockerfile_path = args.file
-    if args.squash:
-        if dockerfile_path != 'Dockerfile':
-            raise ArmadaCommandException('You cannot use --file flag together with -s/--squash.')
-        chain_run_commands()
-
     if not os.path.exists(dockerfile_path):
         raise ArmadaCommandException('ERROR: {} not found.'.format(dockerfile_path))
 
@@ -83,48 +78,6 @@ def command_build(args):
             tag_command = docker_backend.build_tag_command(base_image_path, base_image_name)
             assert execute_local_command(tag_command, stream_output=True, retries=1)[0] == 0
 
-    build_command = 'docker build -f {} -t {} .'.format(dockerfile_path, image.image_name_with_tag)
+    build_command = 'docker build {} -f {} -t {} .'.format('--squash' if args.squash else '', dockerfile_path,
+                                                           image.image_name_with_tag)
     assert execute_local_command(build_command, stream_output=True)[0] == 0
-
-    if args.squash:
-        os.rename('Dockerfile.tmp', 'Dockerfile')
-        squash_command = 'docker-squash {} -t {}'.format(image.image_name_with_tag,
-                                                         image.image_name_with_tag)
-        assert execute_local_command(squash_command, stream_output=True)[0] == 0
-
-
-def _join_commands(run_commands):
-    chained_run = 'RUN ' + ' && '.join(run_commands)
-    if 'apt-get' in chained_run and 'apt-get clean' not in chained_run:
-        chained_run += ' && apt-get clean && rm -rf /var/lib/apt/lists/*'
-    chained_run += '\n'
-    return chained_run
-
-
-def chain_run_commands():
-    new_dockerfile_commands = []
-    run_commands = []
-    with open('Dockerfile') as dockerfile:
-        join_next_line = False
-        for line in dockerfile:
-            if line == '\n' or line.startswith('#'):
-                continue
-            elif join_next_line or line.startswith('RUN'):
-                striped = line[4:].strip() if line.startswith('RUN') else line.strip()
-                if striped.endswith('\\'):
-                    join_next_line = True
-                    striped = striped[:-1].strip().strip('&')
-                else:
-                    join_next_line = False
-                run_commands.append(striped)
-            else:
-                join_next_line = False
-                new_dockerfile_commands.append(line)
-        if run_commands:
-            chained_run = _join_commands(run_commands)
-            new_dockerfile_commands.append(chained_run)
-    dockerfile.close()
-    os.rename('Dockerfile', 'Dockerfile.tmp')
-    with open('Dockerfile', 'w') as dockerfile:
-        for line in new_dockerfile_commands:
-            dockerfile.write(line)
