@@ -1,13 +1,13 @@
 from __future__ import print_function
 
+import argparse
 import os
 import re
-import sys
 import shutil
-import argparse
-from tempfile import mkdtemp
+import sys
 from distutils.version import StrictVersion
 from subprocess import check_call, check_output, CalledProcessError
+from tempfile import mkdtemp
 
 DOCKER_STATIC_CLIENT_DIR = '/opt/armada-docker-client/'
 
@@ -45,7 +45,7 @@ class StrictVerboseVersion(StrictVersion):
         return vstring
 
 
-class DockerBackendMetclass(type):
+class DockerBackendMetaclass(type):
     def __new__(mcs, name, bases, attrs):
         attrs['versions_range'] = map(mcs.wrap_with_strict_version, attrs['versions_range'])
         return type.__new__(mcs, name, bases, attrs)
@@ -63,7 +63,7 @@ class DockerBackendMetclass(type):
 class BaseDockerBackend(object):
     # <min_ver, max_ver)
     versions_range = (None, None)
-    __metaclass__ = DockerBackendMetclass
+    __metaclass__ = DockerBackendMetaclass
 
     def __init__(self, current_version):
         self.current_version = current_version
@@ -94,18 +94,21 @@ class DockerBackendV1(BaseDockerBackend):
         check_call(['chmod', '+x', output_file])
 
     def get_static_docker_client(self):
-        if not os.path.isdir(DOCKER_STATIC_CLIENT_DIR):
-            os.mkdir(DOCKER_STATIC_CLIENT_DIR)
-
-        cached_version_name = 'docker-{}'.format(self.current_version)
-        cached_version_path = os.path.join(DOCKER_STATIC_CLIENT_DIR, cached_version_name)
-        if not os.path.isfile(cached_version_path):
-            print("Fetching static docker client v{}.".format(self.current_version))
-            url = 'https://get.docker.com/builds/Linux/x86_64/{}'.format(cached_version_name)
-            self._download_static_docker_client(url, cached_version_path)
+        self._get_static_docker_client(str(self.current_version))
 
     def build_tag_command(self, source_image, destination_image):
         return "docker tag -f {} {}".format(source_image, destination_image)
+
+    def _get_static_docker_client(self, version_string):
+        if not os.path.isdir(DOCKER_STATIC_CLIENT_DIR):
+            os.mkdir(DOCKER_STATIC_CLIENT_DIR)
+
+        cached_version_name = 'docker-{}'.format(version_string)
+        cached_version_path = os.path.join(DOCKER_STATIC_CLIENT_DIR, cached_version_name)
+        if not os.path.isfile(cached_version_path):
+            print("Fetching static docker client v{}.".format(version_string))
+            url = 'https://get.docker.com/builds/Linux/x86_64/{}'.format(cached_version_name)
+            self._download_static_docker_client(url, cached_version_path)
 
 
 class DockerBackendV2(DockerBackendV1):
@@ -117,7 +120,7 @@ class DockerBackendV2(DockerBackendV1):
 
 
 class DockerBackendV3(DockerBackendV2):
-    versions_range = ('1.11.0', None)
+    versions_range = ('1.11.0', '17.03.0')
 
     @staticmethod
     def _download_static_docker_client(url, output_file):
@@ -133,6 +136,14 @@ class DockerBackendV3(DockerBackendV2):
             print("An error occurred while trying to download docker's client: {}".format(e), file=sys.stderr)
         finally:
             shutil.rmtree(tmp_dir)
+
+
+class DockerBackendV4(DockerBackendV3):
+    versions_range = ('17.03.0', None)
+
+    def get_static_docker_client(self):
+        ce_version_string = '{}.{:02}.{}-ce'.format(*self.current_version.version)
+        self._get_static_docker_client(ce_version_string)
 
 
 docker_backend = _docker_backend_factory()
