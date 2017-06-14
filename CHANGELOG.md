@@ -1,6 +1,11 @@
 # Changelog
 ## Unreleased
 
+We do best effort to support docker versions 1.6.0 - 17.05.0 with this release.
+
+### Features
+- Compatibility with docker versions 1.13.0 - 17.05.0.
+
 ### Improvements
 - `armada build --squash` uses `--squash` flag built into Docker (since 1.13), which is much faster and merges only the
     layers from currently built Dockerfile. To use it you need to turn on experimental flag in your Docker daemon:
