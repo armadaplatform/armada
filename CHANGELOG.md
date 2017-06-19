@@ -1,11 +1,15 @@
 # Changelog
-
 ## Unreleased
 
 We do best effort to support docker versions 1.6.0 - 17.05.0 with this release.
 
 ### Features
 - Compatibility with docker versions 1.13.0 - 17.05.0.
+
+### Improvements
+- `armada build --squash` uses `--squash` flag built into Docker (since 1.13), which is much faster and merges only the
+    layers from currently built Dockerfile. To use it you need to turn on experimental flag in your Docker daemon:
+    https://sreeninet.wordpress.com/2017/01/27/docker-1-13-experimental-features/
 
 ## 1.16.2 (2017-05-29)
 
@@ -31,7 +35,7 @@ We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
 - You can now set retention for containers backups stored in `/opt/armada/saved_containers_backup/`. To do that, set
     `SAVED_CONTAINERS_BACKUP_RETENTION=N` variable (where `N` is integer with number of days stored) in
     `/etc/default/armada` on host.
-    
+
 ### Improvements
 - Don't install old `gcc` version in `microservice_python3`.
 - Regular cleaning duplicated containers backup in `/opt/armada/saved_containers_backup/`.
