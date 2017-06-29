@@ -41,7 +41,6 @@ def set_ship_name(new_name):
         os.system('/usr/local/bin/consul reload')
     except Exception as e:
         get_logger().exception(e)
-    kv.kv_remove('containers_parameters_list/{}'.format(old_name))
 
 
 def get_other_ship_ips():

@@ -6,8 +6,8 @@ import web
 
 from armada_backend import api_base
 from armada_backend.models.services import create_consul_services_key
-from armada_backend.utils import get_logger
 from armada_backend.models.ships import get_ship_name
+from armada_backend.utils import get_logger
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
 
@@ -38,7 +38,7 @@ def __create_dict_from_tags(tags):
 
 
 def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filter_local):
-    consul_key = 'containers_parameters_list'
+    consul_key = 'services'
     if filter_local:
         consul_key = '{}/{}'.format(consul_key, get_ship_name())
 
@@ -47,11 +47,7 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
     if not services_by_ship:
         return {}
 
-    result = {}
-    for services_dict in services_by_ship.values():
-        result.update(_parse_single_ship(services_dict, filter_microservice_name, filter_env, filter_app_id))
-
-    return result
+    return _parse_single_ship(services_by_ship, filter_microservice_name, filter_env, filter_app_id)
 
 
 def _get_running_services(filter_microservice_name, filter_env, filter_app_id, filter_local):
@@ -126,6 +122,7 @@ def _parse_single_ship(services_dict, filter_microservice_name, filter_env, filt
         services_list = fnmatch.filter(services_list, create_consul_services_key(service_name=filter_microservice_name))
 
     for service in services_list:
+
         service_dict = services_dict[service]
         microservice_name = service_dict['ServiceName']
         microservice_status = service_dict['Status']

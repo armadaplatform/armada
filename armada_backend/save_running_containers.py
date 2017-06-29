@@ -7,7 +7,6 @@ from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.models.services import get_local_services
 from armada_backend.recover_saved_containers import RECOVERY_COMPLETED_PATH
 from armada_backend.utils import get_logger, setup_sentry
-from armada_backend.models.ships import get_ship_name
 from armada_command.consul import kv
 from armada_command.scripts.compat import json
 
@@ -28,11 +27,6 @@ def _save_containers_parameters_list_in_file(containers_parameters_list, saved_c
     os.remove(temp_file_path)
 
 
-def _save_containers_parameters_list_in_kv_store(containers_parameters_list):
-    ship_name = get_ship_name()
-    kv.kv_set('containers_parameters_list/{ship_name}'.format(**locals()), containers_parameters_list)
-
-
 def _is_recovery_completed():
     try:
         with open(RECOVERY_COMPLETED_PATH) as recovery_completed_file:
@@ -46,31 +40,29 @@ def _is_recovery_completed():
 def main():
     setup_sentry()
     args = _parse_args()
-
     saved_containers_path = args.saved_containers_path
+
+    if not args.force and not _is_recovery_completed():
+        get_logger().info('Recovery is not completed. Aborting saving running containers.')
+        return
+
     try:
         wait_for_consul_ready()
         saved_containers = get_local_services()
         containers_parameters_dict = {}
-        if saved_containers:
-            for container in saved_containers:
-                container_dict = kv.kv_get(container)
-                containers_parameters_dict[container] = container_dict
 
-        if containers_parameters_dict:
-            try:
-                _save_containers_parameters_list_in_kv_store(containers_parameters_dict)
-                get_logger().info('Containers have been saved to kv store.')
-            except Exception as e:
-                get_logger().exception(e)
-            if not args.force and not _is_recovery_completed():
-                get_logger().warning('Recovery is not completed. Aborting saving running containers.')
-                return
-            _save_containers_parameters_list_in_file(containers_parameters_dict, saved_containers_path)
-            get_logger().info('Containers have been saved to {}.'.format(saved_containers_path))
+        for container in saved_containers:
+            container_dict = kv.kv_get(container)
+            containers_parameters_dict[container] = container_dict
 
-        else:
-            get_logger().info('Aborted saving container because of errors.')
+        if not containers_parameters_dict:
+            get_logger().info('Aborted saving container because list is empty.')
+            return
+
+        _save_containers_parameters_list_in_file(containers_parameters_dict, saved_containers_path)
+        get_logger().info('Containers have been saved to {}.'.format(saved_containers_path))
+
+
     except Exception as e:
         get_logger().exception(e)
         sys.exit(1)
