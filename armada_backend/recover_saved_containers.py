@@ -1,11 +1,13 @@
 import argparse
 import os
-import sys
 from collections import Counter
-from time import sleep
 from uuid import uuid4
 
+import sys
+from time import sleep
+
 from armada_backend.api_ship import wait_for_consul_ready
+from armada_backend.models.services import save_container
 from armada_backend.utils import get_logger, get_ship_name, shorten_container_id, setup_sentry
 from armada_command import armada_api
 from armada_command.consul import kv
@@ -70,7 +72,7 @@ def _load_from_list(saved_containers, ship):
     containers_to_be_added = _multiset_difference(saved_containers, running_containers)
     for container_parameters in containers_to_be_added:
         get_logger().info('Added service: {}'.format(container_parameters))
-        kv.save_container(ship, _generate_id(), 'crashed', params=container_parameters)
+        save_container(ship, _generate_id(), 'crashed', params=container_parameters)
 
 
 def _load_containers_to_kv_store(saved_containers_path):
@@ -147,7 +149,7 @@ def _add_running_services_at_startup():
                 continue
             key = 'ships/{}/service/{}/{}'.format(ship, service_dict['Service'], service_id)
             if not containers_saved_in_kv or key not in containers_saved_in_kv:
-                kv.save_container(ship, service_id, 'started')
+                save_container(ship, service_id, 'started')
                 get_logger().info('Added running service: {}'.format(service_id))
     except:
         get_logger().exception('Unable to add running services.')
