@@ -6,7 +6,8 @@ import web
 
 from armada_backend import api_base
 from armada_backend.models.services import create_consul_services_key
-from armada_backend.utils import get_ship_name, get_logger
+from armada_backend.utils import get_logger
+from armada_backend.models.ships import get_ship_name
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
 

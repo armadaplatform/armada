@@ -2,7 +2,7 @@ import base64
 import calendar
 import time
 
-from armada_backend.utils import get_ship_name
+from armada_backend.models.ships import get_ship_name
 from armada_command.consul.kv import kv_get, get_env, kv_set, kv_list
 from armada_command.scripts.compat import json
 

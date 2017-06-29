@@ -1,6 +1,7 @@
 from armada_backend import api_base, docker_client
 from armada_backend.models.services import save_container
-from armada_backend.utils import shorten_container_id, get_ship_name
+from armada_backend.utils import shorten_container_id
+from armada_backend.models.ships import get_ship_name
 from armada_command.consul.consul import consul_query
 
 

@@ -8,7 +8,8 @@ from time import sleep
 
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.models.services import save_container, get_local_services, create_consul_services_key, update_container_status
-from armada_backend.utils import get_logger, get_ship_name, shorten_container_id, setup_sentry
+from armada_backend.utils import get_logger, shorten_container_id, setup_sentry
+from armada_backend.models.ships import get_ship_name
 from armada_command import armada_api
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
