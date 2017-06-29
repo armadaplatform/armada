@@ -8,6 +8,7 @@ from raven.contrib.webpy.utils import get_data_from_request
 from raven.handlers.logging import SentryHandler
 
 from armada_backend import docker_client
+
 from armada_command._version import __version__
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_get
@@ -106,9 +107,10 @@ def get_ship_name(ship_ip=None):
 
 
 def set_ship_name(new_name):
+    from armada_backend.models.services import get_services_by_ship
     ship_ip = get_ship_ip()
     old_name = get_ship_name(ship_ip)
-    saved_containers = kv.kv_list('ships/{}/service/'.format(old_name))
+    saved_containers = get_services_by_ship(old_name)
     if saved_containers:
         for container in saved_containers:
             new_key = 'ships/{}/service/{}/{}'.format(new_name, container.split('/')[-2], container.split('/')[-1])

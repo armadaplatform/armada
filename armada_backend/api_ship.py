@@ -7,6 +7,7 @@ import web
 import xmlrpclib
 
 from armada_backend import api_base, consul_config
+from armada_backend.models.services import get_local_services
 from armada_backend.runtime_settings import override_runtime_settings
 from armada_backend.utils import deregister_services, get_current_datacenter, get_logger, get_other_ship_ips, \
     set_ship_name, get_ship_name
@@ -88,9 +89,7 @@ class Join(api_base.ApiCommand):
         if error:
             return self.status_error(error)
 
-        ship = get_ship_name()
-        local_services = kv.kv_list('ships/{}/service/'.format(ship)) or []
-        local_services_data = {key: kv.kv_get(key) for key in local_services}
+        local_services_data = {key: kv.kv_get(key) for key in get_local_services()}
 
         armada_size = _get_armada_size()
         if armada_size > 1:

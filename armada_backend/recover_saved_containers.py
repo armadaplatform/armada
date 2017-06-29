@@ -7,7 +7,7 @@ import sys
 from time import sleep
 
 from armada_backend.api_ship import wait_for_consul_ready
-from armada_backend.models.services import save_container
+from armada_backend.models.services import save_container, get_local_services
 from armada_backend.utils import get_logger, get_ship_name, shorten_container_id, setup_sentry
 from armada_command import armada_api
 from armada_command.consul import kv
@@ -34,9 +34,7 @@ def _load_saved_containers_parameters_list(running_containers_parameters_path):
 
 def _get_local_running_containers():
     result = []
-    ship = get_ship_name()
-    local_containers = kv.kv_list('ships/{}/service/'.format(ship)) or []
-    for container in local_containers:
+    for container in get_local_services():
         container_parameters = kv.kv_get(container)['params']
         if container_parameters:
             result.append(container_parameters)
@@ -120,17 +118,15 @@ def _check_if_we_should_recover(saved_containers_path):
 
 
 def _get_crashed_services():
-    ship = get_ship_name()
-    services_list = kv.kv_list('ships/{}/service/'.format(ship))
+    services_list = get_local_services()
     crashed_services = []
-    if not services_list:
-        return crashed_services
 
     for service in services_list:
         service_dict = kv.kv_get(service)
         microservice_status = service_dict['Status']
         if microservice_status in ['crashed', 'not-recovered']:
             crashed_services.append(service)
+
     return crashed_services
 
 
@@ -138,7 +134,7 @@ def _add_running_services_at_startup():
     wait_for_consul_ready()
     try:
         ship = get_ship_name()
-        containers_saved_in_kv = kv.kv_list('ships/{}/service/'.format(ship))
+        containers_saved_in_kv = get_local_services()
         sleep(10)
         all_services = consul_query('agent/services')
         del all_services['consul']

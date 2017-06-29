@@ -4,6 +4,7 @@ import shutil
 import sys
 
 from armada_backend.api_ship import wait_for_consul_ready
+from armada_backend.models.services import get_local_services
 from armada_backend.recover_saved_containers import RECOVERY_COMPLETED_PATH
 from armada_backend.utils import get_ship_name, get_logger, setup_sentry
 from armada_command.consul import kv
@@ -48,8 +49,7 @@ def main():
     saved_containers_path = args.saved_containers_path
     try:
         wait_for_consul_ready()
-        ship = get_ship_name()
-        saved_containers = kv.kv_list('ships/{}/service/'.format(ship))
+        saved_containers = get_local_services()
         containers_parameters_dict = {}
         if saved_containers:
             for container in saved_containers:
