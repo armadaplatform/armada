@@ -62,7 +62,7 @@ def main():
 def create_deb_package(version):
     deb = {
         'package_type': 'deb',
-        'depends': ['python', 'python-pip', 'conntrack'],
+        'depends': ['python', 'python-pip', 'conntrack', 'python-pyaudio', 'python-imaging'],
     }
     packaging_options = defaults.copy()
     packaging_options.update(deb)
@@ -73,7 +73,7 @@ def create_deb_package(version):
 def create_rpm_package(version):
     rpm = {
         'package_type': 'rpm',
-        'depends': ['python', 'python-pip', 'conntrack-tools', 'net-tools'],
+        'depends': ['python', 'python-pip', 'conntrack-tools', 'net-tools', 'python-pyaudio', 'python-imaging'],
     }
     packaging_options = defaults.copy()
     packaging_options.update(rpm)
@@ -85,7 +85,7 @@ def create_amazon_linux_package(version):
     # amazon linux has custom installed pip, and default python in version 2.6.x
     rpm = {
         'package_type': 'rpm',
-        'depends': ['conntrack-tools', 'net-tools'],
+        'depends': ['conntrack-tools', 'net-tools', 'python-pyaudio', 'python-imaging'],
         'name': 'armada-amzn',
     }
     packaging_options = defaults.copy()
