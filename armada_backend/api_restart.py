@@ -5,6 +5,7 @@ from docker.errors import NotFound
 from armada_backend import docker_client
 from armada_backend.api_run import Run
 from armada_backend.api_stop import Stop
+from armada_backend.models.services import get_services_by_ship
 from armada_backend.utils import shorten_container_id
 from armada_command import armada_api
 from armada_command.consul.kv import kv_get, kv_list
@@ -49,8 +50,7 @@ class Restart(Run, Stop):
                 if env_key == 'RESTART_CONTAINER_PARAMETERS':
                     return json.loads(base64.b64decode(env_value))
         except NotFound:
-            service_list = kv_list('ships/')
-            for service in service_list:
+            for service in get_services_by_ship(ship=None):
                 if service.split('/')[-1] == container_id:
                     return kv_get(service).get('params')
 

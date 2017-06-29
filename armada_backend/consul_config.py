@@ -46,7 +46,7 @@ def get_consul_config(consul_mode, ship_ips, datacenter, ship_external_ip, ship_
     config['watches'] = [
         {'type': 'keyprefix', 'prefix': 'dockyard/', 'handler': save_runtime_settings_cmd},
         {'type': 'nodes', 'handler': save_runtime_settings_cmd},
-        {'type': 'keyprefix', 'prefix': 'ships/{}/'.format(ship_name), 'handler': save_running_containers_cmd},
+        {'type': 'keyprefix', 'prefix': 'services/{}/'.format(ship_name), 'handler': save_running_containers_cmd},
     ]
 
     return json.dumps(config, sort_keys=True, indent=4)

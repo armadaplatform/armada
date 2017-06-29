@@ -50,9 +50,7 @@ def get_matched_containers(microservice_name_or_container_id_prefix):
             if container_id.startswith(microservice_name_or_container_id_prefix) and ":" not in instance['ServiceID']:
                 matched_containers_by_id.append(instance)
 
-    services_list = kv.kv_list('ships/')
-    if services_list:
-        services_list = fnmatch.filter(services_list, 'ships/*/service/*')
+    services_list = kv.kv_list('services/')
     if services_list:
         for service in services_list:
             service_dict = kv.kv_get(service)
