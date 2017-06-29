@@ -110,6 +110,7 @@ def command_run(args):
     payload.update_dockyard(dockyard_alias)
     if vagrant_dev:
         payload.update_vagrant(args.dynamic_ports, args.publish, args.use_latest_image_code, image.image_name)
+    payload.update_armada_develop_environment(image.image_name)
     payload.update_environment(args.e)
     payload.update_ports(args.publish)
     payload.update_volumes(args.volumes)

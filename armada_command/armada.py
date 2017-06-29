@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import argparse
+import os
 import sys
 import traceback
 
@@ -9,6 +10,7 @@ from requests.packages import urllib3
 import armada_api
 import command_build
 import command_create
+import command_develop
 import command_diagnose
 import command_dockyard
 import command_info
@@ -123,6 +125,11 @@ def parse_args():
     command_diagnose.add_arguments(parser_diagnose)
     parser_diagnose.set_defaults(func=command_diagnose.command_diagnose)
 
+    parser_develop_help = 'set up development environment for microservice'
+    parser_develop = subparsers.add_parser('develop', help=parser_develop_help, description=parser_develop_help)
+    command_develop.add_arguments(parser_develop)
+    parser_develop.set_defaults(func=command_develop.command_develop)
+
     for subparser in subparsers.choices.values():
         subparser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
 
@@ -145,6 +152,15 @@ def command_promote(args):
 
 # ===================================================================================================
 
+def _get_enivironment_variables_from_file():
+    path = '/tmp/armada_develop_env_{}.sh'.format(os.getppid())
+    if os.path.isfile(path):
+        with open(path) as f:
+            for line in f:
+                env_key, env_value = (line.split('export ', 1)[1].strip().strip('"').split('=', 1) + [''])[:2]
+                os.environ[env_key] = env_value
+
+
 @version_check
 def main():
     # https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
@@ -152,6 +168,11 @@ def main():
     urllib3.disable_warnings()
 
     log_command()
+
+    try:
+        _get_enivironment_variables_from_file()
+    except Exception:
+        traceback.print_exc()
 
     args = parse_args()
     try:

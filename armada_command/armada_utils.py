@@ -6,6 +6,8 @@ import socket
 import subprocess
 import sys
 
+import psutil
+
 from armada_command.consul.consul import consul_query
 from consul import kv
 
@@ -163,3 +165,8 @@ def is_ip(name):
         return True
     except socket.error:
         return False
+
+
+def is_localhost_listening_on_port(port):
+    connections = psutil.net_connections()
+    return port in [c[3][1] for c in connections if c.status == 'LISTEN']

@@ -1,7 +1,10 @@
+import os
+import random
 import sys
 
 from armada_command.armada_utils import ArmadaCommandException
 from armada_command.dockyard import dockyard
+from armada_utils import is_localhost_listening_on_port
 
 
 class RunPayload(object):
@@ -38,7 +41,24 @@ class RunPayload(object):
         if not latest_image_code:
             microservice_path = '/opt/{microservice_name}'.format(**locals())
             self._payload['volumes'][microservice_path] = microservice_path
+            print('Mounting host directory {} to {} inside the container.'.format(microservice_path, microservice_path))
         self._payload['environment']['ARMADA_VAGRANT_DEV'] = '1'
+
+    def update_armada_develop_environment(self, microservice_name):
+        service_volume = os.environ.get('MICROSERVICE_VOLUME')
+        if service_volume:
+            microservice_path = '/opt/{}'.format(microservice_name)
+            self._payload['volumes'][service_volume] = microservice_path
+            print('Mounting host directory {} to {} inside the container.'.format(service_volume, microservice_path))
+        use_sticky_port = os.environ.get('MICROSERVICE_DYNAMIC_PORTS') == '0'
+        if use_sticky_port:
+            random.seed(microservice_name)
+            sticky_port = random.randrange(400, 499) * 10
+            for i in range(101):
+                if not is_localhost_listening_on_port(sticky_port):
+                    break
+                sticky_port += 1
+            self._payload['ports'][sticky_port] = '80'
 
     def update_environment(self, env_vars):
         for env_var in sum(env_vars or [], []):

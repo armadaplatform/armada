@@ -58,7 +58,7 @@ do
 done
 
 
-$sh_c "$pip install -U 'requests>=2.9.1' 2>/dev/null"
+$sh_c "$pip install -U 'requests>=2.9.1' psutil 2>/dev/null"
 
 sudo bash -c ". /etc/bash_completion.d/armada"
 
