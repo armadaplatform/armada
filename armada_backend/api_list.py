@@ -23,7 +23,7 @@ class List(api_base.ApiCommand):
 
             services_list = _get_services_list(**filters)
             services_list.update(_get_running_services(**filters))
-            services_list = _choose_active_instances(services_list)
+            services_list = _choose_active_instances(services_list, filters['filter_local'])
             return self.status_ok({'result': services_list.values()})
         except Exception as e:
             return self.status_exception("Cannot get the list of services.", e)
@@ -161,7 +161,7 @@ def _parse_single_ship(services_dict, filter_microservice_name, filter_env, filt
     return result
 
 
-def _choose_active_instances(services_dicts):
+def _choose_active_instances(services_dicts, filter_local):
     result = services_dicts
     running_services_with_single_active_instances = {}
     for microservice_id, service_dict in services_dicts.items():
@@ -175,7 +175,7 @@ def _choose_active_instances(services_dicts):
 
     for key, running_microservice_ids in running_services_with_single_active_instances.items():
         currently_picked_instance = kv.kv_get(key)
-        if currently_picked_instance not in running_microservice_ids:
+        if not filter_local and currently_picked_instance not in running_microservice_ids:
             currently_picked_instance = random.choice(list(running_microservice_ids))
             kv.kv_set(key, currently_picked_instance)
         for microservice_id in running_microservice_ids:
