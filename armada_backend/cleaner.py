@@ -2,7 +2,7 @@ import random
 import time
 
 from armada_backend import docker_client
-from armada_backend.models.services import get_local_services
+from armada_backend.models.services import get_local_services, update_container_status
 from armada_backend.utils import deregister_services, shorten_container_id, get_ship_ip, \
     get_ship_name, setup_sentry, get_logger
 from armada_command import armada_api
@@ -42,13 +42,13 @@ def _deregister_not_running_services():
             continue
         if not is_subservice:
             name = services[service_id]['Service']
-            kv.update_container_status('crashed', ship=ship, name=name, container_id=container_id)
+            update_container_status('crashed', ship=ship, service_name=name, container_id=container_id)
         deregister_services(container_id)
 
     for service_key in get_local_services():
         container_id = service_key.split('/')[-1]
         if container_id not in running_containers_ids:
-            kv.update_container_status('crashed', key=service_key)
+            update_container_status('crashed', key=service_key)
             deregister_services(container_id)
 
 

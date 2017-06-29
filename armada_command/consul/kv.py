@@ -36,16 +36,6 @@ def kv_list(key):
     return consul_query('kv/{key}?keys'.format(**locals()))
 
 
-def update_container_status(status, ship=None, name=None, container_id=None, key=None):
-    if not key:
-        key = 'ships/{}/service/{}/{}'.format(ship, name, container_id)
-    service_dict = kv_get(key)
-    if status == 'crashed' and service_dict['Status'] in ['not-recovered', 'recovering']:
-        return
-    service_dict['Status'] = status
-    kv_set(key, service_dict)
-
-
 def __are_we_in_armada_container():
     return os.environ.get('MICROSERVICE_NAME') == 'armada' and os.path.isfile('/.dockerenv')
 

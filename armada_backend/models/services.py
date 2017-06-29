@@ -1,6 +1,5 @@
 import base64
 import calendar
-
 import time
 
 from armada_backend.utils import get_ship_name
@@ -14,15 +13,15 @@ def save_container(ship, container_id, status, params=None):
     except:
         start_timestamp = None
     if status == 'crashed':
-        name = params['microservice_name']
+        service_name = params['microservice_name']
     else:
-        name = get_env(container_id, 'MICROSERVICE_NAME')
+        service_name = get_env(container_id, 'MICROSERVICE_NAME')
         params = json.loads(base64.b64decode(get_env(container_id, 'RESTART_CONTAINER_PARAMETERS')))
         if not start_timestamp:
             start_timestamp = str(calendar.timegm(time.gmtime()))
     address = kv_get('ships/{}/ip'.format(ship)) or ship
     service_dict = {
-        'ServiceName': name,
+        'ServiceName': service_name,
         'Status': status,
         'container_id': container_id,
         'params': params,
@@ -30,7 +29,7 @@ def save_container(ship, container_id, status, params=None):
         'ServiceID': container_id,
         'Address': address
     }
-    kv_set('services/{ship}/{name}/{container_id}'.format(**locals()), service_dict)
+    kv_set(create_consul_services_key(service_name, container_id, ship), service_dict)
 
 
 def get_local_services():
@@ -40,3 +39,17 @@ def get_local_services():
 
 def get_services_by_ship(ship):
     return kv_list('services/{ship}/'.format(**locals())) or []
+
+
+def create_consul_services_key(service_name, container_id=None, ship=None):
+    return 'services/{ship}/{service_name}/{container_id}'.format(**locals())
+
+
+def update_container_status(status, ship=None, service_name=None, container_id=None, key=None):
+    if not key:
+        key = create_consul_services_key(service_name, container_id, ship)
+    service_dict = kv_get(key)
+    if status == 'crashed' and service_dict['Status'] in ['not-recovered', 'recovering']:
+        return
+    service_dict['Status'] = status
+    kv_set(key, service_dict)

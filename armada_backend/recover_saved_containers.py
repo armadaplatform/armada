@@ -7,7 +7,7 @@ import sys
 from time import sleep
 
 from armada_backend.api_ship import wait_for_consul_ready
-from armada_backend.models.services import save_container, get_local_services
+from armada_backend.models.services import save_container, get_local_services, create_consul_services_key, update_container_status
 from armada_backend.utils import get_logger, get_ship_name, shorten_container_id, setup_sentry
 from armada_command import armada_api
 from armada_command.consul import kv
@@ -143,7 +143,7 @@ def _add_running_services_at_startup():
                 continue
             if service_dict['Service'] == 'armada':
                 continue
-            key = 'ships/{}/service/{}/{}'.format(ship, service_dict['Service'], service_id)
+            key = create_consul_services_key(service_dict['Service'], service_id, ship)
             if not containers_saved_in_kv or key not in containers_saved_in_kv:
                 save_container(ship, service_id, 'started')
                 get_logger().info('Added running service: {}'.format(service_id))
@@ -155,7 +155,7 @@ def recover_containers_from_kv_store():
     services_to_be_recovered = _get_crashed_services()
 
     for service in services_to_be_recovered:
-        kv.update_container_status('recovering', key=service)
+        update_container_status('recovering', key=service)
 
     recovery_retry_count = 0
     while services_to_be_recovered and recovery_retry_count < RECOVERY_RETRY_LIMIT:
@@ -174,7 +174,7 @@ def recover_containers_from_kv_store():
         recovery_retry_count += 1
 
     for service in services_to_be_recovered:
-        kv.update_container_status('not-recovered', key=service)
+        update_container_status('not-recovered', key=service)
 
     return services_to_be_recovered
 

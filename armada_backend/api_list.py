@@ -5,6 +5,7 @@ from distutils.util import strtobool
 import web
 
 from armada_backend import api_base
+from armada_backend.models.services import create_consul_services_key
 from armada_backend.utils import get_ship_name, get_logger
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
@@ -121,7 +122,7 @@ def _parse_single_ship(services_dict, filter_microservice_name, filter_env, filt
         return result
 
     if filter_microservice_name:
-        services_list = fnmatch.filter(services_list, 'ships/*/service/{}/*'.format(filter_microservice_name))
+        services_list = fnmatch.filter(services_list, create_consul_services_key(service_name=filter_microservice_name))
 
     for service in services_list:
         service_dict = services_dict[service]

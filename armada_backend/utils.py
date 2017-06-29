@@ -8,6 +8,7 @@ from raven.contrib.webpy.utils import get_data_from_request
 from raven.handlers.logging import SentryHandler
 
 from armada_backend import docker_client
+from armada_backend.models.services import create_consul_services_key
 
 from armada_command._version import __version__
 from armada_command.consul import kv
@@ -113,7 +114,7 @@ def set_ship_name(new_name):
     saved_containers = get_services_by_ship(old_name)
     if saved_containers:
         for container in saved_containers:
-            new_key = 'ships/{}/service/{}/{}'.format(new_name, container.split('/')[-2], container.split('/')[-1])
+            new_key = create_consul_services_key(ship=new_name, service_name=container.split('/')[-2], container_id=container.split('/')[-1])
             container_dict = kv.kv_get(container)
             kv.kv_set(new_key, container_dict)
             kv.kv_remove(container)
