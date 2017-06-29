@@ -207,3 +207,8 @@ def run_command_in_container(command, container_id):
         docker_api.exec_start(exec_id['Id'])
     except Exception as e:
         get_logger().exception(e)
+
+
+def trigger_hook(hook_name, container_id):
+    cmd = '/opt/microservice/src/run_hooks.py {}'.format(hook_name)
+    run_command_in_container(cmd, container_id)
