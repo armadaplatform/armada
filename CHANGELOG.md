@@ -1,4 +1,12 @@
 # Changelog
+
+## Unreleased
+
+### Features
+- New command `armada develop`. It sets up the environment for development of given service, i.e. MICROSERVICE_NAME,
+    so that service's name is implied in other armada commands. By default it mounts current working directory to
+    container, and assigns sticky port, based on hash of service name.
+
 ## 1.17.0 (2017-06-20)
 
 We do best effort to support docker versions 1.6.0 - 17.05.0 with this release.
