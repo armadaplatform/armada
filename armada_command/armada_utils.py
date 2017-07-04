@@ -169,4 +169,4 @@ def is_ip(name):
 
 def is_port_available(port):
     connections = psutil.net_connections()
-    return port not in [c[3][1] for c in connections if c.status == 'LISTEN']
+    return port not in [c.laddr[1] for c in connections if c.status == 'LISTEN']
