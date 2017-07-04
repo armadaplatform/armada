@@ -5,7 +5,8 @@
 ### Features
 - New command `armada develop`. It sets up the environment for development of given service, i.e. MICROSERVICE_NAME,
     so that service's name is implied in other armada commands. By default it mounts current working directory to
-    container, and assigns sticky port, based on hash of service name.
+    container, and assigns sticky port from range 4000..4999, based on hash of service name, that should be easy to
+    memorize. Exporting `$MICROSERVICE_NAME` env variable is no longer recommended for development.
 
 ## 1.17.0 (2017-06-20)
 

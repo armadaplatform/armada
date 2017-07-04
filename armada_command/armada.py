@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import argparse
+import json
 import os
 import sys
 import traceback
@@ -152,13 +153,13 @@ def command_promote(args):
 
 # ===================================================================================================
 
-def _get_enivironment_variables_from_file():
-    path = '/tmp/armada_develop_env_{}.sh'.format(os.getppid())
-    if os.path.isfile(path):
-        with open(path) as f:
-            for line in f:
-                env_key, env_value = (line.split('export ', 1)[1].strip().strip('"').split('=', 1) + [''])[:2]
-                os.environ[env_key] = env_value
+def _load_armada_develop_vars():
+    path = '/tmp/armada_develop_env_{}.json'.format(os.getppid())
+    if not os.path.isfile(path):
+        return
+    with open(path) as f:
+        envs = json.load(f)
+        os.environ.update(envs)
 
 
 @version_check
@@ -169,17 +170,20 @@ def main():
 
     log_command()
 
-    try:
-        _get_enivironment_variables_from_file()
-    except Exception:
-        traceback.print_exc()
-
     args = parse_args()
     try:
         if args.verbose:
             set_verbose()
     except AttributeError:
         pass
+
+    try:
+        _load_armada_develop_vars()
+    except Exception:
+        print('Warning: Could not load armada develop vars.')
+        if is_verbose():
+            traceback.print_exc()
+
     try:
         args.func(args)
     except Exception as e:

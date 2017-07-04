@@ -4,7 +4,7 @@ import sys
 
 from armada_command.armada_utils import ArmadaCommandException
 from armada_command.dockyard import dockyard
-from armada_utils import is_localhost_listening_on_port
+from armada_utils import is_port_available
 
 
 class RunPayload(object):
@@ -55,7 +55,7 @@ class RunPayload(object):
             random.seed(microservice_name)
             sticky_port = random.randrange(400, 499) * 10
             for i in range(101):
-                if not is_localhost_listening_on_port(sticky_port):
+                if is_port_available(sticky_port):
                     break
                 sticky_port += 1
             self._payload['ports'][sticky_port] = '80'

@@ -167,6 +167,6 @@ def is_ip(name):
         return False
 
 
-def is_localhost_listening_on_port(port):
+def is_port_available(port):
     connections = psutil.net_connections()
-    return port in [c[3][1] for c in connections if c.status == 'LISTEN']
+    return port not in [c[3][1] for c in connections if c.status == 'LISTEN']

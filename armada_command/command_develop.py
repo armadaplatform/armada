@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import json
 import os
 
 
@@ -17,12 +18,14 @@ def add_arguments(parser):
 
 
 def save_dev_env_vars(microservice_name, dynamic_ports, microservice_volume):
-    path = '/tmp/armada_develop_env_{}.sh'.format(os.getppid())
+    path = '/tmp/armada_develop_env_{}.json'.format(os.getppid())
     with open(path, 'w') as f:
-        f.write('export MICROSERVICE_NAME={}\n'.format(microservice_name))
-        f.write('export MICROSERVICE_DYNAMIC_PORTS={}\n'.format(1 if dynamic_ports else 0))
-        f.write('export MICROSERVICE_VOLUME={}\n'.format(microservice_volume))
-    return path
+        env_vars = {
+            'MICROSERVICE_NAME': microservice_name or '',
+            'MICROSERVICE_DYNAMIC_PORTS': '1' if dynamic_ports else '0',
+            'MICROSERVICE_VOLUME': microservice_volume or '',
+        }
+        json.dump(env_vars, f)
 
 
 def command_develop(args):
