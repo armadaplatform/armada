@@ -8,6 +8,10 @@
     container, and assigns sticky port from range 4000..4999, based on hash of service name, that should be easy to
     memorize. Exporting `$MICROSERVICE_NAME` env variable is no longer recommended for development.
 
+### Bug fixes
+- `armada list --local` don't choose active instance among services registered with `--single-active-instance` flag. 
+    This is to prevent unnecessary changes of active one between instances running on different ships.
+
 ## 1.17.0 (2017-06-20)
 
 We do best effort to support docker versions 1.6.0 - 17.05.0 with this release.
