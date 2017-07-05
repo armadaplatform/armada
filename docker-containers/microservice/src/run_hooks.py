@@ -8,15 +8,8 @@ import subprocess
 from glob import glob
 
 
-HOOKS = []
+REGISTERED_HOOKS = ('pre-stop', )
 HOOKS_PATH_WILDCARD = '/opt/*/hooks'
-
-
-def register_hook(name):
-        global HOOKS
-        if name in HOOKS:
-            raise Exception('Hook {} already registered!'.format(name))
-        HOOKS.append(name)
 
 
 def _get_hook_files(hook_name):
@@ -40,19 +33,15 @@ def _run_hook(path):
 
 
 def run(hook_name):
-    global HOOKS
-    if hook_name not in HOOKS:
-        raise Exception('There is no registered hook called {}'
+    global REGISTERED_HOOKS
+    if hook_name not in REGISTERED_HOOKS:
+        raise Exception('There is no hook called {}'
                         .format(hook_name))
 
     for f in _get_hook_files(hook_name):
         _run_hook(f)
 
 
-register_hook('pre-stop')
-
-
 if __name__ == "__main__":
     assert len(sys.argv) == 2
     run(sys.argv[1])
-
