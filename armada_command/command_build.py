@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import os
 
-from armada_command.armada_utils import execute_local_command, is_verbose
+from armada_command.armada_utils import execute_local_command, is_verbose, notify_about_detected_dev_environment
 from armada_command.docker_utils.compatibility import docker_backend
 from armada_command.docker_utils.images import ArmadaImageFactory, InvalidImagePathException
 from armada_command.dockyard import dockyard
@@ -42,6 +42,8 @@ def command_build(args):
         image = ArmadaImageFactory(args.microservice_name, dockyard_alias, os.environ.get('MICROSERVICE_NAME'))
     except InvalidImagePathException:
         raise ArmadaCommandException('No microservice name supplied.')
+
+    notify_about_detected_dev_environment(image.image_name)
 
     base_image = ArmadaImageFactory(base_image_name, dockyard_alias)
     if base_image.is_remote():

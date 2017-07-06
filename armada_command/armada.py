@@ -154,7 +154,7 @@ def command_promote(args):
 # ===================================================================================================
 
 def _load_armada_develop_vars():
-    path = '/tmp/armada_develop_env_{}.json'.format(os.getppid())
+    path = command_develop.get_armada_develop_env_file_path()
     if not os.path.isfile(path):
         return
     with open(path) as f:

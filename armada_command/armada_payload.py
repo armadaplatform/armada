@@ -33,8 +33,7 @@ class RunPayload(object):
             self._payload['dockyard_password'] = dockyard_info.get('password')
 
     def update_vagrant(self, has_dynamic_ports, ports, latest_image_code, microservice_name):
-        is_port_80_overridden = any(port_container == 80
-                                    for port_container in self._ports_to_mapping_dict(ports).values())
+        is_port_80_overridden = 80 in self._ports_to_mapping_dict(ports).values()
 
         if not (has_dynamic_ports or is_port_80_overridden):
             self._payload['ports']['4999'] = '80'

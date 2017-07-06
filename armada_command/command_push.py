@@ -4,7 +4,8 @@ import os
 import pwd
 import socket
 
-from armada_command.armada_utils import ArmadaCommandException, execute_local_command
+from armada_command.armada_utils import ArmadaCommandException, execute_local_command, \
+    notify_about_detected_dev_environment
 from armada_command.docker_utils.compatibility import docker_backend
 from armada_command.docker_utils.images import ArmadaImageFactory, InvalidImagePathException
 from armada_command.dockyard import dockyard
@@ -46,6 +47,9 @@ def command_push(args):
     except InvalidImagePathException:
         raise ArmadaCommandException('ERROR: Please specify image_path argument'
                                      ' or set MICROSERVICE_NAME environment variable')
+
+    notify_about_detected_dev_environment(source_image.image_name)
+
     dockyard_alias = args.dockyard
     if not source_image.dockyard_address:
         if not source_image.exists():

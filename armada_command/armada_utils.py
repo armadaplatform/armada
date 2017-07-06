@@ -6,7 +6,8 @@ import socket
 import subprocess
 import sys
 
-import psutil
+from colored import style
+from colored.fore import *
 
 from armada_command.consul.consul import consul_query
 from consul import kv
@@ -168,5 +169,11 @@ def is_ip(name):
 
 
 def is_port_available(port):
-    connections = psutil.net_connections()
-    return port not in [c.laddr[1] for c in connections if c.status == 'LISTEN']
+    return os.system('nc -z localhost {}'.format(port)) != 0
+
+
+def notify_about_detected_dev_environment(image_name):
+    if os.environ.get('MICROSERVICE_NAME') == image_name:
+        print(style.BOLD + fore.GREEN
+              + 'INFO: Detected development environment for microservice {}.'.format(image_name)
+              + style.RESET)

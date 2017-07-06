@@ -6,7 +6,7 @@ import sys
 
 import armada_api
 from armada_command.armada_payload import RunPayload
-from armada_command.armada_utils import ArmadaCommandException, is_verbose
+from armada_command.armada_utils import ArmadaCommandException, is_verbose, notify_about_detected_dev_environment
 from armada_command.docker_utils.images import ArmadaImageFactory, select_latest_image, InvalidImagePathException
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default
@@ -98,9 +98,10 @@ def command_run(args):
     is_run_locally = ship is None
     dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(image.image_name, is_run_locally)
 
-    vagrant_dev = _is_vagrant_dev(args.hidden_vagrant_dev, dockyard_alias, image.image_name)
+    notify_about_detected_dev_environment(image.image_name)
+    dev_environment = _is_dev_environment(args.hidden_vagrant_dev, dockyard_alias, image.image_name)
 
-    dockyard_alias, image = _find_dockyard_with_image(vagrant_dev, args.hidden_is_restart, dockyard_alias,
+    dockyard_alias, image = _find_dockyard_with_image(dev_environment, args.hidden_is_restart, dockyard_alias,
                                                       image.image_name_with_tag)
 
     _print_run_info(image, dockyard_alias, ship, args.rename)
@@ -108,14 +109,14 @@ def command_run(args):
     payload = RunPayload()
     payload.update_image_path(image.image_path_with_tag)
     payload.update_dockyard(dockyard_alias)
-    if vagrant_dev:
+    if dev_environment and os.environ.get('ARMADA_DISABLE_VAGRANT_DEV') != '1':
         payload.update_vagrant(args.dynamic_ports, args.publish, args.use_latest_image_code, image.image_name)
     payload.update_armada_develop_environment(image.image_name)
     payload.update_environment(args.e)
     payload.update_ports(args.publish)
     payload.update_volumes(args.volumes)
     payload.update_microservice_vars(args.rename, args.env, args.app_id)
-    payload.update_run_command(vagrant_dev, args.env, image.image_name)
+    payload.update_run_command(dev_environment, args.env, image.image_name)
     payload.update_resource_limits(args.cpu_shares, args.memory, args.memory_swap, args.cgroup_parent)
     payload.update_configs(args.configs)
 
@@ -129,12 +130,11 @@ def command_run(args):
     _handle_result(result, args.hidden_is_restart)
 
 
-def _is_vagrant_dev(hidden_vagrant_dev, dockyard_alias, microservice_name):
+def _is_dev_environment(hidden_vagrant_dev, dockyard_alias, microservice_name):
     vagrant_dev = False
     if hidden_vagrant_dev or (are_we_in_vagrant() and dockyard_alias == 'local' and os.environ.get(
             'MICROSERVICE_NAME') == microservice_name):
-        print('INFO: Detected development environment for microservice {microservice_name}. '
-              'Using local docker registry.'.format(**locals()))
+        print('INFO: Using local docker registry.')
         vagrant_dev = True
     return vagrant_dev
 
