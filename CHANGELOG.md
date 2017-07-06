@@ -1,6 +1,10 @@
 # Changelog
 ## Unreleased
 
+### Features
+- Add hooks. Place your custom scripts under ./hooks/\<hook-name\> directory to have them executed,
+    when certain action occurs. Currently only `pre-stop` hook is available.
+
 ### Bug fixes
 - `armada list --local` don't choose active instance among services registered with `--single-active-instance` flag. 
     This is to prevent unnecessary changes of active one between instances running on different ships.
