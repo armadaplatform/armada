@@ -49,7 +49,7 @@ def create_host_config(docker_api, resource_limits, binds, port_bindings):
         'mem_limit': resource_limits.get('memory'),
         'memswap_limit': resource_limits.get('memory_swap'),
         'cgroup_parent': resource_limits.get('cgroup_parent'),
-        'cpu_shares': resource_limits.get('cgroup_parent'),
+        'cpu_shares': resource_limits.get('cpu_shares'),
     }
 
     return HostConfig(DOCKER_API_VERSION, **params)
