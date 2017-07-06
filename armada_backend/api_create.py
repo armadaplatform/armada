@@ -1,5 +1,4 @@
 import base64
-from armada_command.scripts.compat import json
 
 import web
 
@@ -8,7 +7,7 @@ from armada_backend.api_run_hermes import process_hermes
 from armada_backend.utils import get_logger
 from armada_command.armada_utils import split_image_path
 from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
-from armada_command.ship_config import get_ship_config
+from armada_command.scripts.compat import json
 
 
 class Create(api_base.ApiCommand):
@@ -101,7 +100,7 @@ class Create(api_base.ApiCommand):
             self._tag_local_image(docker_api, image_path)
             image_path = '{}:{}'.format(image_name, image_tag)
 
-        host_config = self._create_host_config(docker_api, resource_limits, volume_bindings, port_bindings)
+        host_config = docker_client.create_host_config(docker_api, resource_limits, volume_bindings, port_bindings)
         container_info = docker_api.create_container(image_path,
                                                      ports=ports,
                                                      environment=environment,
@@ -151,21 +150,6 @@ class Create(api_base.ApiCommand):
         dockyard_address, image_name, image_tag = split_image_path(image_path)
         if dockyard_address:
             docker_client.docker_tag(docker_api, dockyard_address, image_name, image_tag)
-
-    def _create_host_config(self, docker_api, resource_limits, binds, port_bindings):
-        resource_limits = resource_limits or {}
-        privileged = get_ship_config().get('privileged', 'false').lower() == 'true'
-        host_config = docker_api.create_host_config(
-            privileged=privileged,
-            publish_all_ports=True,
-            binds=binds,
-            port_bindings=port_bindings,
-            mem_limit=resource_limits.get('memory'),
-            memswap_limit=resource_limits.get('memory_swap'),
-            cgroup_parent=resource_limits.get('cgroup_parent'),
-        )
-        host_config['CpuShares'] = resource_limits.get('cpu_shares')
-        return host_config
 
     def POST(self):
         try:

@@ -12,4 +12,4 @@ rm -rf /var/lib/apt/lists/*
 
 pip install -U pip
 pip install -U setuptools
-pip install -U docker-py web.py "requests==2.9.1"
+pip install -U "docker==2.4.2" web.py "requests==2.9.1"
