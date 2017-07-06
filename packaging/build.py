@@ -62,7 +62,8 @@ def main():
 def create_deb_package(version):
     deb = {
         'package_type': 'deb',
-        'depends': ['python', 'python-pip', 'conntrack', 'python-pyaudio', 'python-imaging'],
+        'depends': ['python', 'python-pip', 'conntrack'],
+        'suggests': ['python-imaging'],
     }
     packaging_options = defaults.copy()
     packaging_options.update(deb)
@@ -73,7 +74,7 @@ def create_deb_package(version):
 def create_rpm_package(version):
     rpm = {
         'package_type': 'rpm',
-        'depends': ['python', 'python-pip', 'conntrack-tools', 'net-tools', 'python-pyaudio', 'python-imaging'],
+        'depends': ['python', 'python-pip', 'conntrack-tools', 'net-tools'],
     }
     packaging_options = defaults.copy()
     packaging_options.update(rpm)
@@ -85,7 +86,7 @@ def create_amazon_linux_package(version):
     # amazon linux has custom installed pip, and default python in version 2.6.x
     rpm = {
         'package_type': 'rpm',
-        'depends': ['conntrack-tools', 'net-tools', 'python-pyaudio', 'python-imaging'],
+        'depends': ['conntrack-tools', 'net-tools'],
         'name': 'armada-amzn',
     }
     packaging_options = defaults.copy()
@@ -157,6 +158,9 @@ def _create_package(options, version):
     ]
     for dep in options['depends']:
         fpm_options += ['--depends', dep]
+    if options['package_type'] == 'deb':
+        for dep in options['suggests']:
+            fpm_options += ['--deb-suggests', dep]
     try:
         subprocess.check_output(fpm_options)
     except subprocess.CalledProcessError as e:
