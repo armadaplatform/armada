@@ -6,6 +6,10 @@ CHUNK = 1024
 
 
 def command_poker(args):
+    with open('/opt/armada/armada_command/utils/so_sick/poker', 'rb') as im:
+        for line in im:
+            sys.stdout.write(line)
+
     try:
         import pyaudio
 
@@ -31,7 +35,3 @@ def command_poker(args):
         print("  Want more sickness? Try getting python-pyaudio.")
     except Exception:
         pass
-
-    with open('/opt/armada/armada_command/utils/so_sick/poker', 'rb') as im:
-        for line in im:
-            sys.stdout.write(line)

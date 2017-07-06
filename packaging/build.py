@@ -63,7 +63,7 @@ def create_deb_package(version):
     deb = {
         'package_type': 'deb',
         'depends': ['python', 'python-pip', 'conntrack'],
-        'suggests': ['python-imaging'],
+        'suggests': ['python-pyaudio'],
     }
     packaging_options = defaults.copy()
     packaging_options.update(deb)
