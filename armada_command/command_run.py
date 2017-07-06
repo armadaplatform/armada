@@ -109,7 +109,7 @@ def command_run(args):
     payload = RunPayload()
     payload.update_image_path(image.image_path_with_tag)
     payload.update_dockyard(dockyard_alias)
-    if dev_environment and os.environ.get('ARMADA_DISABLE_VAGRANT_DEV') != '1':
+    if dev_environment and os.environ.get('ARMADA_DEVELOP') != '1':
         payload.update_vagrant(args.dynamic_ports, args.publish, args.use_latest_image_code, image.image_name)
     payload.update_armada_develop_environment(image.image_name)
     payload.update_environment(args.e)

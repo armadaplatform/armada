@@ -173,7 +173,13 @@ def is_port_available(port):
 
 
 def notify_about_detected_dev_environment(image_name):
-    if os.environ.get('MICROSERVICE_NAME') == image_name:
+    if os.environ.get('ARMADA_DEVELOP') == '1' and os.environ.get('MICROSERVICE_NAME') == image_name:
         print(style.BOLD + fore.GREEN
-              + 'INFO: Detected development environment for microservice {}.'.format(image_name)
+              + 'INFO: Detected development environment for microservice "{}".'.format(image_name)
               + style.RESET)
+        current_dir_name = os.path.basename(os.getcwd())
+        if current_dir_name != image_name:
+            print(style.BOLD + fore.YELLOW
+                  + 'WARNING: Current working directory name "{}" does not match '
+                    'microservice name "{}".'.format(current_dir_name, image_name)
+                  + style.RESET)
