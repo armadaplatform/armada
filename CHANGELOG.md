@@ -1,6 +1,18 @@
 # Changelog
 ## Unreleased
 
+We do best effort to support docker versions 1.12.0 - 17.05.0 with this release.
+
+### Breaking changes
+- Dropped support for Docker <1.12.0
+
+### Features
+- Add hooks. Currently only `pre-stop` hook is available.
+ Place your custom scripts under ./hooks/pre-stop/ directory to have them executed, when certain action occurs.
+
+### Improvements
+- Bump docker-py to 2.4.2
+
 ### Bug fixes
 - `armada list --local` don't choose active instance among services registered with `--single-active-instance` flag. 
     This is to prevent unnecessary changes of active one between instances running on different ships.
