@@ -9,7 +9,8 @@ ENV DISTRIB_CODENAME=xenial DISTRIB_RELEASE=16.04
 
 # 'sync' is to fix "text file busy" error.
 ADD . /opt/microservice
-RUN cd /opt/microservice/scripts && chmod +x * && sync && ./install_packages.sh && ./setup_supervisor.sh
+RUN chmod +x /opt/microservice/src/run_hooks.py && \
+    cd /opt/microservice/scripts && chmod +x * && sync && ./install_packages.sh && ./setup_supervisor.sh
 RUN mkdir /var/opt/service-registration/
 
 CMD ["/usr/bin/python3", "/opt/microservice/src/bootstrap_microservice.py"]

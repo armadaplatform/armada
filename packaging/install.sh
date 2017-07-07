@@ -64,7 +64,7 @@ sudo bash -c ". /etc/bash_completion.d/armada"
 
 echo "Downloading armada image..."
 $sh_c "docker pull ${ARMADA_REPOSITORY}/armada:${ARMADA_VERSION}"
-$sh_c "python /opt/armada/docker_compatibility.py tag ${ARMADA_REPOSITORY}/armada:${ARMADA_VERSION} armada:${ARMADA_VERSION}"
+$sh_c "docker tag ${ARMADA_REPOSITORY}/armada:${ARMADA_VERSION} armada:${ARMADA_VERSION}"
 
 if command_exists systemctl; then
     start_using_systemd

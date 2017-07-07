@@ -2,11 +2,21 @@
 
 ## Unreleased
 
+We do best effort to support docker versions 1.12.0 - 17.05.0 with this release.
+
+### Breaking changes
+- Dropped support for Docker <1.12.0
+
 ### Features
+- Add hooks. Currently only `pre-stop` hook is available.
+ Place your custom scripts under ./hooks/pre-stop/ directory to have them executed, when certain action occurs.
 - New command `armada develop`. It sets up the environment for development of given service, i.e. MICROSERVICE_NAME,
     so that service's name is implied in other armada commands. By default it mounts current working directory to
     container, and assigns sticky port from range 4000..4999, based on hash of service name, that should be easy to
     memorize. Exporting `$MICROSERVICE_NAME` env variable is no longer recommended for development.
+
+### Improvements
+- Bump docker-py to 2.4.2
 
 ### Bug fixes
 - `armada list --local` don't choose active instance among services registered with `--single-active-instance` flag. 

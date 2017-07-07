@@ -4,11 +4,12 @@ import socket
 
 import docker
 
+DOCKER_API_VERSION = '1.24'
 DOCKER_SOCKET_PATH = '/var/run/docker.sock'
 
 
 def api():
-    return docker.Client(base_url='unix://' + DOCKER_SOCKET_PATH, version='1.15', timeout=7)
+    return docker.APIClient(base_url='unix://' + DOCKER_SOCKET_PATH, version=DOCKER_API_VERSION, timeout=7)
 
 
 def get_docker_inspect(container_id):
