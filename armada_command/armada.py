@@ -1,6 +1,8 @@
 from __future__ import print_function
 
 import argparse
+import json
+import os
 import sys
 import traceback
 
@@ -9,6 +11,7 @@ from requests.packages import urllib3
 import armada_api
 import command_build
 import command_create
+import command_develop
 import command_diagnose
 import command_dockyard
 import command_info
@@ -124,6 +127,11 @@ def parse_args():
     command_diagnose.add_arguments(parser_diagnose)
     parser_diagnose.set_defaults(func=command_diagnose.command_diagnose)
 
+    parser_develop_help = 'set up development environment for microservice'
+    parser_develop = subparsers.add_parser('develop', help=parser_develop_help, description=parser_develop_help)
+    command_develop.add_arguments(parser_develop)
+    parser_develop.set_defaults(func=command_develop.command_develop)
+
     parser_poker = subparsers.add_parser('poker')
     parser_poker.set_defaults(func=command_poker.command_poker)
 
@@ -149,6 +157,15 @@ def command_promote(args):
 
 # ===================================================================================================
 
+def _load_armada_develop_vars():
+    path = command_develop.get_armada_develop_env_file_path()
+    if not os.path.isfile(path):
+        return
+    with open(path) as f:
+        envs = json.load(f)
+        os.environ.update(envs)
+
+
 @version_check
 def main():
     # https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
@@ -163,6 +180,14 @@ def main():
             set_verbose()
     except AttributeError:
         pass
+
+    try:
+        _load_armada_develop_vars()
+    except Exception:
+        print('Warning: Could not load armada develop vars.')
+        if is_verbose():
+            traceback.print_exc()
+
     try:
         args.func(args)
     except Exception as e:

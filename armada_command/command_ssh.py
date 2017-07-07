@@ -48,6 +48,7 @@ def command_ssh(args):
     microservice_name = args.microservice_name or os.environ['MICROSERVICE_NAME']
     if not microservice_name:
         raise ValueError('No microservice name supplied.')
+    armada_utils.notify_about_detected_dev_environment(microservice_name)
 
     instances = [i for i in armada_utils.get_matched_containers(microservice_name) if 'Status' not in i]
 

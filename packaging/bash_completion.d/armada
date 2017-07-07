@@ -7,7 +7,7 @@ _armada()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    opts="name join promote shutdown dockyard list info run stop restart recover ssh build push create version diagnose"
+    opts="name join promote shutdown dockyard list info run stop restart recover ssh build push create version diagnose develop"
 
 
     case "${prev}" in
