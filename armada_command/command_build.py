@@ -3,7 +3,6 @@ from __future__ import print_function
 import os
 
 from armada_command.armada_utils import execute_local_command, is_verbose
-from armada_command.docker_utils.compatibility import docker_backend
 from armada_command.docker_utils.images import ArmadaImageFactory, InvalidImagePathException
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, print_http_dockyard_unavailability_warning
@@ -75,7 +74,8 @@ def command_build(args):
         if base_image_path != base_image_name:
             if is_verbose():
                 print('Tagging "{base_image_path}" as "{base_image_name}"\n'.format(**locals()))
-            tag_command = docker_backend.build_tag_command(base_image_path, base_image_name)
+
+            tag_command = "docker tag {} {}".format(base_image_path, base_image_name)
             assert execute_local_command(tag_command, stream_output=True, retries=1)[0] == 0
 
     build_command = 'docker build {} -f {} -t {} .'.format('--squash' if args.squash else '', dockerfile_path,
