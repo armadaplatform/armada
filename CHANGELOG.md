@@ -2,8 +2,7 @@
 ## Unreleased
 
 ### Features
-- Add hooks. Place your custom scripts under ./hooks/\<hook-name\> directory to have them executed,
-    when certain action occurs. Currently only `pre-stop` hook is available.
+- Add hooks. Currently only `pre-stop` hook is available. Place your custom scripts under ./hooks/pre-stop/ directory to have them executed, when certain action occurs.
 
 ### Bug fixes
 - `armada list --local` don't choose active instance among services registered with `--single-active-instance` flag. 
