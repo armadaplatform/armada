@@ -3,6 +3,8 @@ from __future__ import print_function
 import json
 import os
 
+from colored import style, fore
+
 
 def add_arguments(parser):
     parser.add_argument('microservice_name',
@@ -37,12 +39,21 @@ def save_dev_env_vars(microservice_name, dynamic_ports, microservice_volume):
 
 def command_develop(args):
     off = args.off
+    microservice_name = args.microservice_name
+    dynamic_ports = args.dynamic_ports
+    volume = args.volume
+
     if off:
         path = get_armada_develop_env_file_path()
         if os.path.exists(path):
             os.unlink(path)
         return
-    microservice_name = args.microservice_name
-    dynamic_ports = args.dynamic_ports
-    volume = args.volume
+
+    current_dir_name = os.path.basename(os.getcwd())
+    if current_dir_name != microservice_name:
+        print(style.BOLD + fore.YELLOW
+              + 'WARNING: Current working directory name "{}" does not match '
+                'microservice name "{}".'.format(current_dir_name, microservice_name)
+              + style.RESET)
+
     save_dev_env_vars(microservice_name, dynamic_ports, volume)

@@ -177,9 +177,4 @@ def notify_about_detected_dev_environment(image_name):
         print(style.BOLD + fore.GREEN
               + 'INFO: Detected development environment for microservice "{}".'.format(image_name)
               + style.RESET)
-        current_dir_name = os.path.basename(os.getcwd())
-        if current_dir_name != image_name:
-            print(style.BOLD + fore.YELLOW
-                  + 'WARNING: Current working directory name "{}" does not match '
-                    'microservice name "{}".'.format(current_dir_name, image_name)
-                  + style.RESET)
+
