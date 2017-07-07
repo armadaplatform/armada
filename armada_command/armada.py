@@ -24,6 +24,7 @@ import command_run
 import command_ssh
 import command_stop
 import command_version
+import command_poker
 from _version import __version__
 from armada_command import command_deploy
 from armada_command import command_shutdown
@@ -130,6 +131,9 @@ def parse_args():
     parser_develop = subparsers.add_parser('develop', help=parser_develop_help, description=parser_develop_help)
     command_develop.add_arguments(parser_develop)
     parser_develop.set_defaults(func=command_develop.command_develop)
+
+    parser_poker = subparsers.add_parser('poker')
+    parser_poker.set_defaults(func=command_poker.command_poker)
 
     for subparser in subparsers.choices.values():
         subparser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')

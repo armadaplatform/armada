@@ -63,6 +63,7 @@ def create_deb_package(version):
     deb = {
         'package_type': 'deb',
         'depends': ['python', 'python-pip', 'conntrack'],
+        'suggests': ['python-pyaudio'],
     }
     packaging_options = defaults.copy()
     packaging_options.update(deb)
@@ -157,6 +158,9 @@ def _create_package(options, version):
     ]
     for dep in options['depends']:
         fpm_options += ['--depends', dep]
+    if options['package_type'] == 'deb':
+        for dep in options['suggests']:
+            fpm_options += ['--deb-suggests', dep]
     try:
         subprocess.check_output(fpm_options)
     except subprocess.CalledProcessError as e:
