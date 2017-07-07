@@ -6,6 +6,9 @@ import socket
 import subprocess
 import sys
 
+from colored import style
+from colored.fore import *
+
 from armada_command.consul.consul import consul_query
 from consul import kv
 
@@ -163,3 +166,15 @@ def is_ip(name):
         return True
     except socket.error:
         return False
+
+
+def is_port_available(port):
+    return os.system('nc -z localhost {}'.format(port)) != 0
+
+
+def notify_about_detected_dev_environment(image_name):
+    if os.environ.get('ARMADA_DEVELOP') == '1' and os.environ.get('MICROSERVICE_NAME') == image_name:
+        print(style.BOLD + fore.GREEN
+              + 'INFO: Detected development environment for microservice "{}".'.format(image_name)
+              + style.RESET)
+

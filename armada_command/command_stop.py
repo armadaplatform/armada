@@ -21,6 +21,7 @@ def command_stop(args):
     microservice_handle = args.microservice_handle or os.environ['MICROSERVICE_NAME']
     if not microservice_handle:
         raise ValueError('No microservice name or container id supplied.')
+    armada_utils.notify_about_detected_dev_environment(microservice_handle)
 
     instances = armada_utils.get_matched_containers(microservice_handle)
     instances_count = len(instances)
