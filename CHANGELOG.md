@@ -8,7 +8,9 @@
 
 ### Improvements
 - Exponentially increasing periods between recover retries.
+- Internal refactoring of storing services data in consul.
 - Use only docker to build armada packages
+
 
 ## 2.0.0 (2017-07-10)
 
@@ -27,9 +29,6 @@ We do best effort to support docker versions 1.12.0 - 17.05.0 with this release.
 
 ### Improvements
 - Bump docker-py to 2.4.2
-
-### Improvements
-- Internal refactoring of storing services data in consul.
 
 ### Bug fixes
 - `armada list --local` don't choose active instance among services registered with `--single-active-instance` flag. 
