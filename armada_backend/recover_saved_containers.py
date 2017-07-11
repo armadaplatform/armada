@@ -13,8 +13,8 @@ from armada_command.consul.consul import consul_query
 from armada_command.scripts.compat import json
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
-RECOVERY_RETRY_LIMIT = 5
-DELAY_BETWEEN_RECOVER_RETRY_SECONDS = 18
+RECOVERY_RETRY_LIMIT = 7
+DELAY_BETWEEN_RECOVER_RETRY_SECONDS = 20
 
 
 def _parse_args():
