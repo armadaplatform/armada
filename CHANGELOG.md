@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Improvements
-- Exponentially increasing sleep periods between recover retries.
+- Increase number of recover retries from 5 to 7 and sleep between from 18s to 20s.
 
 ## 2.0.0 (2017-07-10)
 

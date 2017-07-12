@@ -2,11 +2,8 @@ import argparse
 import os
 import sys
 from collections import Counter
-from datetime import datetime
 from time import sleep
 from uuid import uuid4
-
-import backoff
 
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.utils import get_logger, get_ship_name, shorten_container_id, setup_sentry
@@ -16,6 +13,8 @@ from armada_command.consul.consul import consul_query
 from armada_command.scripts.compat import json
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
+RECOVERY_RETRY_LIMIT = 7
+DELAY_BETWEEN_RECOVER_RETRY_SECONDS = 20
 
 
 def _parse_args():
@@ -153,37 +152,31 @@ def _add_running_services_at_startup():
         get_logger().exception('Unable to add running services.')
 
 
-services = []
-
-
-@backoff.on_predicate(backoff.expo, predicate=lambda x: len(x) > 0, factor=20, max_value=90, max_tries=5)
-def recover_services():
-    global services
-    get_logger().info("Recovering services: %s {}".format(datetime.now()), json.dumps(services))
-    services_not_recovered = []
-    for service in services:
-        service_parameters = kv.kv_get(service)['params']
-        if not _recover_container(service_parameters):
-            services_not_recovered.append(service)
-        else:
-            kv.kv_remove(service)
-    services = services_not_recovered
-    return services
-
-
 def recover_containers_from_kv_store():
-    global services
-    services = _get_crashed_services()
+    services_to_be_recovered = _get_crashed_services()
 
-    for service in services:
+    for service in services_to_be_recovered:
         kv.update_container_status('recovering', key=service)
 
-    recover_services()
+    recovery_retry_count = 0
+    while services_to_be_recovered and recovery_retry_count < RECOVERY_RETRY_LIMIT:
+        get_logger().info("Recovering containers: %s", json.dumps(services_to_be_recovered))
+        services_not_recovered = []
 
-    for service in services:
+        for service in services_to_be_recovered:
+            service_parameters = kv.kv_get(service)['params']
+            if not _recover_container(service_parameters):
+                services_not_recovered.append(service)
+            else:
+                kv.kv_remove(service)
+        sleep(DELAY_BETWEEN_RECOVER_RETRY_SECONDS)
+        services_to_be_recovered = services_not_recovered
+        recovery_retry_count += 1
+
+    for service in services_to_be_recovered:
         kv.update_container_status('not-recovered', key=service)
 
-    return services
+    return services_to_be_recovered
 
 
 def recover_saved_containers_from_parameters(saved_containers):
@@ -208,11 +201,8 @@ def main():
         _add_running_services_at_startup()
         if args.force or _check_if_we_should_recover(args.saved_containers_path):
             _load_containers_to_kv_store(args.saved_containers_path)
-            not_recovered = recover_containers_from_kv_store()
-            if not_recovered:
-                get_logger().warning("Containers not recovered: %s", json.dumps(not_recovered))
+            if not recover_containers_from_kv_store():
                 sys.exit(1)
-            get_logger().info("All containers recovered :)")
     finally:
         with open(RECOVERY_COMPLETED_PATH, 'w') as recovery_completed_file:
             recovery_completed_file.write('1')
