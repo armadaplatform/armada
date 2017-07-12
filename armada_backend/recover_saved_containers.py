@@ -13,8 +13,9 @@ from armada_command.consul.consul import consul_query
 from armada_command.scripts.compat import json
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
-RECOVERY_RETRY_LIMIT = 7
-DELAY_BETWEEN_RECOVER_RETRY_SECONDS = 20
+RECOVERY_RETRY_LIMIT = 5
+START_DELAY_BETWEEN_RECOVER_RETRY = 20
+MAX_DELAY_BETWEEN_RECOVER_RETRY = 90
 
 
 def _parse_args():
@@ -169,7 +170,7 @@ def recover_containers_from_kv_store():
                 services_not_recovered.append(service)
             else:
                 kv.kv_remove(service)
-        sleep(DELAY_BETWEEN_RECOVER_RETRY_SECONDS)
+        sleep(min(START_DELAY_BETWEEN_RECOVER_RETRY * 2 ** recovery_retry_count, MAX_DELAY_BETWEEN_RECOVER_RETRY))
         services_to_be_recovered = services_not_recovered
         recovery_retry_count += 1
 
