@@ -205,7 +205,7 @@ def main():
             _load_containers_to_kv_store(args.saved_containers_path)
             not_recovered = recover_containers_from_kv_store()
             if not_recovered:
-                get_logger().warning("Containers not recovered: %s", json.dumps(not_recovered))
+                get_logger().error("Containers not recovered: %s", json.dumps(not_recovered))
                 sys.exit(1)
             get_logger().info("All containers recovered :)")
     finally:
