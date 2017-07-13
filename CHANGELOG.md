@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Exponentially increasing periods between recover retries.
+
 ## 2.0.0 (2017-07-10)
 
 We do best effort to support docker versions 1.12.0 - 17.05.0 with this release.

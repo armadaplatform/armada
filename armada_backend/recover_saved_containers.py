@@ -14,7 +14,8 @@ from armada_command.scripts.compat import json
 
 RECOVERY_COMPLETED_PATH = '/tmp/recovery_completed'
 RECOVERY_RETRY_LIMIT = 5
-DELAY_BETWEEN_RECOVER_RETRY_SECONDS = 18
+START_DELAY_BETWEEN_RECOVER_RETRY = 20
+MAX_DELAY_BETWEEN_RECOVER_RETRY = 90
 
 
 def _parse_args():
@@ -169,7 +170,8 @@ def recover_containers_from_kv_store():
                 services_not_recovered.append(service)
             else:
                 kv.kv_remove(service)
-        sleep(DELAY_BETWEEN_RECOVER_RETRY_SECONDS)
+        if services_not_recovered:
+            sleep(min(START_DELAY_BETWEEN_RECOVER_RETRY * 2 ** recovery_retry_count, MAX_DELAY_BETWEEN_RECOVER_RETRY))
         services_to_be_recovered = services_not_recovered
         recovery_retry_count += 1
 
@@ -201,8 +203,11 @@ def main():
         _add_running_services_at_startup()
         if args.force or _check_if_we_should_recover(args.saved_containers_path):
             _load_containers_to_kv_store(args.saved_containers_path)
-            if not recover_containers_from_kv_store():
+            not_recovered = recover_containers_from_kv_store()
+            if not_recovered:
+                get_logger().error("Containers not recovered: %s", json.dumps(not_recovered))
                 sys.exit(1)
+            get_logger().info("All containers recovered :)")
     finally:
         with open(RECOVERY_COMPLETED_PATH, 'w') as recovery_completed_file:
             recovery_completed_file.write('1')
