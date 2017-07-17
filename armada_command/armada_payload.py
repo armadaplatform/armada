@@ -49,6 +49,7 @@ class RunPayload(object):
             microservice_path = '/opt/{}'.format(microservice_name)
             self._payload['volumes'][service_volume] = microservice_path
             print('Mounting host directory {} to {} inside the container.'.format(service_volume, microservice_path))
+        if os.environ.get('ARMADA_DEVELOP')
         use_sticky_port = os.environ.get('MICROSERVICE_DYNAMIC_PORTS') == '0'
         if use_sticky_port:
             random.seed(microservice_name)

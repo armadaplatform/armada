@@ -172,9 +172,12 @@ def is_port_available(port):
     return os.system('nc -z localhost {}'.format(port)) != 0
 
 
+def is_armada_develop_on():
+    return os.environ.get('ARMADA_DEVELOP') == '1'
+
+
 def notify_about_detected_dev_environment(image_name):
-    if os.environ.get('ARMADA_DEVELOP') == '1' and os.environ.get('MICROSERVICE_NAME') == image_name:
+    if is_armada_develop_on() and os.environ.get('MICROSERVICE_NAME') == image_name:
         print(style.BOLD + fore.GREEN
               + 'INFO: Detected development environment for microservice "{}".'.format(image_name)
               + style.RESET)
-
