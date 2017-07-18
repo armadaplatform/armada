@@ -166,7 +166,7 @@ def _add_running_services_at_startup():
                 continue
             if service_dict['Service'] == 'armada':
                 continue
-            key = create_consul_services_key(service_dict['Service'], service_id, ship)
+            key = create_consul_services_key(ship, service_dict['Service'], service_id)
             if not containers_saved_in_kv or key not in containers_saved_in_kv:
                 save_container(ship, service_id, 'started')
                 get_logger().info('Added running service: {}'.format(service_id))

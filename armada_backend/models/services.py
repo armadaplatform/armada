@@ -29,7 +29,7 @@ def save_container(ship, container_id, status, params=None):
         'ServiceID': container_id,
         'Address': address
     }
-    kv_set(create_consul_services_key(service_name, container_id, ship), service_dict)
+    kv_set(create_consul_services_key(ship, service_name, container_id), service_dict)
 
 
 def get_local_services():
@@ -37,17 +37,21 @@ def get_local_services():
     return get_services_by_ship(ship)
 
 
-def get_services_by_ship(ship):
-    return kv_list('services/{ship}/'.format(**locals())) or []
+def get_services_by_ship(ship=None):
+    consul_key = 'services'
+    if ship:
+        consul_key = '{}/{}'.format(consul_key, ship)
+
+    return kv_list(consul_key) or []
 
 
-def create_consul_services_key(service_name, container_id=None, ship=None):
+def create_consul_services_key(ship, service_name, container_id):
     return 'services/{ship}/{service_name}/{container_id}'.format(**locals())
 
 
 def update_container_status(status, ship=None, service_name=None, container_id=None, key=None):
     if not key:
-        key = create_consul_services_key(service_name, container_id, ship)
+        key = create_consul_services_key(ship, service_name, container_id)
     service_dict = kv_get(key)
     if status == 'crashed' and service_dict['Status'] in ['not-recovered', 'recovering']:
         return
