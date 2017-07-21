@@ -8,6 +8,7 @@
 
 ### Improvements
 - Exponentially increasing periods between recover retries.
+- Use only docker to build armada packages
 
 ## 2.0.0 (2017-07-10)
 

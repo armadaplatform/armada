@@ -12,20 +12,5 @@ if [[ ! -n ${PACKAGE_VERSION} ]]; then
     PACKAGE_VERSION=$(grep 'ENV ARMADA_VERSION' ../Dockerfile | awk '{ print $3 }'  | tr -d '[[:space:]]')
 fi
 
-
-stop_builder_containers()
-{
-    #disable previous trap
-    trap - EXIT HUP INT QUIT PIPE TERM
-    armada stop -a "${SERVICE_NAME}"
-}
-
-trap stop_builder_containers EXIT HUP INT QUIT PIPE TERM
-
-armada build ${SERVICE_NAME}
-
-chmod +x build.py
-CONTAINER_ID=$(armada run "${SERVICE_NAME}" -v "$(pwd)/../:/opt/armada" -d local | grep -oh 'Service is running in container [[:alnum:]]*' | awk '{print $NF}')
-sleep 5
-
-armada ssh "$CONTAINER_ID" python3 packaging/build.py --version="${PACKAGE_VERSION}"
+docker build --rm -t "${SERVICE_NAME}" -f Dockerfile ./
+docker run --rm  -it -v "$(pwd)/../:/opt/armada" "${SERVICE_NAME}" --version="${PACKAGE_VERSION}"
