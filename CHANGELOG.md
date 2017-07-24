@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+- EXPERIMENTAL: `armada-heal` script, for healing overloaded armada ships, is available inside of the armada container.
+    Use with caution. Details: https://github.com/armadaplatform/armada-heal
+
 ### Improvements
 - Exponentially increasing periods between recover retries.
 
