@@ -1,11 +1,12 @@
 import fnmatch
 
 from armada_backend import api_base, docker_client
+from armada_backend.models.services import get_local_services
 from armada_backend.utils import (
     deregister_services, is_container_running, get_logger,
-    run_command_in_container, get_ship_name, trigger_hook
+    run_command_in_container, trigger_hook
 )
-from armada_command.consul.kv import kv_remove, kv_list
+from armada_command.consul.kv import kv_remove
 
 
 class Stop(api_base.ApiCommand):
@@ -20,8 +21,7 @@ class Stop(api_base.ApiCommand):
             return self.status_exception("Cannot stop requested container", e)
 
     def _stop_service(self, container_id):
-        ship = get_ship_name()
-        service_list = kv_list('ships/{}/service/'.format(ship))
+        service_list = get_local_services()
         try:
             key = fnmatch.filter(service_list, '*/{}'.format(container_id))[0]
         except (IndexError, TypeError):
@@ -35,8 +35,8 @@ class Stop(api_base.ApiCommand):
             except Exception as e:
                 get_logger().exception(e)
         else:
-            trigger_hook('pre-stop', container_id)
             run_command_in_container('supervisorctl stop armada_agent', container_id)
+            trigger_hook('pre-stop', container_id)
 
             docker_api = docker_client.api()
             last_exception = None

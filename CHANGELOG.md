@@ -8,7 +8,9 @@
 
 ### Improvements
 - Exponentially increasing periods between recover retries.
+- Internal refactoring of storing services data in consul.
 - Use only docker to build armada packages
+
 
 ## 2.0.0 (2017-07-10)
 

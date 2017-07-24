@@ -1,12 +1,16 @@
 import argparse
 import os
+import re
 import sys
 from collections import Counter
 from time import sleep
 from uuid import uuid4
 
 from armada_backend.api_ship import wait_for_consul_ready
-from armada_backend.utils import get_logger, get_ship_name, shorten_container_id, setup_sentry
+from armada_backend.models.services import save_container, get_local_services, create_consul_services_key, \
+    update_container_status
+from armada_backend.models.ships import get_ship_name
+from armada_backend.utils import get_logger, shorten_container_id, setup_sentry
 from armada_command import armada_api
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
@@ -25,16 +29,31 @@ def _parse_args():
     return parser.parse_args()
 
 
-def _load_saved_containers_parameters_list(running_containers_parameters_path):
+def _load_saved_containers_parameters(running_containers_parameters_path):
     with open(running_containers_parameters_path) as f:
         return json.load(f)
 
 
+def _convert_to_consul_services_format(services_parameters):
+    new_format = {}
+    for key, params in services_parameters.iteritems():
+        pattern = re.compile(
+            r'ships/(?P<ship>.*)/service/(?P<service_name>.*)/(?P<container_id>.*)')
+        match = pattern.match(key)
+
+        consul_key_params = {
+            'ship': match.group("ship"),
+            'service_name': match.group("service_name"),
+            'container_id': match.group("container_id"),
+        }
+        new_format[create_consul_services_key(**consul_key_params)] = params
+
+    return new_format
+
+
 def _get_local_running_containers():
     result = []
-    ship = get_ship_name()
-    local_containers = kv.kv_list('ships/{}/service/'.format(ship)) or []
-    for container in local_containers:
+    for container in get_local_services():
         container_parameters = kv.kv_get(container)['params']
         if container_parameters:
             result.append(container_parameters)
@@ -59,8 +78,15 @@ def _multiset_difference(a, b):
     return [json.loads(x) for x in difference.elements()]
 
 
-def _load_from_dict(saved_containers, ship):
-    saved_containers_list = [saved_container['params'] for saved_container in saved_containers.values()]
+def _load_from_dict(services_parameters, ship):
+    key = services_parameters.iterkeys().next()
+
+    # convert from armada 1.x format
+    # todo: remove in future version
+    if key.startswith('ships'):
+        services_parameters = _convert_to_consul_services_format(services_parameters)
+
+    saved_containers_list = [saved_container['params'] for saved_container in services_parameters.values()]
     _load_from_list(saved_containers_list, ship)
 
 
@@ -70,18 +96,15 @@ def _load_from_list(saved_containers, ship):
     containers_to_be_added = _multiset_difference(saved_containers, running_containers)
     for container_parameters in containers_to_be_added:
         get_logger().info('Added service: {}'.format(container_parameters))
-        kv.save_container(ship, _generate_id(), 'crashed', params=container_parameters)
+        save_container(ship, _generate_id(), 'crashed', params=container_parameters)
 
 
 def _load_containers_to_kv_store(saved_containers_path):
     wait_for_consul_ready()
     try:
         ship = get_ship_name()
-        saved_containers = _load_saved_containers_parameters_list(saved_containers_path)
-        if isinstance(saved_containers, dict):
-            _load_from_dict(saved_containers, ship)
-        else:
-            _load_from_list(saved_containers, ship)
+        saved_containers = _load_saved_containers_parameters(saved_containers_path)
+        _load_from_dict(saved_containers, ship)
     except:
         get_logger().exception('Unable to load from %s', saved_containers_path)
 
@@ -118,17 +141,15 @@ def _check_if_we_should_recover(saved_containers_path):
 
 
 def _get_crashed_services():
-    ship = get_ship_name()
-    services_list = kv.kv_list('ships/{}/service/'.format(ship))
+    services_list = get_local_services()
     crashed_services = []
-    if not services_list:
-        return crashed_services
 
     for service in services_list:
         service_dict = kv.kv_get(service)
         microservice_status = service_dict['Status']
         if microservice_status in ['crashed', 'not-recovered']:
             crashed_services.append(service)
+
     return crashed_services
 
 
@@ -136,7 +157,7 @@ def _add_running_services_at_startup():
     wait_for_consul_ready()
     try:
         ship = get_ship_name()
-        containers_saved_in_kv = kv.kv_list('ships/{}/service/'.format(ship))
+        containers_saved_in_kv = get_local_services()
         sleep(10)
         all_services = consul_query('agent/services')
         del all_services['consul']
@@ -145,9 +166,9 @@ def _add_running_services_at_startup():
                 continue
             if service_dict['Service'] == 'armada':
                 continue
-            key = 'ships/{}/service/{}/{}'.format(ship, service_dict['Service'], service_id)
+            key = create_consul_services_key(ship, service_dict['Service'], service_id)
             if not containers_saved_in_kv or key not in containers_saved_in_kv:
-                kv.save_container(ship, service_id, 'started')
+                save_container(ship, service_id, 'started')
                 get_logger().info('Added running service: {}'.format(service_id))
     except:
         get_logger().exception('Unable to add running services.')
@@ -157,7 +178,7 @@ def recover_containers_from_kv_store():
     services_to_be_recovered = _get_crashed_services()
 
     for service in services_to_be_recovered:
-        kv.update_container_status('recovering', key=service)
+        update_container_status('recovering', key=service)
 
     recovery_retry_count = 0
     while services_to_be_recovered and recovery_retry_count < RECOVERY_RETRY_LIMIT:
@@ -176,7 +197,7 @@ def recover_containers_from_kv_store():
         recovery_retry_count += 1
 
     for service in services_to_be_recovered:
-        kv.update_container_status('not-recovered', key=service)
+        update_container_status('not-recovered', key=service)
 
     return services_to_be_recovered
 
@@ -185,10 +206,7 @@ def recover_saved_containers_from_parameters(saved_containers):
     wait_for_consul_ready()
     try:
         ship = get_ship_name()
-        if isinstance(saved_containers, dict):
-            _load_from_dict(saved_containers, ship)
-        else:
-            _load_from_list(saved_containers, ship)
+        _load_from_dict(saved_containers, ship)
     except Exception as e:
         get_logger().exception(e)
 
