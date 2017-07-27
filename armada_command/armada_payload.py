@@ -32,33 +32,29 @@ class RunPayload(object):
             self._payload['dockyard_user'] = dockyard_info.get('user')
             self._payload['dockyard_password'] = dockyard_info.get('password')
 
-    def update_vagrant(self, has_dynamic_ports, ports, latest_image_code, microservice_name):
-        is_port_80_overridden = 80 in self._ports_to_mapping_dict(ports).values()
-
-        if not (has_dynamic_ports or is_port_80_overridden):
-            self._payload['ports']['4999'] = '80'
-        if not latest_image_code:
-            microservice_path = '/opt/{microservice_name}'.format(**locals())
-            self._payload['volumes'][microservice_path] = microservice_path
-            print('Mounting host directory {} to {} inside the container.'.format(microservice_path, microservice_path))
-        self._payload['environment']['ARMADA_VAGRANT_DEV'] = '1'
-
-    def update_armada_develop_environment(self, microservice_name):
+    def update_armada_develop_environment(self, image_name, microservice_name, args):
         service_volume = os.environ.get('MICROSERVICE_VOLUME')
-        if service_volume:
-            microservice_path = '/opt/{}'.format(microservice_name)
+        if service_volume and not args.use_latest_image_code:
+            microservice_path = '/opt/{}'.format(image_name)
             self._payload['volumes'][service_volume] = microservice_path
             print('Mounting host directory {} to {} inside the container.'.format(service_volume, microservice_path))
-        if os.environ.get('ARMADA_DEVELOP')
-        use_sticky_port = os.environ.get('MICROSERVICE_DYNAMIC_PORTS') == '0'
+
+        is_port_80_overridden = 80 in self._ports_to_mapping_dict(args.publish).values()
+        use_sticky_port = os.environ.get('ARMADA_DEVELOP') and not args.dynamic_port and not is_port_80_overridden
         if use_sticky_port:
-            random.seed(microservice_name)
-            sticky_port = random.randrange(400, 499) * 10
-            for i in range(101):
-                if is_port_available(sticky_port):
-                    break
-                sticky_port += 1
+            if os.environ.get('VAGRANT_MICROSERVICE_NAME') == image_name:
+                sticky_port = 4999
+            else:
+                random.seed(microservice_name)
+                sticky_port = random.randrange(400, 499) * 10
+                for i in range(101):
+                    if is_port_available(sticky_port):
+                        break
+                    sticky_port += 1
             self._payload['ports'][sticky_port] = '80'
+
+        if os.environ.get('ARMADA_DEVELOP') == '1':
+            self._payload['environment']['ARMADA_DEVELOP'] = '1'
 
     def update_environment(self, env_vars):
         for env_var in sum(env_vars or [], []):
@@ -81,10 +77,10 @@ class RunPayload(object):
         self._payload['microservice_env'] = env
         self._payload['microservice_app_id'] = app_id
 
-    def update_run_command(self, vagrant_dev, env, name):
+    def update_run_command(self, armada_dev, env, name):
         run_command = 'armada ' + ' '.join(sys.argv[1:])
-        if vagrant_dev and '--hidden_vagrant_dev' not in run_command:
-            run_command += ' --hidden_vagrant_dev'
+        if armada_dev and '--hidden_armada_develop' not in run_command:
+            run_command += ' --hidden_armada_develop'
         if '--hidden_is_restart' not in run_command:
             run_command += ' --hidden_is_restart'
         if env and '--env' not in run_command:

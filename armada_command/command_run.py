@@ -107,12 +107,12 @@ def command_run(args):
 
     _print_run_info(image, dockyard_alias, ship, args.rename)
 
+    microservice_name = args.rename or image.image_name
+
     payload = RunPayload()
     payload.update_image_path(image.image_path_with_tag)
     payload.update_dockyard(dockyard_alias)
-    if dev_environment and os.environ.get('ARMADA_DEVELOP') != '1':
-        payload.update_vagrant(args.dynamic_ports, args.publish, args.use_latest_image_code, image.image_name)
-    payload.update_armada_develop_environment(image.image_name)
+    payload.update_armada_develop_environment(image.image_name, microservice_name, args)
     payload.update_environment(args.e)
     payload.update_ports(args.publish)
     payload.update_volumes(args.volumes)
@@ -132,12 +132,11 @@ def command_run(args):
 
 
 def _is_dev_environment(hidden_armada_develop, dockyard_alias, microservice_name):
-    is_dev = False
-    if hidden_armada_develop or (_is_armada_develop_on() and dockyard_alias == 'local' and os.environ.get(
+    if hidden_armada_develop or (is_armada_develop_on() and dockyard_alias == 'local' and os.environ.get(
             'MICROSERVICE_NAME') == microservice_name):
         print('INFO: Using local docker registry.')
-        is_dev = True
-    return is_dev
+        return True
+    return False
 
 
 def _find_dockyard_with_image(vagrant_dev, is_restart, dockyard_alias, microservice_name):
