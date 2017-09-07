@@ -41,19 +41,27 @@ notify() {
 
 
 set_external_ip() {
-    # determine network interface
-    : ${default_interface:=`route | grep default | awk '{print $NF}'`}
-    # check interface setting
-    if [ -z "$default_interface" ]; then log_message "ERROR: This computer has no network devices available"; exit 1; fi;
+    # determine network interface for empty config
+    if [[ -z "$default_interface" ]]; then
+        log_message "WARNING: Armada is starting without default interfece setup in /etc/default/armada. Armada will try to detect best network interface automaticaly. Please configure default interface to disable this feature."
+        default_interface=$( route | grep default -w | awk '{print $NF}' )
+        # if there is only one lo interface available
+        if [[ -z "$default_interface" ]]; then
+            default_interface='lo'
+        fi
+    fi  
     # check if interface really exists
-    if [[ "$default_interface" != "lo" ]] &&  [[ -z "$( route | grep $default_interface)" ]]; then log_message "ERROR: Interface $default_interface is unplugged or misspelled"; exit 1; fi
+    if [[ "$default_interface" != "lo" ]] &&  [[ -z "$( route | grep $default_interface -w)" ]]; then 
+        log_message "ERROR: Interface $default_interface is unplugged or misspelled. Check your devices or change default settings in /etc/default/armada (default_interface=YOUR_INTERFACE_NAME) or comment it to enable autodetection."; 
+        exit 1; 
+    fi
     # choose network tool
     case `(type -p ip; type -p ifconfig) | head -n1 | awk '{n=split($1,a,"/");print a[n]}'` in
-        'ip') external_ip=$( ip address show $default_interface | awk '/inet/&&!/inet6/{split($2,a,"/");print a[1]}' ) ;;
-        'ifconfig') external_ip=$( ifconfig $default_interface | awk '/inet/&&/netmask/{print $2}' );;
+        'ip') external_ip=$( ip address show $default_interface 2>&1 | awk '/inet/&&!/inet6/{split($2,a,"/");print a[1]}' ) ;;
+        'ifconfig') external_ip=$( ifconfig $default_interface 2>&1 | awk '/inet/&&/netmask/{print $2}' );;
          *) log_message 'ERROR: Unable to use network tools. {ip,ifconfig} not installed'; exit 1 ;;
     esac
-    # ip check
+    # check ip format
     if [ -z "$( echo $external_ip | awk '{match($0,/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/);ip=substr($0,RSTART,RLENGTH);print ip}')" ]; then
         log_message "ERROR: Unable to bind $external_ip - " && exit 1
     fi
