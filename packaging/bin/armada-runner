@@ -39,19 +39,25 @@ notify() {
     fi
 }
 
+
 set_external_ip() {
-    if [ -n "${default_interface}" ]; then
-        external_ip=$(ifconfig ${default_interface} | grep 'inet ' | awk '{print $2}' | cut -d: -f2 | head -1 | tr -d '\n')
-        if [ -z "${external_ip}" ]; then
-            log_message "Could not get IPv4 address for ${default_interface} interface. Using $(route | grep ^default | awk '{print $8}')"
-            default_interface=$(route | grep ^default | awk '{print $8}')
-            external_ip=$(ifconfig ${default_interface} | grep 'inet ' | awk '{print $2}' | cut -d: -f2 | head -1)
-        fi
-    else
-        log_message "No default network configuration at /etc/default/${BASE}. Using $(route | grep ^default | awk '{print $8}')"
-        default_interface=$(route | grep ^default | awk '{print $8}')
-        external_ip=$(ifconfig ${default_interface} | grep 'inet ' | awk '{print $2}' | cut -d: -f2 | head -1)
+    # determine network interface
+    : ${default_interface:=`route | grep default | awk '{print $NF}'`}
+    # check interface setting
+    if [ -z "$default_interface" ]; then log_message "ERROR: This computer has no network devices available"; exit 1; fi;
+    # check if interface really exists
+    if [ -z "$( route | grep $default_interface)" ]; then log_message "ERROR: Interface $default_interface is unplugged or misspelled"; exit 1; fi
+    # choose network tool
+    case `(type -p ip; type -p ifconfig) | head -n1 | awk '{n=split($1,a,"/");print a[n]}'` in
+        'ip') external_ip=$( ip address show $default_interface | awk '/inet/&&/brd/{split($2,a,"/");print a[1]}' ) ;;
+        'ifconfig') external_ip=$( ifconfig $default_interface | awk '/inet/&&/netmask/{print $2}' );;
+         *) log_message 'ERROR: Unable to use network tools. {ip,ifconfig} not installed'; exit 1 ;;
+    esac
+    # ip check
+    if [ -z "$( echo $external_ip | awk '{match($0,/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/);ip=substr($0,RSTART,RLENGTH);print ip}')" ]; then
+        log_message "ERROR: Unable to bind $external_ip - " && exit 1
     fi
+    log_message "Binding this network device $default_interface/$external_ip"
 }
 
 # Check if docker is present and available.
