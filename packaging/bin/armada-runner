@@ -46,10 +46,10 @@ set_external_ip() {
     # check interface setting
     if [ -z "$default_interface" ]; then log_message "ERROR: This computer has no network devices available"; exit 1; fi;
     # check if interface really exists
-    if [ -z "$( route | grep $default_interface)" ]; then log_message "ERROR: Interface $default_interface is unplugged or misspelled"; exit 1; fi
+    if [[ "$default_interface" != "lo" ]] &&  [[ -z "$( route | grep $default_interface)" ]]; then log_message "ERROR: Interface $default_interface is unplugged or misspelled"; exit 1; fi
     # choose network tool
     case `(type -p ip; type -p ifconfig) | head -n1 | awk '{n=split($1,a,"/");print a[n]}'` in
-        'ip') external_ip=$( ip address show $default_interface | awk '/inet/&&/brd/{split($2,a,"/");print a[1]}' ) ;;
+        'ip') external_ip=$( ip address show $default_interface | awk '/inet/&&!/inet6/{split($2,a,"/");print a[1]}' ) ;;
         'ifconfig') external_ip=$( ifconfig $default_interface | awk '/inet/&&/netmask/{print $2}' );;
          *) log_message 'ERROR: Unable to use network tools. {ip,ifconfig} not installed'; exit 1 ;;
     esac
