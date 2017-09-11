@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- `armada-runner` script now supports `ip` command instead `ifconfig` and `route`.
+- `armada-runner` can easliy bind local network interface from now.
+- `armada-runner` network interface autodetection when `$default_interface` in `/etc/default/armada` is empty or commented.
+- `armada-runner` network interface can be set statically in `/etc/default/armada` and would not be changed even if not exists.
+- Removed `net-tools` from dependecies of installation packages.
+
 ## 2.1.0 (2017-07-25)
 
 We do best effort to support docker versions 1.12.0 - 17.05.0 with this release.
