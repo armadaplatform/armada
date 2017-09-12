@@ -14,7 +14,7 @@ if [ -n "$1" ]; then
     port="$1"
 fi
 
-ips=`ifconfig -a|grep -w 'inet'|awk '{print $2}'|sed 's/[^0-9\.]//g'`
+ips=$( ip address | awk '/inet/&&!/inet6/{split($2,a,"/");print a[1]}' )
 
 for ip in ${ips}; do
     check_interface ${ip}

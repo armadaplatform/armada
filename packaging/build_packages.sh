@@ -13,4 +13,4 @@ if [[ ! -n ${PACKAGE_VERSION} ]]; then
 fi
 
 docker build --rm -t "${SERVICE_NAME}" -f Dockerfile ./
-docker run --rm  -it -v "$(pwd)/../:/opt/armada" "${SERVICE_NAME}" --version="${PACKAGE_VERSION}"
+docker run --rm -t -v "$(pwd)/../:/opt/armada" "${SERVICE_NAME}" --version="${PACKAGE_VERSION}"
