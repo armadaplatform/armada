@@ -9,6 +9,7 @@
 - `armada-runner` network interface autodetection when `$default_interface` in `/etc/default/armada` is empty or commented.
 - `armada-runner` network interface can be set statically in `/etc/default/armada` and would not be changed even if not exists.
 - Removed `net-tools` from dependecies of installation packages.
+- `HashiCorp Consul` upgraded to 0.9.3 version.
 
 ## 2.1.0 (2017-07-25)
 
