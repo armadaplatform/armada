@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.1.1 (2017-09-13)
+
+We do best effort to support docker versions 1.12.0 - 17.05.0 with this release.
 
 ### Improvements
 
