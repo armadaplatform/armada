@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.1.2 (2017-09-20)
+
+We do best effort to support docker versions 1.12.0 - 17.05.0 with this release.
 ### Bug fixes
 - `HashiCorp Consul` downgraded to 0.7.5 version due to performance problems.
     
