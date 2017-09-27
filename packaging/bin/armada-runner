@@ -40,18 +40,28 @@ notify() {
 }
 
 set_external_ip() {
-    if [ -n "${default_interface}" ]; then
-        external_ip=$(ifconfig ${default_interface} | grep 'inet ' | awk '{print $2}' | cut -d: -f2 | head -1 | tr -d '\n')
-        if [ -z "${external_ip}" ]; then
-            log_message "Could not get IPv4 address for ${default_interface} interface. Using $(route | grep ^default | awk '{print $8}')"
-            default_interface=$(route | grep ^default | awk '{print $8}')
-            external_ip=$(ifconfig ${default_interface} | grep 'inet ' | awk '{print $2}' | cut -d: -f2 | head -1)
+    # determine network interface for empty config
+    if [[ -z "$default_interface" ]]; then
+        log_message "WARNING: Armada is starting without default interface setup in /etc/default/armada. Armada will try to detect best network interface automatically. Please configure default interface to disable this feature."
+        default_interface=$( ip r |  awk '/^default/{print $5}' )
+        # if there is only one lo interface available
+        if [[ -z "$default_interface" ]]; then
+            default_interface='lo'
         fi
-    else
-        log_message "No default network configuration at /etc/default/${BASE}. Using $(route | grep ^default | awk '{print $8}')"
-        default_interface=$(route | grep ^default | awk '{print $8}')
-        external_ip=$(ifconfig ${default_interface} | grep 'inet ' | awk '{print $2}' | cut -d: -f2 | head -1)
+    fi  
+    # check if interface really exists
+    if [[ "$default_interface" != "lo" ]] && ! ( ip r | grep $default_interface -wq ); then 
+        log_message "ERROR: Interface $default_interface is unplugged or misspelled. Check your devices or change default settings in /etc/default/armada (default_interface=YOUR_INTERFACE_NAME) or comment it to enable autodetection."; 
+        exit 1; 
     fi
+    # reading ip address
+    external_ip=$( ip address show $default_interface 2>&1 | awk '/inet/&&!/inet6/{split($2,a,"/");print a[1]}' )
+    # check ip format
+    if [[ -z "$( echo $external_ip | awk '{match($0,/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/);ip=substr($0,RSTART,RLENGTH);print ip}')" ]]; then
+        log_message "ERROR: Wrong ip format -> \"$external_ip\". Maybe ip command problem." 
+        exit 1
+    fi
+    log_message "Binding this network device: $default_interface/$external_ip"
 }
 
 # Check if docker is present and available.

@@ -160,7 +160,8 @@ def _add_running_services_at_startup():
         containers_saved_in_kv = get_local_services()
         sleep(10)
         all_services = consul_query('agent/services')
-        del all_services['consul']
+        if 'consul' in all_services:
+            del all_services['consul']
         for service_id, service_dict in all_services.items():
             if ':' in service_id:
                 continue
