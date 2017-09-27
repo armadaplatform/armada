@@ -40,7 +40,8 @@ class RunPayload(object):
             print('Mounting host directory {} to {} inside the container.'.format(service_volume, microservice_path))
 
         is_port_80_overridden = 80 in self._ports_to_mapping_dict(args.publish).values()
-        use_sticky_port = os.environ.get('ARMADA_DEVELOP') and not args.dynamic_port and not is_port_80_overridden
+        use_sticky_port = (os.environ.get('ARMADA_DEVELOP') and not getattr(args, 'dynamic_port', False)
+                           and not is_port_80_overridden)
         if use_sticky_port:
             if os.environ.get('VAGRANT_MICROSERVICE_NAME') == image_name:
                 sticky_port = 4999
