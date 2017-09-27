@@ -34,7 +34,7 @@ class RunPayload(object):
 
     def update_armada_develop_environment(self, image_name, microservice_name, args):
         service_volume = os.environ.get('MICROSERVICE_VOLUME')
-        if service_volume and not args.use_latest_image_code:
+        if service_volume and not getattr(args, 'use_latest_image_code', False):
             microservice_path = '/opt/{}'.format(image_name)
             self._payload['volumes'][service_volume] = microservice_path
             print('Mounting host directory {} to {} inside the container.'.format(service_volume, microservice_path))
