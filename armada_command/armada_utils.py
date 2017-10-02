@@ -80,7 +80,7 @@ def get_matched_containers(microservice_name_or_container_id_prefix):
             'Found matching containers with both microservice name ({matched_containers_by_name_count}) '
             'and container_id ({matched_containers_by_id_count}). '
             'Please provide more specific criteria.'.format(**locals()))
-    if matched_containers_by_id_count > 1:
+    if matched_containers_by_id_count > 1 and len(microservice_name_or_container_id_prefix) < 12:
         raise ArmadaCommandException(
             'There are too many ({matched_containers_by_id_count}) matching containers. '
             'Please provide more specific container_id.'.format(**locals()))

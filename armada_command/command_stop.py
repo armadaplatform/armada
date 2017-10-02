@@ -48,6 +48,10 @@ def command_stop(args):
             ship_name = instance['Address']
             result = armada_api.post('stop', payload, ship_name=ship_name)
 
+            if result['status'] == 'error' and result['error'].startswith('armada API exception: ValueError - Cannot find ship:'):
+                payload['force'] = True
+                result = armada_api.post('stop', payload)
+
             if result['status'] == 'ok':
                 print('Service {container_id} has been stopped.'.format(**locals()))
                 if instances_count > 1:
