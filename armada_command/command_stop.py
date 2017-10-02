@@ -10,7 +10,7 @@ from armada_command.armada_utils import ArmadaCommandException
 
 
 def add_arguments(parser):
-    parser.add_argument('microservice_handle', nargs='?',
+    parser.add_argument('microservice_handle', nargs='*',
                         help='Name of the microservice or container_id to be stopped. '
                              'If not provided it will use MICROSERVICE_NAME env variable.')
     parser.add_argument('-a', '--all', action='store_true', default=False,
@@ -18,12 +18,14 @@ def add_arguments(parser):
 
 
 def command_stop(args):
-    microservice_handle = args.microservice_handle or os.environ['MICROSERVICE_NAME']
-    if not microservice_handle:
+    microservice_handles = args.microservice_handle or [os.environ['MICROSERVICE_NAME']]
+    if not microservice_handles:
         raise ValueError('No microservice name or container id supplied.')
-    armada_utils.notify_about_detected_dev_environment(microservice_handle)
+    armada_utils.notify_about_detected_dev_environment(microservice_handles[0])
 
-    instances = armada_utils.get_matched_containers(microservice_handle)
+    instances = []
+    for microservice_handle in microservice_handles:
+        instances.extend(armada_utils.get_matched_containers(microservice_handle))
     instances_count = len(instances)
 
     if instances_count > 1:
