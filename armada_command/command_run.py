@@ -6,17 +6,14 @@ import sys
 
 import armada_api
 from armada_command.armada_payload import RunPayload
-from armada_command.armada_utils import ArmadaCommandException, is_verbose, notify_about_detected_dev_environment
+from armada_command.armada_utils import ArmadaCommandException, is_verbose, notify_about_detected_dev_environment, \
+    is_armada_develop_on
 from armada_command.docker_utils.images import ArmadaImageFactory, select_latest_image, InvalidImagePathException
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, get_default
 from armada_command.ship_config import get_ship_config
 
 CONFIG_PATH_BASE = '/etc/opt/'
-
-
-def are_we_in_vagrant():
-    return os.path.exists('/etc/vagrant_box_build_time')
 
 
 def _get_default_container_memory_limit():
@@ -46,16 +43,16 @@ def add_arguments(parser):
                         help='Additional volumes for storage to be mounted to the container. '
                              'Formatted: "[host_path:]docker_path" '
                              'If host_path is not provided it will be the same as docker_path.')
-    parser.add_argument('--hidden_vagrant_dev', action='store_true', help=argparse.SUPPRESS)
+    parser.add_argument('--hidden_armada_develop', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--hidden_is_restart', action='store_true', help=argparse.SUPPRESS)
 
-    # vagrant only parameters
-    if are_we_in_vagrant():
+    # 'armada develop' only parameters
+    if is_armada_develop_on():
         parser.add_argument('-P', '--dynamic_ports', action='store_true',
-                            help='Assign dynamic ports, even if run from inside of the vagrant.')
+                            help='Assign dynamic ports, even if run under "armada develop" environment.')
         parser.add_argument('--use_latest_image_code', action='store_true',
                             help='Use code from docker image instead of code from mounted dev directory '
-                                 '(vagrant only).')
+                                 '("armada develop" only).')
 
     # hermes parameters
     parser.add_argument('--env',
@@ -99,24 +96,24 @@ def command_run(args):
     dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(image.image_name, is_run_locally)
 
     notify_about_detected_dev_environment(image.image_name)
-    dev_environment = _is_dev_environment(args.hidden_vagrant_dev, dockyard_alias, image.image_name)
+    is_dev_env = _is_dev_environment(args.hidden_armada_develop, dockyard_alias, image.image_name)
 
-    dockyard_alias, image = _find_dockyard_with_image(dev_environment, args.hidden_is_restart, dockyard_alias,
+    dockyard_alias, image = _find_dockyard_with_image(is_dev_env, args.hidden_is_restart, dockyard_alias,
                                                       image.image_name_with_tag)
 
     _print_run_info(image, dockyard_alias, ship, args.rename)
 
+    microservice_name = args.rename or image.image_name
+
     payload = RunPayload()
     payload.update_image_path(image.image_path_with_tag)
     payload.update_dockyard(dockyard_alias)
-    if dev_environment and os.environ.get('ARMADA_DEVELOP') != '1':
-        payload.update_vagrant(args.dynamic_ports, args.publish, args.use_latest_image_code, image.image_name)
-    payload.update_armada_develop_environment(image.image_name)
+    payload.update_armada_develop_environment(image.image_name, microservice_name, args)
     payload.update_environment(args.e)
     payload.update_ports(args.publish)
     payload.update_volumes(args.volumes)
     payload.update_microservice_vars(args.rename, args.env, args.app_id)
-    payload.update_run_command(dev_environment, args.env, image.image_name)
+    payload.update_run_command(is_dev_env, args.env, image.image_name)
     payload.update_resource_limits(args.cpu_shares, args.memory, args.memory_swap, args.cgroup_parent)
     payload.update_configs(args.configs)
 
@@ -130,25 +127,24 @@ def command_run(args):
     _handle_result(result, args.hidden_is_restart)
 
 
-def _is_dev_environment(hidden_vagrant_dev, dockyard_alias, microservice_name):
-    vagrant_dev = False
-    if hidden_vagrant_dev or (are_we_in_vagrant() and dockyard_alias == 'local' and os.environ.get(
+def _is_dev_environment(hidden_armada_develop, dockyard_alias, microservice_name):
+    if hidden_armada_develop or (is_armada_develop_on() and dockyard_alias == 'local' and os.environ.get(
             'MICROSERVICE_NAME') == microservice_name):
         print('INFO: Using local docker registry.')
-        vagrant_dev = True
-    return vagrant_dev
+        return True
+    return False
 
 
-def _find_dockyard_with_image(vagrant_dev, is_restart, dockyard_alias, microservice_name):
+def _find_dockyard_with_image(is_dev_env, is_restart, dockyard_alias, microservice_name):
     image = ArmadaImageFactory(microservice_name, dockyard_alias)
 
-    if vagrant_dev and is_restart:
+    if is_dev_env and is_restart:
         local_image = ArmadaImageFactory(image.image_name_with_tag, 'local')
         image = select_latest_image(image, local_image)
         if image == local_image:
             dockyard_alias = 'local'
 
-    if vagrant_dev and not image.exists():
+    if is_dev_env and not image.exists():
         print('Image {image} not found. Searching in default dockyard...'.format(**locals()))
         dockyard_alias = get_default()
         image = ArmadaImageFactory(image.image_name_with_tag, dockyard_alias)

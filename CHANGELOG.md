@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- `armada develop` is now compatible with official `armada-vagrant` boxes.
+
 ## 2.1.2 (2017-09-20)
 
 We do best effort to support docker versions 1.12.0 - 17.05.0 with this release.
