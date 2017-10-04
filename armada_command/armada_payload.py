@@ -78,9 +78,9 @@ class RunPayload(object):
         self._payload['microservice_env'] = env
         self._payload['microservice_app_id'] = app_id
 
-    def update_run_command(self, armada_dev, env, name):
+    def update_run_command(self, is_dev_env, env, name):
         run_command = 'armada ' + ' '.join(sys.argv[1:])
-        if armada_dev and '--hidden_armada_develop' not in run_command:
+        if is_dev_env and '--hidden_armada_develop' not in run_command:
             run_command += ' --hidden_armada_develop'
         if '--hidden_is_restart' not in run_command:
             run_command += ' --hidden_is_restart'

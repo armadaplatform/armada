@@ -16,10 +16,6 @@ from armada_command.ship_config import get_ship_config
 CONFIG_PATH_BASE = '/etc/opt/'
 
 
-def are_we_in_vagrant():
-    return os.path.exists('/etc/vagrant_box_build_time')
-
-
 def _get_default_container_memory_limit():
     return get_ship_config().get('DEFAULT_CONTAINER_MEMORY_LIMIT')
 
@@ -100,9 +96,9 @@ def command_run(args):
     dockyard_alias = args.dockyard or dockyard.get_dockyard_alias(image.image_name, is_run_locally)
 
     notify_about_detected_dev_environment(image.image_name)
-    dev_environment = _is_dev_environment(args.hidden_armada_develop, dockyard_alias, image.image_name)
+    is_dev_env = _is_dev_environment(args.hidden_armada_develop, dockyard_alias, image.image_name)
 
-    dockyard_alias, image = _find_dockyard_with_image(dev_environment, args.hidden_is_restart, dockyard_alias,
+    dockyard_alias, image = _find_dockyard_with_image(is_dev_env, args.hidden_is_restart, dockyard_alias,
                                                       image.image_name_with_tag)
 
     _print_run_info(image, dockyard_alias, ship, args.rename)
@@ -117,7 +113,7 @@ def command_run(args):
     payload.update_ports(args.publish)
     payload.update_volumes(args.volumes)
     payload.update_microservice_vars(args.rename, args.env, args.app_id)
-    payload.update_run_command(dev_environment, args.env, image.image_name)
+    payload.update_run_command(is_dev_env, args.env, image.image_name)
     payload.update_resource_limits(args.cpu_shares, args.memory, args.memory_swap, args.cgroup_parent)
     payload.update_configs(args.configs)
 
@@ -139,16 +135,16 @@ def _is_dev_environment(hidden_armada_develop, dockyard_alias, microservice_name
     return False
 
 
-def _find_dockyard_with_image(vagrant_dev, is_restart, dockyard_alias, microservice_name):
+def _find_dockyard_with_image(is_dev_env, is_restart, dockyard_alias, microservice_name):
     image = ArmadaImageFactory(microservice_name, dockyard_alias)
 
-    if vagrant_dev and is_restart:
+    if is_dev_env and is_restart:
         local_image = ArmadaImageFactory(image.image_name_with_tag, 'local')
         image = select_latest_image(image, local_image)
         if image == local_image:
             dockyard_alias = 'local'
 
-    if vagrant_dev and not image.exists():
+    if is_dev_env and not image.exists():
         print('Image {image} not found. Searching in default dockyard...'.format(**locals()))
         dockyard_alias = get_default()
         image = ArmadaImageFactory(image.image_name_with_tag, dockyard_alias)
