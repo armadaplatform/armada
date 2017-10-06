@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- `armada stop` now supports stopping multiple services
+- `armada list --quiet` returns only distinct container IDs
+
+### Bug fixes
+- `armada stop` can remove remaining services from removed ship
+
+
 ## 2.1.2 (2017-09-20)
 
 We do best effort to support docker versions 1.12.0 - 17.05.0 with this release.

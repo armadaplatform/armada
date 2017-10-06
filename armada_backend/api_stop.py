@@ -22,10 +22,11 @@ class Stop(api_base.ApiCommand):
             return self.status_exception("Cannot stop requested container", e)
 
     def _stop_service(self, container_id, force):
-        service_list = get_local_services()
-
         if force:
             service_list = get_services_by_ship()
+        else:
+            service_list = get_local_services()
+
         try:
             keys = fnmatch.filter(service_list, '*/{}'.format(container_id))
         except (IndexError, TypeError):
