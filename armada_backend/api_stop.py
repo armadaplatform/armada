@@ -21,7 +21,7 @@ class Stop(api_base.ApiCommand):
         except Exception as e:
             return self.status_exception("Cannot stop requested container", e)
 
-    def _stop_service(self, container_id, force):
+    def _stop_service(self, container_id, force=False):
         if force:
             service_list = get_services_by_ship()
         else:
