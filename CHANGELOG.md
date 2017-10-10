@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+### Features
+- Add customization of `max_old_space_size` in base nodejs microservices by setting `MAX_OLD_SPACE_SIZE_MB` environmental variable.
+    By default `MAX_OLD_SPACE_SIZE_MB`=256
 
 ### Improvements
 - `armada develop` is now compatible with official `armada-vagrant` boxes.
