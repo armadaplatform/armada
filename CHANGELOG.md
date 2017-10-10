@@ -6,6 +6,7 @@
 - `armada develop` is now compatible with official `armada-vagrant` boxes.
 - `armada stop` now supports stopping multiple services
 - `armada list --quiet` returns only distinct container IDs
+- `apache2` is running in the foreground in `microservice_php`, adding `logrotate` for log retention management.
 
 ### Bug fixes
 - `armada stop` can remove remaining services from removed ship
