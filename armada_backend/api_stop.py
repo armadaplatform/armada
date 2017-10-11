@@ -1,7 +1,7 @@
 import fnmatch
 
 from armada_backend import api_base, docker_client
-from armada_backend.models.services import get_local_services
+from armada_backend.models.services import get_local_services, get_services_by_ship
 from armada_backend.utils import (
     deregister_services, is_container_running, get_logger,
     run_command_in_container, trigger_hook
@@ -12,23 +12,28 @@ from armada_command.consul.kv import kv_remove
 class Stop(api_base.ApiCommand):
     def POST(self):
         container_id, error = self.get_post_parameter('container_id')
+        force, _ = self.get_post_parameter('force')
         if error:
             return self.status_error(error)
         try:
-            self._stop_service(container_id)
+            self._stop_service(container_id, force)
             return self.status_ok()
         except Exception as e:
             return self.status_exception("Cannot stop requested container", e)
 
-    def _stop_service(self, container_id):
-        service_list = get_local_services()
+    def _stop_service(self, container_id, force=False):
+        if force:
+            service_list = get_services_by_ship()
+        else:
+            service_list = get_local_services()
+
         try:
-            key = fnmatch.filter(service_list, '*/{}'.format(container_id))[0]
+            keys = fnmatch.filter(service_list, '*/{}'.format(container_id))
         except (IndexError, TypeError):
-            key = None
+            keys = []
 
         if not is_container_running(container_id):
-            if key:
+            for key in keys:
                 kv_remove(key)
             try:
                 deregister_services(container_id)
@@ -51,7 +56,7 @@ class Stop(api_base.ApiCommand):
                     get_logger().debug(e, exc_info=True)
                     last_exception = e
                 if not is_container_running(container_id):
-                    if key:
+                    for key in keys:
                         kv_remove(key)
                     break
             if is_container_running(container_id):

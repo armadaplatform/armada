@@ -38,10 +38,11 @@ def command_list(args):
             output_header += ("Created (UTC)",)
         output_rows = [output_header]
 
-    for service in service_list:
-        if args.quiet:
-            print(str(service['container_id']))
-        else:
+    if args.quiet:
+        for container_id in {service['container_id'] for service in service_list}:
+            print(container_id)
+    else:
+        for service in service_list:
             service_tags = service['tags']
             output_row = (service['name'], service['address'], service['container_id'], service['status'],
                           service_tags.get('env') or '-', service_tags.get('app_id') or '-')
@@ -50,5 +51,4 @@ def command_list(args):
                 output_row += (creation_time,)
             output_rows.append(output_row)
 
-    if not args.quiet:
         print_table([output_rows[0]] + sorted(output_rows[1:]))
