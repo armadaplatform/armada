@@ -50,7 +50,7 @@ class Create(api_base.ApiCommand):
             'configs': configs,
         }
 
-        dev = environment.get('ARMADA_VAGRANT_DEV')
+        dev = environment.get('ARMADA_DEVELOP')
         if dev:
             restart_parameters['image_path'] = image_path.split('/', 1)[-1]
 
@@ -69,11 +69,10 @@ class Create(api_base.ApiCommand):
         volumes[docker_client.DOCKER_SOCKET_PATH] = docker_client.DOCKER_SOCKET_PATH
         volumes.update(hermes_volumes or {})
         long_container_id = self._create_container(
-            image_path, microservice_name, ports, environment, volumes,
-            dockyard_user, dockyard_password, resource_limits)
+            image_path, ports, environment, volumes, dockyard_user, dockyard_password, resource_limits)
         return long_container_id
 
-    def _create_container(self, image_path, microservice_name, dict_ports, dict_environment, dict_volumes,
+    def _create_container(self, image_path, dict_ports, dict_environment, dict_volumes,
                           dockyard_user, dockyard_password, resource_limits):
         ports = None
         port_bindings = None
@@ -95,7 +94,7 @@ class Create(api_base.ApiCommand):
         dockyard_address, image_name, image_tag = split_image_path(image_path)
         docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
         self._pull_latest_image(docker_api, image_path)
-        dev = environment.get('ARMADA_VAGRANT_DEV')
+        dev = environment.get('ARMADA_DEVELOP')
         if dev:
             self._tag_local_image(docker_api, image_path)
             image_path = '{}:{}'.format(image_name, image_tag)
