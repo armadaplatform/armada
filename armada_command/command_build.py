@@ -15,6 +15,7 @@ def add_arguments(parser):
     parser.add_argument('microservice_name', nargs='?',
                         help='Name of the microservice to be built. '
                              'If not provided it will use MICROSERVICE_NAME env variable.')
+    parser.add_argument('--build-arg', action='append', help='Set build-time variables', default=[])
     parser.add_argument('-d', '--dockyard',
                         help='Build from image from dockyard with this alias. '
                              "Use 'local' to force using local repository.")
@@ -81,6 +82,21 @@ def command_build(args):
             tag_command = "docker tag {} {}".format(base_image_path, base_image_name)
             assert execute_local_command(tag_command, stream_output=True, retries=1)[0] == 0
 
-    build_command = 'docker build {} -f {} -t {} .'.format('--squash' if args.squash else '', dockerfile_path,
-                                                           image.image_name_with_tag)
-    assert execute_local_command(build_command, stream_output=True)[0] == 0
+    build_command = _generate_build_command(args, dockerfile_path, image)
+    assert execute_local_command(' '.join(build_command), stream_output=True)[0] == 0
+
+
+def _generate_build_command(command_args, dockerfile_path, image):
+    build_command = ['docker',
+                     'build',
+                     '-f', dockerfile_path,
+                     '-t', image.image_name_with_tag,
+                     ]
+
+    if command_args.squash:
+        build_command.append('--squash')
+    for build_arg in command_args.build_arg:
+        build_command += ['--build-arg', build_arg]
+
+    build_command.append('.')
+    return build_command
