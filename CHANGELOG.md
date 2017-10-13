@@ -5,12 +5,14 @@
 - Add customization of `max_old_space_size` in base nodejs microservices by setting `MAX_OLD_SPACE_SIZE_MB` environmental variable.
     By default `MAX_OLD_SPACE_SIZE_MB`=256
 - Add `vim` to `microservice`
+- Build base nodejs microservices with currently supported `nodejs` version - v4, v6, v8 and v0.12.
 
 ### Improvements
 - `armada develop` is now compatible with official `armada-vagrant` boxes.
 - `armada stop` now supports stopping multiple services
 - `armada list --quiet` returns only distinct container IDs
 - `apache2` is running in the foreground in `microservice_php`, adding `logrotate` for log retention management.
+- Use template for building base `nodejs` images.
 
 ### Bug fixes
 - `armada stop` can remove remaining services from removed ship
@@ -104,6 +106,7 @@ We do best effort to support docker versions 1.6.0 - 1.12.1 with this release.
 ### Features
 - Add `DISTRIB_CODENAME`=xenial and `DISTRIB_RELEASE`=16.04 environmental variables.
 - Add `less` and `sudo` to `microservice`
+
 - You can now set retention for containers backups stored in `/opt/armada/saved_containers_backup/`. To do that, set
     `SAVED_CONTAINERS_BACKUP_RETENTION=N` variable (where `N` is integer with number of days stored) in
     `/etc/default/armada` on host.
