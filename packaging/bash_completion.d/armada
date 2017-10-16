@@ -17,6 +17,11 @@ _armada()
             fi
             return 0
             ;;
+        build)
+            local build_opts="--build-arg --dockyard --file --squash"
+            COMPREPLY=( $(compgen -W "${build_opts}" -- ${cur}) )
+            return 0
+            ;;
         list)
             if [ $COMP_CWORD -eq 2 ];then
                 local services=$(armada list | sed '1d' | awk '{print($1)}' | tr '\n' ' ')

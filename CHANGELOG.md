@@ -5,7 +5,9 @@
 - Add customization of `max_old_space_size` in base nodejs microservices by setting `MAX_OLD_SPACE_SIZE_MB` environmental variable.
     By default `MAX_OLD_SPACE_SIZE_MB`=256
 - Add `vim` to `microservice`
+- Set build-time variables using `--build-arg` flag.
 - Build base nodejs microservices with currently supported `nodejs` version - v4, v6, v8 and v0.12.
+
 
 ### Improvements
 - `armada develop` is now compatible with official `armada-vagrant` boxes.
