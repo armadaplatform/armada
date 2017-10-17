@@ -108,7 +108,8 @@ def command_run(args):
     payload = RunPayload()
     payload.update_image_path(image.image_path_with_tag)
     payload.update_dockyard(dockyard_alias)
-    payload.update_armada_develop_environment(image.image_name, microservice_name, args)
+    if os.environ.get('MICROSERVICE_NAME') == image.image_name:
+        payload.update_armada_develop_environment(image.image_name, microservice_name, args)
     payload.update_environment(args.e)
     payload.update_ports(args.publish)
     payload.update_volumes(args.volumes)
