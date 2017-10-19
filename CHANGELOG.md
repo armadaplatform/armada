@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.2.0 (2017-10-19)
+
+We do best effort to support docker versions 1.12.0 - 17.05.0 with this release.
 ### Features
 - Add customization of `max_old_space_size` in base nodejs microservices by setting `MAX_OLD_SPACE_SIZE_MB` environmental variable.
     By default `MAX_OLD_SPACE_SIZE_MB`=256
