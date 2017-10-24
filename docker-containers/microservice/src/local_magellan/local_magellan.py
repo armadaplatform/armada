@@ -5,6 +5,7 @@ import os
 import random
 import sys
 import time
+import glob
 
 import haproxy
 
@@ -35,8 +36,7 @@ def save_magellan_config(magellan_config):
 
 def read_magellan_configs():
     result = {}
-    for config_file_name in os.listdir(LOCAL_MAGELLAN_CONFIG_DIR_PATH):
-        config_file_path = os.path.join(LOCAL_MAGELLAN_CONFIG_DIR_PATH, config_file_name)
+    for config_file_path in glob.glob(os.path.join(LOCAL_MAGELLAN_CONFIG_DIR_PATH, '*.json')):
         with open(config_file_path) as f:
             result.update(json.load(f))
     return result
@@ -67,13 +67,16 @@ def match_port_to_addresses(port_to_services, service_to_addresses):
 
 
 def main():
+    time.sleep(1)
     while True:
         try:
             port_to_services = read_magellan_configs()
-            if port_to_services is not None:
+            if port_to_services:
                 service_to_addresses = common.service_discovery.get_service_to_addresses()
                 port_to_addresses = match_port_to_addresses(port_to_services, service_to_addresses)
                 haproxy.update_from_mapping(port_to_addresses)
+            else:
+                sys.exit(0)
         except Exception as e:
             print_err("ERROR on updating haproxy: {exception_class} - {exception}".format(
                 exception_class=type(e).__name__,
