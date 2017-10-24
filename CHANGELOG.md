@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- Add possibility to configure service requirements via hermes config. This allow require different services in different environments.
+    In base microservice image required_service.py will try to find `requirements.json` in config path.
+
 ## 2.2.0 (2017-10-19)
 
 We do best effort to support docker versions 1.12.0 - 17.05.0 with this release.
