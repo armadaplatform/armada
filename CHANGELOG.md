@@ -5,7 +5,7 @@
 We do best effort to support docker versions 1.12.0 - 17.09.0 with this release.
 
 ### Features
-- Compatibility with new docker binary localization for versions 17.03 - 17.09. It makes remote `armada ssh/diagnose`
+- Compatibility with new docker binary location for versions 17.03 - 17.09. It makes remote `armada ssh/diagnose`
     work again in those docker versions.
 - Set default value of `CONFIG_DIR` to 'config', in `microservice` base image. Hermes will automatically search
     for configs in 'config' directory in your service.
@@ -22,7 +22,7 @@ We do best effort to support docker versions 1.12.0 - 17.09.0 with this release.
 - Fix `build-armada` and `restart-armada` development scripts to work outside of armada development vagrant as well.
 
 ### Deprecations
-- `armada diagnose` will no longer work properly for services build on microservice image older than
+- `armada diagnose` will no longer work properly for services built on `microservice` image older than
     v0.11.0 (2015-12-07).
 
 

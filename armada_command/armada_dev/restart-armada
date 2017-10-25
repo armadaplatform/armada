@@ -10,6 +10,6 @@ fi
 if [[ -L "$LINK_TARGET" ]]; then
     sudo rm "$LINK_TARGET"
 fi
-sudo ln -s "$ARMADA_REPO_PATH" "$LINK_TARGET"
 docker rm -f $(docker ps | grep -e "->8300" | awk '{print $1}')
+sudo ln -s "$ARMADA_REPO_PATH" "$LINK_TARGET"
 sudo ARMADA_AUTORELOAD=true /usr/local/bin/armada-runner restart
