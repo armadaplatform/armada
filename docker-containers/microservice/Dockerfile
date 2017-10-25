@@ -13,4 +13,7 @@ RUN chmod +x /opt/microservice/src/run_hooks.py && \
 RUN mkdir /var/opt/service-registration/
 RUN ln -s /opt/microservice/scripts/alogs /usr/local/bin/alogs
 
+RUN echo "\n\nfor file in '/etc/bash_completion.d/*inc'; do source \$file; done" >> /etc/bash.bashrc
+RUN cp /opt/microservice/scripts/bash_completion/*.inc /etc/bash_completion.d/
+
 CMD ["/usr/bin/python3", "/opt/microservice/src/bootstrap_microservice.py"]
