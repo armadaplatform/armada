@@ -84,6 +84,7 @@ class BaseDockerBackend(object):
 
 class DockerBackendV1(BaseDockerBackend):
     versions_range = ('1.12.0', '17.03.0')
+    docker_binaries_url = 'https://get.docker.com/builds/Linux/x86_64/'
 
     def get_static_docker_client(self):
         self._get_static_docker_client(str(self.current_version))
@@ -94,9 +95,11 @@ class DockerBackendV1(BaseDockerBackend):
 
         cached_version_name = 'docker-{}'.format(version_string)
         cached_version_path = os.path.join(DOCKER_STATIC_CLIENT_DIR, cached_version_name)
+        if os.path.isdir(cached_version_path):
+            os.rmdir(cached_version_path)
         if not os.path.isfile(cached_version_path):
-            print("Fetching static docker client v{}.".format(version_string))
-            url = 'https://get.docker.com/builds/Linux/x86_64/{}'.format(cached_version_name)
+            url = '{}{}'.format(self.docker_binaries_url, cached_version_name)
+            print("Fetching static docker client v{} from {}".format(version_string, url))
             self._download_static_docker_client(url, cached_version_path)
 
     @staticmethod
@@ -117,6 +120,7 @@ class DockerBackendV1(BaseDockerBackend):
 
 class DockerBackendV2(DockerBackendV1):
     versions_range = ('17.03.0', None)
+    docker_binaries_url = 'https://download.docker.com/linux/static/stable/x86_64/'
 
     def get_static_docker_client(self):
         ce_version_string = '{}.{:02}.{}-ce'.format(*self.current_version.version)
