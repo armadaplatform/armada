@@ -20,6 +20,8 @@ We do best effort to support docker versions 1.12.0 - 17.09.0 with this release.
 
 ### Bug fixes
 - Fix `build-armada` and `restart-armada` development scripts to work outside of armada development vagrant as well.
+- Fix armada's health-check for validating if armada runtime settings have been restored, to work during development
+    of armada.
 
 ### Deprecations
 - `armada diagnose` will no longer work properly for services built on `microservice` image older than
