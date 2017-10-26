@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- Add `IMAGE_NAME` environmental variable.  
+
 ## 2.2.0 (2017-10-19)
 
 We do best effort to support docker versions 1.12.0 - 17.05.0 with this release.
