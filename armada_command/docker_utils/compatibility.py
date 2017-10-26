@@ -120,7 +120,7 @@ class DockerBackendV1(BaseDockerBackend):
 
 class DockerBackendV2(DockerBackendV1):
     versions_range = ('17.03.0', None)
-    docker_binaries_url = 'https://download.docker.com/linux/static/stable/x86_64/'
+    docker_binaries_url = 'https://download.docker.com/linux/static/edge/x86_64/'
 
     def get_static_docker_client(self):
         ce_version_string = '{}.{:02}.{}-ce'.format(*self.current_version.version)

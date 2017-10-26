@@ -10,7 +10,7 @@ We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
     work again in those docker versions.
 - Set default value of `CONFIG_DIR` to 'config', in `microservice` base image. Hermes will automatically search
     for configs in 'config' directory in your service.
-- New alias `alogs` available in `microservice` base image. It opens up midnight commander with supervisor logs on the
+- New command `alogs` available in `microservice` base image. It opens up midnight commander with supervisor logs on the
     left pane and service source on the right pane.
 
 ### Improvements
