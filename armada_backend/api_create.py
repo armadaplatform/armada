@@ -54,9 +54,11 @@ class Create(api_base.ApiCommand):
         if dev:
             restart_parameters['image_path'] = image_path.split('/', 1)[-1]
 
-        environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(json.dumps(restart_parameters, sort_keys=True))
         environment['ARMADA_RUN_COMMAND'] = base64.b64encode(run_command)
+        environment['IMAGE_NAME'] = image_name
         environment['MICROSERVICE_NAME'] = microservice_name
+        environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(json.dumps(restart_parameters, sort_keys=True))
+
         if microservice_env:
             environment['MICROSERVICE_ENV'] = microservice_env
         if microservice_app_id:
