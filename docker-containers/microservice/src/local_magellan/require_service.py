@@ -60,7 +60,6 @@ def configure_single_requirement(microservice_name, port, env=None, app_id=None)
     elif 'MICROSERVICE_APP_ID' in os.environ:
         microservice['app_id'] = os.environ.get('MICROSERVICE_APP_ID')
     magellan_config = {port: microservice}
-    print(magellan_config)
     local_magellan.save_magellan_config(magellan_config)
 
 

@@ -15,6 +15,7 @@ import common.service_discovery
 MICROSERVICE_ENV = os.environ.get('MICROSERVICE_ENV') or None
 MICROSERVICE_APP_ID = os.environ.get('MICROSERVICE_APP_ID') or None
 LOCAL_MAGELLAN_CONFIG_DIR_PATH = '/var/opt/local-magellan/'
+SERVICE_DISCOVERY_CONFIG_DIR_PATH = '/var/opt/service_discovery.json'
 
 
 def print_err(*objs):
@@ -39,6 +40,9 @@ def read_magellan_configs():
     for config_file_path in glob.glob(os.path.join(LOCAL_MAGELLAN_CONFIG_DIR_PATH, '*.json')):
         with open(config_file_path) as f:
             result.update(json.load(f))
+    with open(SERVICE_DISCOVERY_CONFIG_DIR_PATH, 'w') as f:
+        json.dump(result, f)
+
     return result
 
 
@@ -71,12 +75,11 @@ def main():
     while True:
         try:
             port_to_services = read_magellan_configs()
-            if port_to_services:
-                service_to_addresses = common.service_discovery.get_service_to_addresses()
-                port_to_addresses = match_port_to_addresses(port_to_services, service_to_addresses)
-                haproxy.update_from_mapping(port_to_addresses)
-            else:
+            if not port_to_services:
                 sys.exit(0)
+            service_to_addresses = common.service_discovery.get_service_to_addresses()
+            port_to_addresses = match_port_to_addresses(port_to_services, service_to_addresses)
+            haproxy.update_from_mapping(port_to_addresses)
         except Exception as e:
             print_err("ERROR on updating haproxy: {exception_class} - {exception}".format(
                 exception_class=type(e).__name__,
