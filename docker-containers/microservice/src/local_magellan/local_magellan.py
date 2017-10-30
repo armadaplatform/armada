@@ -40,9 +40,6 @@ def read_magellan_configs():
     for config_file_path in glob.glob(os.path.join(LOCAL_MAGELLAN_CONFIG_DIR_PATH, '*.json')):
         with open(config_file_path) as f:
             result.update(json.load(f))
-    with open(SERVICE_DISCOVERY_CONFIG_DIR_PATH, 'w') as f:
-        json.dump(result, f)
-
     return result
 
 
@@ -77,6 +74,10 @@ def main():
             port_to_services = read_magellan_configs()
             if not port_to_services:
                 sys.exit(0)
+
+            with open(SERVICE_DISCOVERY_CONFIG_DIR_PATH, 'w') as f:
+                json.dump(port_to_services, f)
+
             service_to_addresses = common.service_discovery.get_service_to_addresses()
             port_to_addresses = match_port_to_addresses(port_to_services, service_to_addresses)
             haproxy.update_from_mapping(port_to_addresses)
