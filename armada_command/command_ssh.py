@@ -101,10 +101,14 @@ def command_ssh(args):
     else:
         ssh_host = instance['Address']
         docker_key_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'keys/docker.key')
-        remote_ssh_chunk = 'ssh -t {tty} -p 2201 -i {docker_key_file} -o StrictHostKeyChecking=no docker@{ssh_host}' \
-            .format(**locals())
+        remote_ssh_chunk = ('ssh -t {tty} -p 2201 -i {docker_key_file} '
+                            '-o StrictHostKeyChecking=no -o LogLevel=ERROR -o UserKnownHostsFile=/dev/null '
+                            'docker@{ssh_host}').format(**locals())
         ssh_args = shlex.split(remote_ssh_chunk)
         ssh_args.extend(('sudo', docker_command))
         print("Connecting to {0} on host {1}...".format(instance['ServiceName'], ssh_host))
 
-    os.execvp(ssh_args[0], ssh_args)
+    os.execvpe(ssh_args[0], ssh_args, {
+        'LANG': 'C.UTF-8',
+        'LC_ALL': 'C.UTF-8',
+    })

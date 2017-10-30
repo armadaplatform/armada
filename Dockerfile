@@ -6,20 +6,17 @@ RUN apt-get update && apt-get install -y rsync openssh-server libffi-dev libssl-
 RUN pip install paramiko web.py 'docker==2.4.2' raven contextlib2 ujson colored armada-heal
 
 # Consul
-RUN wget https://releases.hashicorp.com/consul/0.7.5/consul_0.7.5_linux_amd64.zip -O consul.zip
-RUN unzip consul.zip && mv consul /usr/local/bin && rm -f consul.zip
+RUN curl -s https://releases.hashicorp.com/consul/0.7.5/consul_0.7.5_linux_amd64.zip | zcat > /usr/local/bin/consul \
+    && chmod +x /usr/local/bin/consul
 
 ADD ./armada_backend/supervisor/* /etc/supervisor/conf.d/
 RUN rm -f /etc/supervisor/conf.d/local_magellan.conf
-ADD ./armada_backend/health-checks/* /opt/armada-docker/health-checks/
 
 # armada
 ADD . /opt/armada-docker
+RUN /opt/armada-docker/armada_backend/scripts/setup_ssh.sh
 RUN ln -s /opt/armada-docker/microservice_templates /opt/templates
-RUN cd /opt/armada-docker/armada_backend/scripts && chmod +x * && sync && ./setup_ssh.sh
-
-ADD ./packaging/bin/armada /usr/local/bin/armada
-RUN chmod +x /usr/local/bin/armada
+RUN ln -s /opt/armada-docker/packaging/bin/armada /usr/local/bin/armada
 
 ENV ARMADA_VERSION 2.2.0
 RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_command/_version.py

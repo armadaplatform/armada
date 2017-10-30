@@ -1,8 +1,6 @@
 from __future__ import print_function
 
 import os
-import pwd
-import socket
 
 from armada_command.armada_utils import ArmadaCommandException, execute_local_command
 from armada_command.armada_utils import notify_about_detected_dev_environment
@@ -32,9 +30,8 @@ def login_to_dockyard(dockyard_alias):
     dockyard_password = dockyard_dict.get('password')
     if dockyard_user and dockyard_password:
         dockyard_address = dockyard_dict.get('address')
-        current_user_email = '{0}@{1}'.format(pwd.getpwuid(os.getuid()).pw_name, socket.gethostname())
         login_command = ('docker login --username="{dockyard_user}" --password="{dockyard_password}" '
-                         '--email="{current_user_email}" {dockyard_address}').format(**locals())
+                         '{dockyard_address}').format(**locals())
         if execute_local_command(login_command)[0] != 0:
             raise ArmadaCommandException(
                 'ERROR: Could not login to dockyard with alias {dockyard_alias}.'.format(**locals()))
