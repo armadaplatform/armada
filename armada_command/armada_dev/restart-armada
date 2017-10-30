@@ -3,13 +3,17 @@
 THIS_SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
 ARMADA_REPO_PATH="$(readlink -f "$(dirname "$THIS_SCRIPT_PATH")/../../")"
 
+docker rm -f $(docker ps | grep -e "->8300" | awk '{print $1}')
+
 LINK_TARGET="/opt/armada-src"
 if [[ ! -L "$LINK_TARGET" && -d "$LINK_TARGET" ]]; then
-    sudo rmdir "$LINK_TARGET"
+    sudo rmdir --ignore-fail-on-non-empty "$LINK_TARGET" 2> /dev/null
 fi
 if [[ -L "$LINK_TARGET" ]]; then
     sudo rm "$LINK_TARGET"
 fi
-docker rm -f $(docker ps | grep -e "->8300" | awk '{print $1}')
-sudo ln -s "$ARMADA_REPO_PATH" "$LINK_TARGET"
+if [[ ! -e "$LINK_TARGET" ]]; then
+    sudo ln -s "$ARMADA_REPO_PATH" "$LINK_TARGET"
+fi
+
 sudo ARMADA_AUTORELOAD=true /usr/local/bin/armada-runner restart
