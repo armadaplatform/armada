@@ -18,15 +18,14 @@ We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
     invocations, after restarting/upgrading armada.
 - Get rid of ugly `bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)` warning in remote
     `armada ssh/diagnose` invocations.
+- Clean up code responsible for support of services built on `microservice` image older than v0.11.0 (2015-12-07) in
+    `armada diagnose`.
 
 ### Bug fixes
 - Fix `build-armada` and `restart-armada` development scripts to work outside of armada development vagrant as well.
 - Fix armada's health-check for validating if armada runtime settings have been restored, to work during development
     of armada.
 
-### Deprecations
-- `armada diagnose` will no longer work properly for services built on `microservice` image older than
-    v0.11.0 (2015-12-07).
 
 ## 2.2.0 (2017-10-19)
 
