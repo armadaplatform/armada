@@ -12,6 +12,7 @@ We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
     for configs in 'config' directory in your service.
 - New command `alogs` available in `microservice` base image. It opens up midnight commander with supervisor logs on the
     left pane and service source on the right pane.
+- Add bash completion for supervisorctl
 
 ### Improvements
 - Get rid of ugly `WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!` warnings showing up in remote `armada ssh/diagnose`
@@ -25,6 +26,7 @@ We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
 - Fix `build-armada` and `restart-armada` development scripts to work outside of armada development vagrant as well.
 - Fix armada's health-check for validating if armada runtime settings have been restored, to work during development
     of armada.
+
 
 
 ## 2.2.0 (2017-10-19)
