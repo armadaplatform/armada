@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- Add possibility to configure service requirements via hermes config. This allows to require different services in different environments.
+- Add possibility to configure service requirements via hermes config. This allows us to require different services in different environments.
     In base microservice image required_service.py will try to find `service_discovery.json` in config path. More info in [docs](http://armada.sh/docs/advanced_features/service_discovery/)
 
 ## 2.2.0 (2017-10-19)
