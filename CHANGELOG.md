@@ -2,9 +2,34 @@
 
 ## Unreleased
 
+We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
+
 ### Features
+- Add `IMAGE_NAME` environmental variable.
+- Compatibility with new docker binary location for versions 17.03 - 17.10. It makes remote `armada ssh/diagnose`
+    work again in those docker versions.
+- Set default value of `CONFIG_DIR` to 'config', in `microservice` base image. Hermes will automatically search
+    for configs in 'config' directory in your service.
+- New command `alogs` available in `microservice` base image. It opens up midnight commander with supervisor logs on the
+    left pane and service source on the right pane.
+- Add bash completion for supervisorctl
 - Add possibility to configure service requirements via hermes config. This allows us to require different services in different environments.
     In base microservice image required_service.py will try to find `service_discovery.json` in config path. More info in [docs](http://armada.sh/docs/advanced_features/service_discovery/)
+
+
+### Improvements
+- Get rid of ugly `WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!` warnings showing up in remote `armada ssh/diagnose`
+    invocations, after restarting/upgrading armada.
+- Get rid of ugly `bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)` warning in remote
+    `armada ssh/diagnose` invocations.
+- Clean up code responsible for support of services built on `microservice` image older than v0.11.0 (2015-12-07) in
+    `armada diagnose`.
+
+### Bug fixes
+- Fix `build-armada` and `restart-armada` development scripts to work outside of armada development vagrant as well.
+- Fix armada's health-check for validating if armada runtime settings have been restored, to work during development
+    of armada.
+
 
 ## 2.2.0 (2017-10-19)
 

@@ -1,24 +1,27 @@
 #!/usr/bin/env bash
+
 set -e
 
+THIS_SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
+ARMADA_REPO_PATH="$(readlink -f "$(dirname "$THIS_SCRIPT_PATH")/../../")"
+
 IMAGE_TAG="${1-latest}"
-IMAGE_PATH="$(dirname "${BASH_SOURCE[0]}")/../../"
 IMAGE_NAME="armada"
-DOCKERFILE_PATH="${IMAGE_PATH}Dockerfile"
+DOCKERFILE_PATH="${ARMADA_REPO_PATH}/Dockerfile"
 DOCKYARD_ADDRESS="dockyard.armada.sh"
 
-if [ ! -f "${DOCKERFILE_PATH}" ]; then
-    echo "ERROR: Dockerfile not found in ${IMAGE_PATH}"
+if [[ ! -f "${DOCKERFILE_PATH}" ]]; then
+    echo "ERROR: Dockerfile not found in ${ARMADA_REPO_PATH}"
     exit 1
 fi
 
-BASE_IMAGE_NAME=`cat ${DOCKERFILE_PATH} | grep "^FROM " | head -1 | awk '{print \$2}' | tr -d '\r'`
+BASE_IMAGE_NAME=$(cat ${DOCKERFILE_PATH} | grep "^FROM " | head -1 | awk '{print $2}' | tr -d '\r')
 
 echo "Pulling base image (${BASE_IMAGE_NAME}) from dockyard..."
 docker pull ${DOCKYARD_ADDRESS}/${BASE_IMAGE_NAME}
 docker tag ${DOCKYARD_ADDRESS}/${BASE_IMAGE_NAME} ${BASE_IMAGE_NAME}
 
-echo "Building image \"${IMAGE_NAME}\" from path ${IMAGE_PATH} ..."
-docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_PATH}
+echo "Building image \"${IMAGE_NAME}\" from path ${ARMADA_REPO_PATH} ..."
+docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ${ARMADA_REPO_PATH}
 
 sudo sh -c "echo ARMADA_VERSION=\"${IMAGE_TAG}\" > /opt/armada/version"
