@@ -7,5 +7,5 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 for NODE_VERSION in "${VERSIONS_TO_BUILD[@]}"
 do
-    armada build --build-arg "NODE_VERSION=${NODE_VERSION}" "microservice_node${NODE_VERSION}"
+    armada build --build-arg "NODE_VERSION=${NODE_VERSION}" "microservice_node${NODE_VERSION}" "$@"
 done

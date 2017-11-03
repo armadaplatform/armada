@@ -7,5 +7,5 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 for NODE_VERSION in "${VERSIONS_TO_BUILD[@]}"
 do
-    armada push "microservice_node${NODE_VERSION}"
+    armada push "microservice_node${NODE_VERSION}" "$@"
 done
