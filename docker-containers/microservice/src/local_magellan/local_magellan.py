@@ -5,6 +5,7 @@ import os
 import random
 import sys
 import time
+import glob
 
 import haproxy
 
@@ -14,6 +15,7 @@ import common.service_discovery
 MICROSERVICE_ENV = os.environ.get('MICROSERVICE_ENV') or None
 MICROSERVICE_APP_ID = os.environ.get('MICROSERVICE_APP_ID') or None
 LOCAL_MAGELLAN_CONFIG_DIR_PATH = '/var/opt/local-magellan/'
+SERVICE_DISCOVERY_CONFIG_PATH = '/var/opt/service_discovery.json'
 
 
 def print_err(*objs):
@@ -35,8 +37,7 @@ def save_magellan_config(magellan_config):
 
 def read_magellan_configs():
     result = {}
-    for config_file_name in os.listdir(LOCAL_MAGELLAN_CONFIG_DIR_PATH):
-        config_file_path = os.path.join(LOCAL_MAGELLAN_CONFIG_DIR_PATH, config_file_name)
+    for config_file_path in glob.glob(os.path.join(LOCAL_MAGELLAN_CONFIG_DIR_PATH, '*.json')):
         with open(config_file_path) as f:
             result.update(json.load(f))
     return result
@@ -67,17 +68,25 @@ def match_port_to_addresses(port_to_services, service_to_addresses):
 
 
 def main():
+    time.sleep(1)
+    first_try = True
     while True:
         try:
             port_to_services = read_magellan_configs()
-            if port_to_services is not None:
-                service_to_addresses = common.service_discovery.get_service_to_addresses()
-                port_to_addresses = match_port_to_addresses(port_to_services, service_to_addresses)
-                haproxy.update_from_mapping(port_to_addresses)
+            if not port_to_services and not first_try:
+                sys.exit(0)
+
+            with open(SERVICE_DISCOVERY_CONFIG_PATH, 'w') as f:
+                json.dump(port_to_services, f)
+
+            service_to_addresses = common.service_discovery.get_service_to_addresses()
+            port_to_addresses = match_port_to_addresses(port_to_services, service_to_addresses)
+            haproxy.update_from_mapping(port_to_addresses)
         except Exception as e:
             print_err("ERROR on updating haproxy: {exception_class} - {exception}".format(
                 exception_class=type(e).__name__,
                 exception=str(e)))
+        first_try = False
         time.sleep(10 + random.uniform(-2, 2))
 
 
