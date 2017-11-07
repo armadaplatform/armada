@@ -25,7 +25,6 @@ def main():
             cmd.append('--squash')
         check_call(cmd)
         if args.push:
-            print('push: {}'.format(args.push))
             check_call(['armada', 'push', image_name, '-d', args.push])
 
 
