@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
+
+### Features
+- Add useful bash functions, `alogs`, `atail`, `acd`, `actl` - use `ahelp` for more informations.
+
 ## 2.3.0 (2017-11-03)
 
 We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
