@@ -8,7 +8,7 @@ alias actl="supervisorctl"
 #HLP atail
 #HLP atail [filename]
 function atail {
-    tail -f "/var/log/supervisor/${@}*"
+    tail -f "/var/log/supervisor/${1}*"
 }
 
 #HLPINFO acd: changes cwd to /opt/$IMAGE_NAME/[given_directory]
