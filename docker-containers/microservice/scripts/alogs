@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-exec mc /var/log/supervisor "/opt/$IMAGE_NAME"

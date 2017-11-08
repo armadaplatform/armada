@@ -1,0 +1,24 @@
+#HLPINFO alogs: opens mc with supervisor logs in one pane and /opt/IMAGE_NAME dir in second
+alias alogs="mc /var/log/supervisor \"/opt/${IMAGE_NAME}\""
+
+#HLPINFO actl: alias for supervisorctl
+alias actl="supervisorctl"
+
+#HLPINFO atail: runs [tail -f] for /var/log/supervisor files
+#HLP atail
+#HLP atail [filename]
+function atail {
+    tail -f "/var/log/supervisor/${@}*"
+}
+
+#HLPINFO acd: changes cwd to /opt/$IMAGE_NAME/[given_directory]
+#HLP acd
+#HLP acd [directory]
+function acd {
+    cd /opt/${IMAGE_NAME}/${1}
+}
+
+
+function ahelp {
+    cat /etc/bash.bashrc | grep '#HLP' | grep -v '#HLPAVOID' | awk '{gsub("#HLPINFO","COMMAND>");print $0}' | awk '{gsub("#HLP ","       > "); print $0}'
+}

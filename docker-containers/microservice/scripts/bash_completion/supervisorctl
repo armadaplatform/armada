@@ -3,12 +3,12 @@ _supervisorctl_action() {
     local service_options=(start restart stop status tail pid reload reread update)
     local generic_options=(avail maintail shutdown)
     local all_options=($(echo ${service_options[@]}) $(echo ${generic_options[@]}))
-    local command="supervisorctl"
+    local command=("supervisorctl" "actl")
 
     local current=${COMP_WORDS[COMP_CWORD]}
     local previous=${COMP_WORDS[COMP_CWORD-1]}
 
-    if [[ "${all_options[@]}" =~ "$current" && "$previous" == "$command" ]]; then
+    if [[ "${all_options[@]}" =~ "$current" && "${command[@]}" =~ $previous ]]; then
        COMPREPLY=($(compgen -W "$(echo ${all_options[@]})" -- $current) )
     fi
 
@@ -20,3 +20,4 @@ _supervisorctl_action() {
 }
 
 complete -F _supervisorctl_action supervisorctl
+complete -F _supervisorctl_action actl
