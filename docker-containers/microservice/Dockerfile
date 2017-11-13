@@ -14,6 +14,7 @@ RUN mkdir /var/opt/service-registration/
 
 RUN cp /opt/microservice/scripts/bash_completion/* /etc/bash_completion.d/
 RUN echo "\nsource /etc/bash_completion" >> /etc/bash.bashrc
-RUN cat /opt/microservice/scripts/bashrc >> /etc/bash.bashrc
+
+RUN bash /opt/microservice/scripts/install_tools.sh
 
 CMD ["/usr/bin/python3", "/opt/microservice/src/bootstrap_microservice.py"]
