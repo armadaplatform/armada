@@ -2,35 +2,33 @@ function ahelp {
     echo -e "atools available:\n"
 
     local TAGS=("Usage" "Command" "Description")
-    local dirtool="/opt/microservice/scripts/tools"
+    local TAGS_INDENT=(5 0 5)
+    local TAGS_VISIBLE=(1 0 1)
+    local DIRTOOL="/opt/microservice/scripts/tools"
+    local DIRTOOL="/home/kazimierz/Projects/armada/docker-containers/microservice/scripts/tools"
     local tag_printed=0
 
     while read p; do
         local tag_found=0
-        if [[ "$p" =~ ^#([[:space:]]*)Command* ]]; then
-            tag_printed=1
-            tag_found=1
-            local value="$(echo $p | sed -r 's/^\#(\s*)Command\:(\s*)//g')"
-            echo -ne "  ${value}\n"
-        fi
-        if [[ "$p" =~ ^#([[:space:]]*)Description* ]]; then
-            tag_printed=1
-            tag_found=1
-            local value="$(echo $p | sed -r 's/^\#(\s*)Description\:(\s*)//g')"
-            echo -ne "     DESCRIPTION: ${value}\n"
-        fi
-        if [[ "$p" =~ ^#([[:space:]]*)Usage* ]]; then
-            tag_printed=1
-            tag_found=1
-            local value="$(echo $p | sed -r 's/^\#(\s*)Usage\:(\s*)//g')"
-            echo -ne "     USAGE:       ${value}\n"
-        fi
+        local tag_index=0
+        for tag in ${TAGS[@]}; do
+            local match="^#([[:space:]]*)$tag*"
+            if [[ $p =~ $match ]]; then
+                tag_printed=1
+                tag_found=1
+                local value="$(echo $p | sed -r "s/^\\#(\\s*)$tag\\:(\\s*)//g")"
+                if [[ ${TAGS_VISIBLE[$tag_index]} -eq 1 ]]; then
+                    value="${TAGS[$tag_index]^^}: $value"
+                fi
+                echo "$(printf "%-${TAGS_INDENT[$tag_index]}s" " ")"$value
+            fi
+            let 'tag_index = tag_index + 1'
+        done
         if [[ $tag_found -eq 0 ]]; then
             if [[ "$tag_printed" -eq 1 ]]; then
                 echo -ne "\n"
                 tag_printed=0
             fi
         fi
-    done < <(cat $dirtool/*)
+    done < <(cat $DIRTOOL/*)
 }
-
