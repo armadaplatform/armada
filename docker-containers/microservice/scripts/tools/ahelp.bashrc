@@ -5,7 +5,6 @@ function ahelp {
     local TAGS_INDENT=(5 0 5)
     local TAGS_VISIBLE=(1 0 1)
     local DIRTOOL="/opt/microservice/scripts/tools"
-    local DIRTOOL="/home/kazimierz/Projects/armada/docker-containers/microservice/scripts/tools"
     local tag_printed=0
 
     while read p; do
