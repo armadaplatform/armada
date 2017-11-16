@@ -45,17 +45,24 @@ def main():
     ship_external_ip = get_external_ip()
     if ship_name is None:
         ship_name = ship_external_ip
-    consul_config_content = consul_config.get_consul_config(consul_mode, ship_ips, datacenter, ship_external_ip,
-                                                            ship_name)
 
+    consul_config_dict = consul_config.get_consul_config(consul_mode, ship_ips, datacenter, ship_external_ip, ship_name)
+
+    data_dir = consul_config_dict['data_dir']
+    print(data_dir)
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+    with open(os.path.join(data_dir, 'dummy'), 'w') as f:
+        f.write('')
+
+    consul_config_content = json.dumps(consul_config_dict, sort_keys=True, indent=4)
     with open(consul_config.CONFIG_PATH, 'w') as config_file:
         config_file.write(consul_config_content)
 
-    command = '/usr/local/bin/consul agent -config-file {config_path}'.format(config_path=consul_config.CONFIG_PATH)
-    get_logger().info('RUNNING: %s', command)
+    command = ['consul', 'agent', '-config-file', consul_config.CONFIG_PATH, '-data-dir', data_dir]
+    get_logger().info('RUNNING: %s', ' '.join(command))
 
-    args = command.split()
-    os.execv(args[0], args)
+    os.execvp(command[0], command)
 
 
 if __name__ == '__main__':
