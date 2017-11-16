@@ -11,9 +11,10 @@ ADD . /opt/microservice
 RUN chmod +x /opt/microservice/src/run_hooks.py && \
     cd /opt/microservice/scripts && chmod +x * && sync && ./install_packages.sh && ./setup_supervisor.sh
 RUN mkdir /var/opt/service-registration/
-RUN ln -s /opt/microservice/scripts/alogs /usr/local/bin/alogs
 
 RUN cp /opt/microservice/scripts/bash_completion/* /etc/bash_completion.d/
 RUN echo "\nsource /etc/bash_completion" >> /etc/bash.bashrc
+
+RUN bash /opt/microservice/scripts/install_tools.sh
 
 CMD ["/usr/bin/python3", "/opt/microservice/src/bootstrap_microservice.py"]
