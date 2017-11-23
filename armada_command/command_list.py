@@ -4,6 +4,7 @@ import datetime
 
 from armada_command.armada_api import get_json
 from armada_utils import print_table
+from operator import itemgetter
 
 
 def add_arguments(parser):
@@ -26,11 +27,31 @@ def epoch_to_iso(unix_timestamp):
     return datetime.datetime.utcfromtimestamp(
         int(unix_timestamp)).strftime('%Y-%m-%d %H:%M')
 
+def sort_list(service_list):
+    unsorted_list = list()
+    for i, service in enumerate(service_list):
+        name_subname = service[0].split(":")
+        if len(name_subname) == 1:
+            name_subname.append('')
+        name, subname = name_subname
+
+        ip_port = service[1].split(":")
+        ip = ip_port[0]
+
+        unsorted_list.append(list(service))
+        unsorted_list[i].append(name)
+        unsorted_list[i].append(subname)
+        unsorted_list[i].append(ip)
+
+    sorted_list = sorted(unsorted_list, key=itemgetter(6,4,5,8,2,7))
+
+    return sorted_list
 
 def command_list(args):
+
     service_list = get_json('list', vars(args))
 
-    output_rows = None
+    output_rows = []
 
     if not args.quiet:
         output_header = ('Name', 'Address', 'ID', 'Status', 'Env', 'AppID')
@@ -44,6 +65,7 @@ def command_list(args):
     else:
         for service in service_list:
             service_tags = service['tags']
+
             output_row = (service['name'], service['address'], service['container_id'], service['status'],
                           service_tags.get('env') or '-', service_tags.get('app_id') or '-')
             if args.uptime:
@@ -51,4 +73,4 @@ def command_list(args):
                 output_row += (creation_time,)
             output_rows.append(output_row)
 
-        print_table([output_rows[0]] + sorted(output_rows[1:]))
+        print_table([output_rows[0]] + sort_list(output_rows[1:]))
