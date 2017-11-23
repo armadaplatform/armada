@@ -4,8 +4,6 @@ import datetime
 
 from armada_command.armada_api import get_json
 from armada_utils import print_table
-from operator import itemgetter
-
 
 def add_arguments(parser):
     parser.add_argument('microservice_name',
@@ -26,26 +24,6 @@ def epoch_to_iso(unix_timestamp):
         return 'n/a'
     return datetime.datetime.utcfromtimestamp(
         int(unix_timestamp)).strftime('%Y-%m-%d %H:%M')
-
-def sort_list(service_list):
-    unsorted_list = list()
-    for i, service in enumerate(service_list):
-        name_subname = service[0].split(":")
-        if len(name_subname) == 1:
-            name_subname.append('')
-        name, subname = name_subname
-
-        ip_port = service[1].split(":")
-        ip = ip_port[0]
-
-        unsorted_list.append(list(service))
-        unsorted_list[i].append(name)
-        unsorted_list[i].append(subname)
-        unsorted_list[i].append(ip)
-
-    sorted_list = sorted(unsorted_list, key=itemgetter(6,4,5,8,2,7))
-
-    return sorted_list
 
 def command_list(args):
 
@@ -72,5 +50,5 @@ def command_list(args):
                 creation_time = epoch_to_iso(service['start_timestamp'])
                 output_row += (creation_time,)
             output_rows.append(output_row)
-            
-        print_table([output_rows[0]] + sort_list(output_rows[1:]))
+
+        print_table([output_rows[0]] + output_rows[1:])
