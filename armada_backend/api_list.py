@@ -28,10 +28,10 @@ class List(api_base.ApiCommand):
 
             services_list = sorted(services_list.values(), key=_extended_sort_info)
 
-
             return self.status_ok({'result': services_list})
         except Exception as e:
             return self.status_exception("Cannot get the list of services.", e)
+
 
 def _extended_sort_info(service):
     name_subservice = service['name'].split(':')
@@ -47,7 +47,7 @@ def _extended_sort_info(service):
     env = service['tags'].get('env', '')
     app_id = service['tags'].get('app_id', '')
 
-    return (clean_name, env, app_id, ip, service['microservice_id'], subservice_name)
+    return (clean_name, env, app_id, ip, service['microservice_id'])
 
 
 def __create_dict_from_tags(tags):
