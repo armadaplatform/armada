@@ -26,43 +26,40 @@ class List(api_base.ApiCommand):
             services_list.update(_get_running_services(**filters))
             services_list = _choose_active_instances(services_list, filters['filter_local'])
 
-            services_list = _sort_list(services_list.values())
+            services_list = sorted(services_list.values(), key=_extended_sort_info)
+
 
             return self.status_ok({'result': services_list})
         except Exception as e:
             return self.status_exception("Cannot get the list of services.", e)
 
-def _sort_list(list):
-    for i, service in enumerate(list):
-        name_subservice = service['name'].split(':')
-        ip_port = service['address'].split(':')
+def _extended_sort_info(service):
+    name_subservice = service['name'].split(':')
+    ip_port = service['address'].split(':')
 
-        if len(name_subservice) == 1:
-            name_subservice.append('')
+    if len(name_subservice) == 1:
+        name_subservice.append('')
 
-        clean_name = name_subservice[0]
-        subservice_name = name_subservice[1]
+    clean_name, subservice_name = name_subservice
 
-        ip = ip_port[0]
-        port = ip_port[1]
+    ip, port = ip_port
 
-        env = '' if 'env' not in service['tags'] else  service['tags']['env']
-        app_id = '' if 'app_id' not in service['tags'] else  service['tags']['app_id']
+    env = service['tags'].get('env', '')
+    app_id = service['tags'].get('app_id', '')
 
-        extended_values = {
-            'clean_name': clean_name,
-            'subservice_name': subservice_name,
-            'ip': ip,
-            'port': port,
-            'env': env,
-            'app_id': app_id
-        }
+    extended_values = {
+        'clean_name': clean_name,
+        'subservice_name': subservice_name,
+        'ip': ip,
+        'port': port,
+        'env': env,
+        'app_id': app_id
+    }
 
-        list[i].update(extended_values)
+    service.update(extended_values)
 
-    list = sorted(list, key=lambda k: (k['clean_name'], k['env'], k['app_id'], k['ip'], k['microservice_id'], k['subservice_name']))
+    return (service['clean_name'], service['env'], service['app_id'], service['ip'], service['microservice_id'], service['subservice_name'])
 
-    return list
 
 def __create_dict_from_tags(tags):
     if not tags:
