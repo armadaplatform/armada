@@ -42,23 +42,12 @@ def _extended_sort_info(service):
 
     clean_name, subservice_name = name_subservice
 
-    ip, port = ip_port
+    ip = ip_port[0]
 
     env = service['tags'].get('env', '')
     app_id = service['tags'].get('app_id', '')
 
-    extended_values = {
-        'clean_name': clean_name,
-        'subservice_name': subservice_name,
-        'ip': ip,
-        'port': port,
-        'env': env,
-        'app_id': app_id
-    }
-
-    service.update(extended_values)
-
-    return (service['clean_name'], service['env'], service['app_id'], service['ip'], service['microservice_id'], service['subservice_name'])
+    return (clean_name, env, app_id, ip, service['microservice_id'], subservice_name)
 
 
 def __create_dict_from_tags(tags):
