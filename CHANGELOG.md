@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.4.1 (2017-12-01)
+
+We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
 
 ### Improvements
 - Improve sorting in armada list for services with subservices 
