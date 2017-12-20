@@ -81,6 +81,10 @@ def main():
 
             service_to_addresses = common.service_discovery.get_service_to_addresses()
             port_to_addresses = match_port_to_addresses(port_to_services, service_to_addresses)
+
+            with open('/var/opt/service_to_addresses.json', 'w') as f:
+                json.dump(port_to_addresses, f)
+
             haproxy.update_from_mapping(port_to_addresses)
         except Exception as e:
             print_err("ERROR on updating haproxy: {exception_class} - {exception}".format(
