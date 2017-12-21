@@ -16,7 +16,7 @@ MICROSERVICE_ENV = os.environ.get('MICROSERVICE_ENV') or None
 MICROSERVICE_APP_ID = os.environ.get('MICROSERVICE_APP_ID') or None
 LOCAL_MAGELLAN_CONFIG_DIR_PATH = '/var/opt/local-magellan/'
 SERVICE_DISCOVERY_CONFIG_PATH = '/var/opt/service_discovery.json'
-PORT_TO_ADDRESSES_CONFIG_DIR_PATH = '/var/opt/service_to_addresses.json'
+SERVICE_TO_ADDRESSES_CONFIG_DIR_PATH = '/var/opt/service_to_addresses.json'
 
 def print_err(*objs):
     print(*objs, file=sys.stderr)
@@ -68,8 +68,8 @@ def match_port_to_addresses(port_to_services, service_to_addresses):
 
 
 def has_data_changed(port_to_addresses):
-    if os.path.exists(PORT_TO_ADDRESSES_CONFIG_DIR_PATH):
-        with open(PORT_TO_ADDRESSES_CONFIG_DIR_PATH, 'r') as f:
+    if os.path.exists(SERVICE_TO_ADDRESSES_CONFIG_DIR_PATH):
+        with open(SERVICE_TO_ADDRESSES_CONFIG_DIR_PATH, 'r') as f:
             old_config = json.load(f)
             if old_config == port_to_addresses:
                 return False
@@ -93,7 +93,7 @@ def main():
             port_to_addresses = match_port_to_addresses(port_to_services, service_to_addresses)
 
             if has_data_changed(port_to_addresses):
-                with open(PORT_TO_ADDRESSES_CONFIG_DIR_PATH, 'w') as f:
+                with open(SERVICE_TO_ADDRESSES_CONFIG_DIR_PATH, 'w') as f:
                     json.dump(port_to_addresses, f, indent=4, sort_keys=True)
                 haproxy.update_from_mapping(port_to_addresses)
 
