@@ -67,14 +67,14 @@ def match_port_to_addresses(port_to_services, service_to_addresses):
     return port_to_addresses
 
 
-def check_data_nowely(port_to_addresses):
+def has_data_changed(port_to_addresses):
     if os.path.exists(PORT_TO_ADDRESSES_CONFIG_DIR_PATH):
         with open(PORT_TO_ADDRESSES_CONFIG_DIR_PATH, 'r') as f:
-            old_config = f.read()
-            if old_config == json.dump(port_to_addresses):
+            old_config = json.load(f)
+            if old_config == port_to_addresses:
                 return False
         return True
-    return False
+    return True
 
 
 def main():
@@ -92,9 +92,9 @@ def main():
             service_to_addresses = common.service_discovery.get_service_to_addresses()
             port_to_addresses = match_port_to_addresses(port_to_services, service_to_addresses)
 
-            if check_data_nowely(port_to_addresses):
+            if has_data_changed(port_to_addresses):
                 with open(PORT_TO_ADDRESSES_CONFIG_DIR_PATH, 'w') as f:
-                    json.dump(port_to_addresses, f)
+                    json.dump(port_to_addresses, f, indent=4, sort_keys=True)
                 haproxy.update_from_mapping(port_to_addresses)
 
         except Exception as e:
