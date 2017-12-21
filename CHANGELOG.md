@@ -4,13 +4,16 @@
 
 ### Improvements
 - local-magellan, in microservice base image, besides of configuring haproxy dumps mapping of local port -> IP:port to `/var/opt/service_to_addresses.json`.
-E.g. ```root@c1823ea048c5:/# cat /var/opt/service_to_addresses.json
+E.g.
+```
+root@c1823ea048c5:/# cat /var/opt/service_to_addresses.json
 {
     "2000": [
         "192.168.3.19:32822", 
         "192.168.3.19:32821"
     ]
-}```
+}
+```
 
 ## 2.4.1 (2017-12-01)
 
