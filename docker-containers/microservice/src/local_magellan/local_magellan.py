@@ -57,7 +57,7 @@ def match_port_to_addresses(port_to_services, service_to_addresses):
         else:
             service_envs = [env]
 
-        port_to_addresses[port] = {}
+        port_to_addresses[port] = []
         for service_env in reversed(service_envs):
             service_tuple = (service_dict['microservice_name'], service_env,
                              service_dict.get('app_id'))
