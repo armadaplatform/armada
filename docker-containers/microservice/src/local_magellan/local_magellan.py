@@ -16,7 +16,7 @@ MICROSERVICE_ENV = os.environ.get('MICROSERVICE_ENV') or None
 MICROSERVICE_APP_ID = os.environ.get('MICROSERVICE_APP_ID') or None
 LOCAL_MAGELLAN_CONFIG_DIR_PATH = '/var/opt/local-magellan/'
 SERVICE_DISCOVERY_CONFIG_PATH = '/var/opt/service_discovery.json'
-
+SERVICE_TO_ADDRESSES_CONFIG_DIR_PATH = '/var/opt/service_to_addresses.json'
 
 def print_err(*objs):
     print(*objs, file=sys.stderr)
@@ -57,7 +57,7 @@ def match_port_to_addresses(port_to_services, service_to_addresses):
         else:
             service_envs = [env]
 
-        port_to_addresses[port] = {}
+        port_to_addresses[port] = []
         for service_env in reversed(service_envs):
             service_tuple = (service_dict['microservice_name'], service_env,
                              service_dict.get('app_id'))
@@ -65,6 +65,16 @@ def match_port_to_addresses(port_to_services, service_to_addresses):
                 port_to_addresses[port] = service_to_addresses[service_tuple]
                 break
     return port_to_addresses
+
+
+def has_data_changed(port_to_addresses):
+    if os.path.exists(SERVICE_TO_ADDRESSES_CONFIG_DIR_PATH):
+        with open(SERVICE_TO_ADDRESSES_CONFIG_DIR_PATH, 'r') as f:
+            old_config = json.load(f)
+            if old_config == port_to_addresses:
+                return False
+        return True
+    return True
 
 
 def main():
@@ -81,7 +91,12 @@ def main():
 
             service_to_addresses = common.service_discovery.get_service_to_addresses()
             port_to_addresses = match_port_to_addresses(port_to_services, service_to_addresses)
-            haproxy.update_from_mapping(port_to_addresses)
+
+            if has_data_changed(port_to_addresses):
+                with open(SERVICE_TO_ADDRESSES_CONFIG_DIR_PATH, 'w') as f:
+                    json.dump(port_to_addresses, f, indent=4, sort_keys=True)
+                haproxy.update_from_mapping(port_to_addresses)
+
         except Exception as e:
             print_err("ERROR on updating haproxy: {exception_class} - {exception}".format(
                 exception_class=type(e).__name__,
