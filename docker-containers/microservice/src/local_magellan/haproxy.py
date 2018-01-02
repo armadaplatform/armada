@@ -25,13 +25,6 @@ def _is_ip(hostname):
         return False
 
 
-def get_current_config():
-    if not os.path.exists(CONFIG_PATH):
-        return ''
-    with open(CONFIG_PATH, 'r') as haproxy_config_file:
-        return haproxy_config_file.read()
-
-
 def generate_config_from_mapping(port_to_addresses):
     result = CONFIG_HEADER
     for port, addresses in port_to_addresses.items():
@@ -78,8 +71,6 @@ def restart():
 
 
 def update_from_mapping(port_to_addresses):
-    old_config = get_current_config()
     new_config = generate_config_from_mapping(port_to_addresses)
-    if old_config != new_config:
-        put_config(new_config)
-        restart()
+    put_config(new_config)
+    restart()
