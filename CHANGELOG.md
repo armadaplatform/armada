@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.4.2 (2018-01-02)
+
+We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
 
 ### Improvements
 - local-magellan, in microservice base image, besides of configuring haproxy dumps mapping of local port -> IP:port to `/var/opt/service_to_addresses.json`.
