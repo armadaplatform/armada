@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Bump `python3` to `3.6.4` in `microservice_python3`
+
 ## 2.4.2 (2018-01-02)
 
 We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
