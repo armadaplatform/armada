@@ -1,5 +1,7 @@
 import os
 
+from microservice.save_environment_variables import save_environment_variables
+
 
 def _get_all_parent_dirs(path):
     while True:
@@ -41,7 +43,7 @@ def main():
 
         config_dirs_full_paths = [os.path.join(service_path, config_dir, path) for path in config_dirs_combinations]
         config_dirs_full_paths.sort(key=_nesting_level, reverse=True)
-        config_dirs_existing_paths = filter(os.path.isdir, config_dirs_full_paths)
+        config_dirs_existing_paths = list(filter(os.path.isdir, config_dirs_full_paths))
 
         local_config_path = os.pathsep.join(config_dirs_existing_paths)
 
@@ -50,8 +52,9 @@ def main():
         else:
             os.environ["CONFIG_PATH"] = local_config_path
 
-    supervisor_cmd = "/usr/bin/supervisord"
-    os.execv(supervisor_cmd, (supervisor_cmd, "-c", "/etc/supervisor/supervisord.conf"))
+    save_environment_variables()
+    supervisor_cmd = "supervisord"
+    os.execvp(supervisor_cmd, (supervisor_cmd, "-c", "/etc/supervisor/supervisord.conf"))
 
 
 if __name__ == '__main__':

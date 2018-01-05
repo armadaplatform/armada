@@ -1,22 +1,21 @@
 from __future__ import print_function
 
+import glob
 import json
 import os
 import random
 import sys
 import time
-import glob
 
-import haproxy
-
-sys.path.append('/opt/microservice/src')
-import common.service_discovery
+from microservice.common import service_discovery
+from microservice.local_magellan import haproxy
 
 MICROSERVICE_ENV = os.environ.get('MICROSERVICE_ENV') or None
 MICROSERVICE_APP_ID = os.environ.get('MICROSERVICE_APP_ID') or None
 LOCAL_MAGELLAN_CONFIG_DIR_PATH = '/var/opt/local-magellan/'
 SERVICE_DISCOVERY_CONFIG_PATH = '/var/opt/service_discovery.json'
 SERVICE_TO_ADDRESSES_CONFIG_DIR_PATH = '/var/opt/service_to_addresses.json'
+
 
 def print_err(*objs):
     print(*objs, file=sys.stderr)
@@ -59,8 +58,7 @@ def match_port_to_addresses(port_to_services, service_to_addresses):
 
         port_to_addresses[port] = []
         for service_env in reversed(service_envs):
-            service_tuple = (service_dict['microservice_name'], service_env,
-                             service_dict.get('app_id'))
+            service_tuple = (service_dict['microservice_name'], service_env, service_dict.get('app_id'))
             if service_tuple in service_to_addresses:
                 port_to_addresses[port] = service_to_addresses[service_tuple]
                 break
@@ -73,7 +71,6 @@ def has_data_changed(port_to_addresses):
             old_config = json.load(f)
             if old_config == port_to_addresses:
                 return False
-        return True
     return True
 
 
@@ -89,7 +86,7 @@ def main():
             with open(SERVICE_DISCOVERY_CONFIG_PATH, 'w') as f:
                 json.dump(port_to_services, f)
 
-            service_to_addresses = common.service_discovery.get_service_to_addresses()
+            service_to_addresses = service_discovery.get_service_to_addresses()
             port_to_addresses = match_port_to_addresses(port_to_services, service_to_addresses)
 
             if has_data_changed(port_to_addresses):

@@ -1,12 +1,10 @@
-from __future__ import print_function
-
 import argparse
 import json
 import os
 import re
 import socket
 
-from common.docker_client import get_docker_inspect
+from microservice.common.docker_client import get_docker_inspect
 
 REGISTRATION_DIRECTORY = "/var/opt/service-registration/"
 PORT_PATTERN = re.compile(r'^(\d+)(?:/(tcp|udp))?$', re.IGNORECASE)
@@ -14,11 +12,11 @@ PORT_PATTERN = re.compile(r'^(\d+)(?:/(tcp|udp))?$', re.IGNORECASE)
 
 def _parse_args():
     parser = argparse.ArgumentParser(description='Register service in Armada.')
-    _add_arguments(parser)
+    add_arguments(parser)
     return parser.parse_args()
 
 
-def _add_arguments(parser):
+def add_arguments(parser):
     parser.add_argument('port',
                         default='80',
                         nargs='?',
@@ -50,8 +48,7 @@ def _get_port_and_protocol(args_port):
     return '{}/{}'.format(port, protocol)
 
 
-def main():
-    args = _parse_args()
+def main(args):
     container_id = socket.gethostname()
     docker_inspect = get_docker_inspect(container_id)
     port_and_protocol = _get_port_and_protocol(args.port)
@@ -80,4 +77,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    args = _parse_args()
+    main(args)

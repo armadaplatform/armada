@@ -1,18 +1,25 @@
-#!/usr/bin/env python
-
-from __future__ import print_function
-
-import os
-import sys
+#!/usr/bin/env python3
+import argparse
 import errno
 import logging
+import os
 import subprocess
 from glob import glob
 from logging.handlers import TimedRotatingFileHandler
 
-REGISTERED_HOOKS = ('pre-stop', )
+REGISTERED_HOOKS = ['pre-stop']
 HOOKS_PATH_WILDCARD = '/opt/*/hooks'
 HOOKS_LOG_PATH = '/var/log/armada/hooks'
+
+
+def _parse_args():
+    parser = argparse.ArgumentParser(description='Run hook inside the microservice.')
+    add_arguments(parser)
+    return parser.parse_args()
+
+
+def add_arguments(parser):
+    parser.add_argument('hook_name', choices=REGISTERED_HOOKS, help='Name of the hook.')
 
 
 def _get_hook_files(hook_name):
@@ -49,7 +56,7 @@ def _get_logger(logger_name):
     return logger
 
 
-def run(hook_name):
+def run_hook(hook_name):
     logger = _get_logger(hook_name)
     for path in _get_hook_files(hook_name):
         os.chmod(path, 0o755)
@@ -63,20 +70,10 @@ def run(hook_name):
             logger.info('result: {}'.format(output))
 
 
-if __name__ == "__main__":
-    root_logger = _get_logger('run_hooks')
-    if len(sys.argv) != 2:
-        root_logger.error(
-            'Invalid number of parameters. '
-            'Please provide hook name as a first parameter.'
-            .format(len(sys.argv))
-        )
-        sys.exit(1)
+def main(args):
+    run_hook(args.name)
 
-    name = sys.argv[1]
-    if name not in REGISTERED_HOOKS:
-        root_logger.error(
-            'There is no registered hook called: {}'.format(name)
-        )
-    else:
-        run(name)
+
+if __name__ == "__main__":
+    args = _parse_args()
+    main(args)

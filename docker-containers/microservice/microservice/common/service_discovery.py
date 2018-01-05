@@ -1,6 +1,6 @@
 import requests
 
-from common.docker_client import get_ship_ip
+from microservice.common.docker_client import get_ship_ip
 
 
 class UnsupportedArmadaApiException(Exception):

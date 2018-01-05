@@ -1,13 +1,13 @@
 from __future__ import print_function
 
 import argparse
+import logging
 import os
 import sys
-import logging
 
 from armada import hermes
 
-import local_magellan
+from microservice.local_magellan import local_magellan
 
 
 def print_err(*objs):
@@ -63,14 +63,12 @@ def configure_single_requirement(microservice_name, port, env=None, app_id=None)
     local_magellan.save_magellan_config(magellan_config)
 
 
-def main():
-    args = parse_args()
-
+def main(args):
     file_name = args.config
 
     if not file_name:
-        if not args.microservice_name or not args.port:
-            raise RuntimeError('microservice_name and port are required')
+        if not args.port or not args.microservice_name:
+            raise RuntimeError('port and microservice_name are required')
         else:
             configure_single_requirement(args.microservice_name, args.port, args.env, args.app_id)
     else:
@@ -78,4 +76,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    args = parse_args()
+    main(args)

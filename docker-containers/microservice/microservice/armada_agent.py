@@ -18,10 +18,10 @@ from functools import wraps, partial
 import requests
 from requests.exceptions import HTTPError
 
-from common.consul import consul_query, consul_post, consul_get, consul_put
-from common.docker_client import get_docker_inspect
-from common.service_discovery import register_service_in_armada, UnsupportedArmadaApiException
-from register_in_service_discovery import REGISTRATION_DIRECTORY
+from microservice.common.consul import consul_query, consul_post, consul_get, consul_put
+from microservice.common.docker_client import get_docker_inspect
+from microservice.common.service_discovery import register_service_in_armada, UnsupportedArmadaApiException
+from microservice.register_in_service_discovery import REGISTRATION_DIRECTORY
 
 HEALTH_CHECKS_PERIOD = 10
 HEALTH_CHECKS_TIMEOUT = 10

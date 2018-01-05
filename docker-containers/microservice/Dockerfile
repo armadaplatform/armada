@@ -17,17 +17,18 @@ RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install -U pip setuptools
-ENV MICROSERVICE_VERSION 0.0.1
-RUN pip3 install "armada-microservice==$MICROSERVICE_VERSION"
-
 RUN pip2 install -U pip setuptools
-RUN pip2 install -U 'docker==2.4.2' 'requests==2.9.1' 'armada' 'web.py'
+RUN pip2 install -U web.py
 
 RUN mkdir -p /var/log/supervisor /var/opt/service-registration/
 
 COPY ./supervisor/* /etc/supervisor/conf.d/
 COPY ./scripts/bash_completion/* /etc/bash_completion.d/
 COPY . /opt/microservice
+RUN ln -s /opt/microservice/microservice /opt/microservice/src
+
+RUN pip2 install -U /opt/microservice
+RUN pip3 install -U /opt/microservice
 
 RUN chmod +x /opt/microservice/scripts/* /opt/microservice/src/run_hooks.py
 RUN /opt/microservice/scripts/install_tools.sh
