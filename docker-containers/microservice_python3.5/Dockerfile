@@ -6,7 +6,7 @@ RUN sudo add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update
 RUN apt-get install -y python3.5 wget
 RUN cd /tmp && wget https://bootstrap.pypa.io/get-pip.py && sync && python3.5 get-pip.py
-RUN pip3.5 install -U requests armada
+RUN pip3.5 install -U /opt/microservice
 
 ADD . /opt/microservice_python3.5
 

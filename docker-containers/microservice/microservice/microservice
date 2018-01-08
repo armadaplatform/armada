@@ -3,9 +3,10 @@
 import abc
 from argparse import ArgumentParser
 
+from microservice.local_magellan import require_service, local_magellan
+
 from microservice import bootstrap_microservice, armada_agent, register_in_service_discovery, run_hooks
 from microservice import version
-from microservice.local_magellan import require_service, local_magellan
 
 
 class Command(object):
@@ -119,7 +120,8 @@ def parse_args():
 
 def main():
     args = parse_args()
-    args.func(args)
+    if hasattr(args, 'func'):
+        args.func(args)
 
 
 if __name__ == '__main__':

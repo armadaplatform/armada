@@ -4,6 +4,8 @@
 
 ### Improvements
 - Bump `python3` to `3.6.4` in `microservice_python3`
+- Python scripts in `microservice` base image are now a proper python package, and provide command `microservice`.
+- Upgrade haproxy in `microservice` base image from 1.7 to 1.8.
 
 ## 2.4.2 (2018-01-02)
 

@@ -71,7 +71,7 @@ def run_hook(hook_name):
 
 
 def main(args):
-    run_hook(args.name)
+    run_hook(args.hook_name)
 
 
 if __name__ == "__main__":

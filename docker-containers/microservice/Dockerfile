@@ -5,6 +5,8 @@ ENV LANG='C.UTF-8' LC_ALL='C.UTF-8'
 ENV DISTRIB_CODENAME=xenial DISTRIB_RELEASE=16.04
 ENV CONFIG_DIR config
 
+ENV FORCE_UPDATE 2
+
 RUN apt-get update
 RUN apt-get upgrade -y
 RUN apt-get install -y --no-install-recommends supervisor python python-dev python-pip python3-pip curl mc less \
@@ -26,6 +28,9 @@ COPY ./supervisor/* /etc/supervisor/conf.d/
 COPY ./scripts/bash_completion/* /etc/bash_completion.d/
 COPY . /opt/microservice
 RUN ln -s /opt/microservice/microservice /opt/microservice/src
+
+ENV MICROSERVICE_VERSION 0.0.0
+RUN echo VERSION = \"${MICROSERVICE_VERSION}\" > /opt/microservice/microservice/version.py
 
 RUN pip2 install -U /opt/microservice
 RUN pip3 install -U /opt/microservice
