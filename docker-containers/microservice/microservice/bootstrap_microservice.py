@@ -1,4 +1,7 @@
+from __future__ import print_function
+
 import os
+import sys
 
 from microservice.save_environment_variables import save_environment_variables
 
@@ -58,4 +61,6 @@ def main():
 
 
 if __name__ == '__main__':
+    print('WARNING: Calling this script directly has been deprecated. Try `microservice bootstrap` instead.',
+          file=sys.stderr)
     main()

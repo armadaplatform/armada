@@ -5,8 +5,15 @@
 ### Improvements
 - Bump `python3` to `3.6.4` in `microservice_python3`
 - Python scripts in `microservice` base image are now a proper python package, and provide command `microservice`.
+    - This is the new suggested way of calling microservice scripts:
+        - `microservice require` instead of `python require_service.py`
+        - `microservice register` instead of `python register_in_service_discovery.py`
 - Upgrade haproxy in `microservice` base image from 1.7 to 1.8.
 - Remove unused address_adapter in microservice base image.
+
+### Bug fixes
+- Fix setting empty flags in `require_service.py`/`microservice require`, i.e. `--app_id=""` and `--env=""`.
+
 
 ## 2.4.2 (2018-01-02)
 

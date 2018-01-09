@@ -1,8 +1,11 @@
+from __future__ import print_function
+
 import argparse
 import json
 import os
 import re
 import socket
+import sys
 
 from microservice.common.docker_client import get_docker_inspect
 
@@ -77,5 +80,7 @@ def main(args):
 
 
 if __name__ == '__main__':
+    print('WARNING: Calling this script directly has been deprecated. Try `microservice register` instead.',
+          file=sys.stderr)
     args = _parse_args()
     main(args)

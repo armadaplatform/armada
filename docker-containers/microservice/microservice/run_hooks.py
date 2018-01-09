@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
+
+from __future__ import print_function
+
 import argparse
 import errno
 import logging
 import os
 import subprocess
+import sys
 from glob import glob
 from logging.handlers import TimedRotatingFileHandler
 
@@ -75,5 +79,7 @@ def main(args):
 
 
 if __name__ == "__main__":
+    print('WARNING: Calling this script directly has been deprecated. Try `microservice hooks` instead.',
+          file=sys.stderr)
     args = _parse_args()
     main(args)

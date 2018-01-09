@@ -103,4 +103,6 @@ def main():
 
 
 if __name__ == '__main__':
+    print('WARNING: Calling this script directly has been deprecated. Try `microservice local-magellan` instead.',
+          file=sys.stderr)
     main()
