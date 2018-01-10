@@ -7,7 +7,6 @@ setup(
     description='Microservice package - base of all armada microservices. CLI for communicating between '
                 'microservice and armada.',
     version=VERSION,
-    url='https://github.com/armadaplatform/armada-microservice',
     author='Cerebro',
     author_email='cerebro@ganymede.eu',
     packages=[
