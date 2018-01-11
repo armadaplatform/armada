@@ -5,7 +5,7 @@ import sys
 
 import requests
 
-import docker_client
+from microservice.common import docker_client
 
 _CONSUL_TIMEOUT_IN_SECONDS = 7
 _SHIP_IP = None

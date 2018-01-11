@@ -1,13 +1,13 @@
 from __future__ import print_function
 
 import argparse
+import logging
 import os
 import sys
-import logging
+
+from microservice.local_magellan import local_magellan
 
 from armada import hermes
-
-import local_magellan
 
 
 def print_err(*objs):
@@ -51,26 +51,27 @@ def create_magellan_config_from_file(file_name):
 
 def configure_single_requirement(microservice_name, port, env=None, app_id=None):
     microservice = {'microservice_name': microservice_name}
+
+    if env is None:
+        env = os.environ.get('MICROSERVICE_ENV')
     if env:
         microservice['env'] = env
-    elif 'MICROSERVICE_ENV' in os.environ:
-        microservice['env'] = os.environ.get('MICROSERVICE_ENV')
+
+    if app_id is None:
+        app_id = os.environ.get('MICROSERVICE_APP_ID')
     if app_id:
         microservice['app_id'] = app_id
-    elif 'MICROSERVICE_APP_ID' in os.environ:
-        microservice['app_id'] = os.environ.get('MICROSERVICE_APP_ID')
+
     magellan_config = {port: microservice}
     local_magellan.save_magellan_config(magellan_config)
 
 
-def main():
-    args = parse_args()
-
+def main(args):
     file_name = args.config
 
     if not file_name:
-        if not args.microservice_name or not args.port:
-            raise RuntimeError('microservice_name and port are required')
+        if not args.port or not args.microservice_name:
+            raise RuntimeError('port and microservice_name are required')
         else:
             configure_single_requirement(args.microservice_name, args.port, args.env, args.app_id)
     else:
@@ -78,4 +79,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    print('WARNING: Calling this script directly has been deprecated. Try `microservice require` instead.',
+          file=sys.stderr)
+    args = parse_args()
+    main(args)

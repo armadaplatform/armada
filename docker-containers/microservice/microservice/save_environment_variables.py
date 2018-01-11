@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 import os
 import sys
 
@@ -27,7 +28,7 @@ def parse_environment_variables(environment_variables):
 
 
 def exclude_environment_variables(environment_keys_values, excluded):
-    return filter(lambda env_var: env_var[0] not in excluded, environment_keys_values)
+    return [env_var for env_var in environment_keys_values if env_var[0] not in excluded]
 
 
 def add_environment_variables_to_bashrc(environment_variables_export_path, bashrc_path):
@@ -63,7 +64,7 @@ def add_environment_variables_to_crontab(environment_keys_values):
                   'hitting crontab\'s 1000 characters limit per line:\n{0}'.format(safe_env_var), file=sys.stderr)
 
 
-def main():
+def save_environment_variables():
     environment_keys_values = [(key, os.environ[key]) for key in os.environ if key not in EXCLUDED_ENVIRONMENT_KEYS]
 
     create_armada_environment_variables_file(environment_keys_values,
@@ -76,7 +77,3 @@ def main():
     environment_keys_values_filtered_for_crontab = exclude_environment_variables(environment_keys_values,
                                                                                  EXCLUDED_ENVIRONMENT_KEYS_FROM_CRONTAB)
     add_environment_variables_to_crontab(environment_keys_values_filtered_for_crontab)
-
-
-if __name__ == '__main__':
-    main()

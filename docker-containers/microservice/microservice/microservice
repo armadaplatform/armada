@@ -1,0 +1,128 @@
+#!/usr/bin/env python3
+
+import abc
+from argparse import ArgumentParser
+
+from microservice.local_magellan import require_service, local_magellan
+
+from microservice import bootstrap_microservice, armada_agent, register_in_service_discovery, run_hooks
+from microservice import version
+
+
+class Command(object):
+    __metaclass__ = abc.ABCMeta
+    help = ''
+
+    def __init__(self, parsers):
+        parser = parsers.add_parser(self.name, help=self.help, description=self.help)
+        self.add_args(parser)
+        parser.set_defaults(func=self.execute)
+
+    @property
+    @abc.abstractmethod
+    def name(self):
+        pass
+
+    @abc.abstractmethod
+    def execute(self, args):
+        pass
+
+    def add_args(self, parser):
+        pass
+
+
+class BootstrapCommand(Command):
+    help = """Command for bootstrapping microservice. It's meant to be used as the entrypoint of the container."""
+
+    @property
+    def name(self):
+        return 'bootstrap'
+
+    def execute(self, args):
+        bootstrap_microservice.main()
+
+
+class RequireCommand(Command):
+    help = """Add requirement for dependent services. It will bind them to some localhost ports."""
+
+    @property
+    def name(self):
+        return 'require'
+
+    def execute(self, args):
+        require_service.main(args)
+
+    def add_args(self, parser):
+        require_service.add_arguments(parser)
+
+
+class AgentCommand(Command):
+    help = """Run armada agent, that takes care of registering service and performing periodic health-checks."""
+
+    @property
+    def name(self):
+        return 'agent'
+
+    def execute(self, args):
+        armada_agent.main()
+
+
+class RegisterCommand(Command):
+    help = """Register service or subservice in armada's service-discovery catalog."""
+
+    @property
+    def name(self):
+        return 'register'
+
+    def execute(self, args):
+        register_in_service_discovery.main(args)
+
+    def add_args(self, parser):
+        register_in_service_discovery.add_arguments(parser)
+
+
+class HooksCommand(Command):
+    help = """Run hooks inside the microservice."""
+
+    @property
+    def name(self):
+        return 'hooks'
+
+    def execute(self, args):
+        run_hooks.main(args)
+
+    def add_args(self, parser):
+        run_hooks.add_arguments(parser)
+
+
+class LocalMagellanCommand(Command):
+    help = """Run local-magellan."""
+
+    @property
+    def name(self):
+        return 'local-magellan'
+
+    def execute(self, args):
+        local_magellan.main()
+
+
+def parse_args():
+    ap = ArgumentParser()
+    ap.add_argument('-V', '--version', action='version', version=version.VERSION)
+    subparsers = ap.add_subparsers(dest='subparser_command')
+    commands = [
+        BootstrapCommand, RequireCommand, AgentCommand, RegisterCommand, HooksCommand, LocalMagellanCommand,
+    ]
+    for command in commands:
+        command(subparsers)
+    return ap.parse_args()
+
+
+def main():
+    args = parse_args()
+    if hasattr(args, 'func'):
+        args.func(args)
+
+
+if __name__ == '__main__':
+    main()
