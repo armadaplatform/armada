@@ -29,7 +29,7 @@ COPY ./scripts/bash_completion/* /etc/bash_completion.d/
 COPY . /opt/microservice
 RUN ln -s /opt/microservice/microservice /opt/microservice/src
 
-ENV MICROSERVICE_VERSION 0.0.0
+ENV MICROSERVICE_VERSION 2.4.3
 RUN echo VERSION = \"${MICROSERVICE_VERSION}\" > /opt/microservice/microservice/version.py
 
 RUN pip2 install -U /opt/microservice
