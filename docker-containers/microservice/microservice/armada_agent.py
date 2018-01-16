@@ -127,14 +127,14 @@ def _register_service_from_file(file_path):
     service_local_port = registration_service_data['service_container_port']
     service_port = registration_service_data['service_port']
     single_active_instance = registration_service_data['single_active_instance']
-    service_tags = _create_tags()
 
     container_id = service_id.split(':')[0]
     docker_inspect = get_docker_inspect(container_id)
     container_created_timestamp = _datetime_string_to_timestamp(docker_inspect["Created"])
 
     try:
-        register_service_in_armada_v1(service_id, service_name, service_port, service_tags, container_created_timestamp,
+        register_service_in_armada_v1(service_id, service_name, service_local_port, os.environ.get('MICROSERVICE_ENV'),
+                                      os.environ.get('MICROSERVICE_APP_ID'), container_created_timestamp,
                                       single_active_instance)
         return
     except UnsupportedArmadaApiException as e:
@@ -144,6 +144,7 @@ def _register_service_from_file(file_path):
     except Exception as e:
         logging.exception(e)
 
+    service_tags = _create_tags()
     register_service_in_armada(service_id, service_name, service_port, service_tags, container_created_timestamp,
                                single_active_instance)
 

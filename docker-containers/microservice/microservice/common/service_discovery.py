@@ -55,7 +55,8 @@ def register_service_in_armada_v1(microservice_id, microservice_name, microservi
         'container_created_timestamp': container_created_timestamp,
         'single_active_instance': single_active_instance,
     }
-    response = requests.post(_get_armada_url() + 'v1/register', json=post_data)
+    url = '{}v1/register/{}'.format(_get_armada_url(), microservice_id)
+    response = requests.post(url, json=post_data)
     if response.status_code == 404:
         raise UnsupportedArmadaApiException('Endpoint /v1/register is unavailable.')
     response.raise_for_status()
