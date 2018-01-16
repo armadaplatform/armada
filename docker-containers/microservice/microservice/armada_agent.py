@@ -16,12 +16,12 @@ from datetime import datetime
 from functools import wraps, partial
 
 import requests
-from requests.exceptions import HTTPError
-
 from microservice.common.consul import consul_query, consul_post, consul_get, consul_put
 from microservice.common.docker_client import get_docker_inspect
-from microservice.common.service_discovery import register_service_in_armada, UnsupportedArmadaApiException
+from microservice.common.service_discovery import register_service_in_armada, register_service_in_armada_v1, \
+    UnsupportedArmadaApiException
 from microservice.register_in_service_discovery import REGISTRATION_DIRECTORY
+from requests.exceptions import HTTPError
 
 HEALTH_CHECKS_PERIOD = 10
 HEALTH_CHECKS_TIMEOUT = 10
@@ -124,6 +124,7 @@ def _register_service_from_file(file_path):
 
     service_id = registration_service_data['service_id']
     service_name = registration_service_data['service_name']
+    service_local_port = registration_service_data['service_container_port']
     service_port = registration_service_data['service_port']
     single_active_instance = registration_service_data['single_active_instance']
     service_tags = _create_tags()
@@ -133,8 +134,8 @@ def _register_service_from_file(file_path):
     container_created_timestamp = _datetime_string_to_timestamp(docker_inspect["Created"])
 
     try:
-        register_service_in_armada(service_id, service_name, service_port, service_tags, container_created_timestamp,
-                                   single_active_instance)
+        register_service_in_armada_v1(service_id, service_name, service_port, service_tags, container_created_timestamp,
+                                      single_active_instance)
         return
     except UnsupportedArmadaApiException as e:
         logging.exception(e)
@@ -143,33 +144,8 @@ def _register_service_from_file(file_path):
     except Exception as e:
         logging.exception(e)
 
-    if _exists_service(service_id):
-        return
-
-    consul_service_data = {
-        'ID': service_id,
-        'Name': service_name,
-        'Port': service_port,
-        'Check': {
-            'TTL': '15s',
-        }
-    }
-    if service_tags:
-        consul_service_data['Tags'] = service_tags
-
-    print_err('\nconsul_service_data:\n{0}\n'.format(json.dumps(consul_service_data)))
-
-    try:
-        _register_service(consul_service_data)
-    except:
-        print_err('ERROR on registering service:')
-        traceback.print_exc()
-
-    try:
-        _store_start_timestamp(container_id, container_created_timestamp)
-    except:
-        print_err('ERROR on storing timestamp:')
-        traceback.print_exc()
+    register_service_in_armada(service_id, service_name, service_port, service_tags, container_created_timestamp,
+                               single_active_instance)
 
 
 def _register_services():

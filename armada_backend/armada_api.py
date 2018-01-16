@@ -8,7 +8,7 @@ from armada_backend.api_images import Images
 from armada_backend.api_info import Info
 from armada_backend.api_list import List
 from armada_backend.api_recover import Recover
-from armada_backend.api_register import Register
+from armada_backend.api_register import Register, RegisterV1
 from armada_backend.api_restart import Restart
 from armada_backend.api_run import Run
 from armada_backend.api_ship import Name, Join, Promote, Shutdown
@@ -45,6 +45,7 @@ def main():
         '/restart', _get_module_path_to_class(Restart),
         '/recover', _get_module_path_to_class(Recover),
         '/register', _get_module_path_to_class(Register),
+        '/v1/register', _get_module_path_to_class(RegisterV1),
 
         '/ssh-address', _get_module_path_to_class(SshAddress),
         '/hermes_address', _get_module_path_to_class(HermesAddress),
