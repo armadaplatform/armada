@@ -10,16 +10,16 @@ from armada_command.consul.kv import kv_remove
 
 
 class Stop(api_base.ApiCommand):
-    def POST(self):
-        container_id, error = self.get_post_parameter('container_id')
-        force, _ = self.get_post_parameter('force')
+    def on_post(self, req, resp):
+        container_id, error = self.get_post_parameter(req, 'container_id')
+        force, _ = self.get_post_parameter(req, 'force')
         if error:
-            return self.status_error(error)
+            return self.status_error(resp, error)
         try:
             self._stop_service(container_id, force)
-            return self.status_ok()
+            return self.status_ok(resp)
         except Exception as e:
-            return self.status_exception("Cannot stop requested container", e)
+            return self.status_exception(resp, "Cannot stop requested container", e)
 
     def _stop_service(self, container_id, force=False):
         if force:

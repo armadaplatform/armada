@@ -2,7 +2,7 @@ from armada_backend import api_base, docker_client
 
 
 class GetEnv(api_base.ApiCommand):
-    def GET(self, container_id, key):
+    def on_get(self, req, resp, container_id, key):
         try:
             docker_api = docker_client.api()
             docker_inspect = docker_api.inspect_container(container_id)
@@ -14,7 +14,7 @@ class GetEnv(api_base.ApiCommand):
                     break
 
             if value is None:
-                return self.status_error('Requested environment variable "{key}" does not exist.'.format(**locals()))
-            return self.status_ok({'value': str(value)})
+                return self.status_error(resp, 'Requested environment variable "{key}" does not exist.'.format(**locals()))
+            return self.status_ok(resp, {'value': str(value)})
         except Exception as e:
-            return self.status_exception("Cannot inspect requested container.", e)
+            return self.status_exception(resp, "Cannot inspect requested container.", e)

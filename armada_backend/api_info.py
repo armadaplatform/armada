@@ -41,7 +41,7 @@ def _create_ip_to_service(services):
 
 
 class Info(api_base.ApiCommand):
-    def GET(self):
+    def on_get(self, req, resp):
         try:
             catalog_nodes_dict = consul_query('catalog/nodes')
 
@@ -75,5 +75,5 @@ class Info(api_base.ApiCommand):
                 }
                 result.append(armada_instance)
         except Exception as e:
-            return self.status_exception('Could not get armada info.', e)
-        return self.status_ok({'result': result})
+            return self.status_exception(resp, 'Could not get armada info.', e)
+        return self.status_ok(resp, {'result': result})

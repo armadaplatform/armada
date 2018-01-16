@@ -1,10 +1,11 @@
 import base64
 import logging
 import os
+import six
 
 import requests
 from raven import Client, setup_logging
-from raven.contrib.webpy.utils import get_data_from_request
+# from raven.contrib.webpy.utils import get_data_from_request
 from raven.handlers.logging import SentryHandler
 
 from armada_backend import docker_client
@@ -34,7 +35,8 @@ class WebSentryClient(Client):
 def setup_sentry(is_web=False):
     sentry_url = get_ship_config().get('sentry_url', '')
 
-    client_class = WebSentryClient if is_web else Client
+    # client_class = WebSentryClient if is_web else Client
+    client_class = Client
     tags = {'ship_IP': get_external_ip()}
 
     sentry_client = client_class(sentry_url,
@@ -67,7 +69,7 @@ def get_logger():
 
 def deregister_services(container_id):
     services_dict = consul_query('agent/services')
-    for service_id, service_dict in services_dict.items():
+    for service_id, service_dict in six.iteritems(services_dict):
         if service_id.startswith(container_id):
             consul_get('agent/service/deregister/{service_id}'.format(**locals()))
             try:

@@ -1,5 +1,3 @@
-import web
-
 from armada_backend import api_base
 from armada_command.consul.consul import consul_post, consul_query
 from armada_command.consul.kv import kv_set, kv_remove
@@ -41,11 +39,11 @@ def register_service_in_consul(microservice_data):
 
 
 class Register(api_base.ApiCommand):
-    def POST(self):
+    def on_post(self, req, resp):
         try:
-            microservice_data = json.loads(web.data())
+            microservice_data = json.loads(req.stream.read())
             register_service_in_consul(microservice_data)
             result = {'microservice_data': microservice_data}
         except Exception as e:
-            return self.status_exception('Could not register service.', e)
-        return self.status_ok({'result': result})
+            return self.status_exception(resp, 'Could not register service.', e)
+        return self.status_ok(resp, {'result': result})

@@ -1,7 +1,8 @@
 import re
 import subprocess
 from distutils.version import LooseVersion as Version
-from urlparse import urlparse
+
+from six.moves.urllib.parse import urlparse
 
 from armada_command.armada_utils import print_err
 from armada_command.consul import kv

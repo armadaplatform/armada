@@ -3,14 +3,14 @@ import os
 import time
 from socket import gethostname
 
-import web
-import xmlrpclib
+import six
+import xmlrpc.client
 
 from armada_backend import api_base, consul_config
 from armada_backend.models.services import get_local_services
+from armada_backend.models.ships import get_ship_name, set_ship_name, get_other_ship_ips
 from armada_backend.runtime_settings import override_runtime_settings
 from armada_backend.utils import deregister_services, get_current_datacenter, get_logger
-from armada_backend.models.ships import get_ship_name, set_ship_name, get_other_ship_ips
 from armada_command import armada_api
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query, consul_put
@@ -68,39 +68,39 @@ def _restart_consul():
 
 
 class Name(api_base.ApiCommand):
-    def GET(self):
-        return get_ship_name()
+    def on_get(self, req, resp):
+        resp.body = get_ship_name()
 
-    def POST(self):
-        ship_name, error = self.get_post_parameter('name')
+    def on_post(self, req, resp):
+        ship_name, error = self.get_post_parameter(req, 'name')
         if error:
-            return self.status_error(error)
+            return self.status_error(resp, error)
         other_ship_names = [get_ship_name(ip) for ip in get_other_ship_ips()]
         name_taken = ship_name in other_ship_names
         if not ship_name or ship_name == 'None' or name_taken:
-            return self.status_error('Incorrect ship name: {}'.format(ship_name))
+            return self.status_error(resp, 'Incorrect ship name: {}'.format(ship_name))
         set_ship_name(ship_name)
-        return self.status_ok()
+        return self.status_ok(resp)
 
 
 class Join(api_base.ApiCommand):
-    def POST(self):
-        consul_host, error = self.get_post_parameter('host')
+    def on_post(self, req, resp):
+        consul_host, error = self.get_post_parameter(req, 'host')
         if error:
-            return self.status_error(error)
+            return self.status_error(resp, error)
         ship = get_ship_name()
         local_services_data = {key: kv.kv_get(key) for key in get_local_services()}
 
         armada_size = _get_armada_size()
         if armada_size > 1:
-            return self.status_error('Currently only single ship armadas can join the others. '
-                                     'Your armada has size: {0}.'.format(armada_size))
+            return self.status_error(resp, 'Currently only single ship armadas can join the others. '
+                                           'Your armada has size: {0}.'.format(armada_size))
 
         try:
             agent_self_dict = consul_query('agent/self', consul_address='{0}:8500'.format(consul_host))
             datacenter = agent_self_dict['Config']['Datacenter']
         except:
-            return self.status_error('Could not read remote host datacenter address.')
+            return self.status_error(resp, 'Could not read remote host datacenter address.')
 
         current_consul_mode = _get_current_consul_mode()
         if current_consul_mode == consul_config.ConsulMode.BOOTSTRAP:
@@ -112,35 +112,35 @@ class Join(api_base.ApiCommand):
                                       datacenter=datacenter)
 
         if _restart_consul():
-            supervisor_server = xmlrpclib.Server('http://localhost:9001/RPC2')
+            supervisor_server = xmlrpc.client.Server('http://localhost:9001/RPC2')
             hermes_init_output = supervisor_server.supervisor.startProcessGroup('hermes_init')
             get_logger().info('hermes_init start: %s', hermes_init_output)
             set_ship_name(ship)
-            for key, data in local_services_data.items():
+            for key, data in six.iteritems(local_services_data):
                 kv.kv_set(key, data)
-            return self.status_ok()
-        return self.status_error('Waiting for armada restart timed out.')
+            return self.status_ok(resp)
+        return self.status_error(resp, 'Waiting for armada restart timed out.')
 
 
 class Promote(api_base.ApiCommand):
-    def POST(self):
+    def on_post(self, req, resp):
         current_consul_mode = _get_current_consul_mode()
 
         if current_consul_mode == consul_config.ConsulMode.SERVER:
-            return self.status_ok({'message': 'Ship is already in server mode.'})
+            return self.status_ok(resp, {'message': 'Ship is already in server mode.'})
 
         if current_consul_mode == consul_config.ConsulMode.BOOTSTRAP:
-            return self.status_error('Ship must join armada to be promoted to server.')
+            return self.status_error(resp, 'Ship must join armada to be promoted to server.')
 
         override_runtime_settings(consul_mode=consul_config.ConsulMode.SERVER)
 
         if _restart_consul():
-            return self.status_ok()
-        return self.status_error('Waiting for armada restart timed out.')
+            return self.status_ok(resp)
+        return self.status_error(resp, 'Waiting for armada restart timed out.')
 
 
 class Shutdown(api_base.ApiCommand):
-    def POST(self):
+    def on_post(self, req, resp):
         try:
             # 'startsecs=0' is to avoid restarting consul after `consul leave`.
             os.system('sed -i \'/autorestart=true/cautorestart=false\' /etc/supervisor/conf.d/consul.conf')
@@ -160,7 +160,7 @@ class Shutdown(api_base.ApiCommand):
             deregister_services(gethostname())
             os.system('consul leave')
         finally:
-            post_data = json.loads(web.data() or '{}')
+            post_data = json.loads(req.stream.read() or '{}')
             runtime_settings_path = '/opt/armada/runtime_settings.json'
             if not post_data.get('keep-joined') and os.path.isfile(runtime_settings_path):
                 with open(runtime_settings_path) as f:
@@ -169,4 +169,4 @@ class Shutdown(api_base.ApiCommand):
                 runtime_settings['is_commander'] = True
                 with open(runtime_settings_path, 'w') as f:
                     json.dump(runtime_settings, f, sort_keys=True, indent=4)
-        return self.status_ok({'message': 'Shutdown complete.'})
+        return self.status_ok(resp, {'message': 'Shutdown complete.'})

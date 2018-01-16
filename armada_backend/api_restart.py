@@ -13,20 +13,20 @@ from armada_command.scripts.compat import json
 
 
 class Restart(Run, Stop):
-    def POST(self):
-        container_id, error = self.get_post_parameter('container_id')
-        target_ship, _ = self.get_post_parameter('target_ship')
-        force_restart, _ = self.get_post_parameter('force')
+    def on_post(self, req, resp):
+        container_id, error = self.get_post_parameter(req, 'container_id')
+        target_ship, _ = self.get_post_parameter(req, 'target_ship')
+        force_restart, _ = self.get_post_parameter(req, 'force')
 
         if error:
-            return self.status_error(error)
+            return self.status_error(resp, error)
 
         try:
             new_container_id, service_endpoints = self._restart_service(container_id, target_ship, force_restart)
             short_container_id = shorten_container_id(new_container_id)
-            return self.status_ok({'container_id': short_container_id, 'endpoints': service_endpoints})
+            return self.status_ok(resp, {'container_id': short_container_id, 'endpoints': service_endpoints})
         except Exception as e:
-            return self.status_exception("Unable to restart service", e)
+            return self.status_exception(resp, "Unable to restart service", e)
 
     def _restart_service(self, container_id, target_ship=None, force_restart=False):
         restart_parameters = self._get_restart_parameters(container_id)

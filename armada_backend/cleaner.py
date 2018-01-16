@@ -1,4 +1,5 @@
 import random
+import six
 import time
 
 from armada_backend import docker_client
@@ -36,7 +37,7 @@ def _deregister_not_running_services():
         ship = get_ship_ip()
     services = _get_local_services()
     running_containers_ids = _get_running_container_ids()
-    for service_id in services.keys():
+    for service_id in six.iterkeys(services):
         container_id, is_subservice = _get_container_id_with_subservice(service_id)
         if container_id in running_containers_ids:
             continue
