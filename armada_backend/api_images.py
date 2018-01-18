@@ -1,6 +1,5 @@
-from armada_command.scripts.compat import json
-
 from armada_backend import api_base, docker_client
+from armada_command.scripts.compat import json
 
 
 class Images(api_base.ApiCommand):

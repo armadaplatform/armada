@@ -1,11 +1,12 @@
 import random
-import six
 import time
+
+import six
 
 from armada_backend import docker_client
 from armada_backend.models.services import get_local_services, update_container_status
-from armada_backend.utils import deregister_services, shorten_container_id, setup_sentry, get_logger
 from armada_backend.models.ships import get_ship_ip, get_ship_name
+from armada_backend.utils import deregister_services, shorten_container_id, setup_sentry, get_logger
 from armada_command import armada_api
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query

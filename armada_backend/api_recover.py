@@ -13,7 +13,8 @@ class Recover(api_base.ApiCommand):
                 not_recovered_containers = recover_containers_from_kv_store()
                 if not_recovered_containers:
                     return self.status_error(resp,
-                        "Failed to recover following containers: {}".format(not_recovered_containers))
+                                             "Failed to recover following containers: {}".format(
+                                                 not_recovered_containers))
             except Exception as e:
                 return self.status_exception(resp, "Error during containers recovery.", e)
             return self.status_ok(resp)
@@ -25,7 +26,7 @@ class Recover(api_base.ApiCommand):
             not_recovered_containers = recover_saved_containers_from_parameters(saved_containers)
             if not_recovered_containers:
                 return self.status_error(resp,
-                    "Failed to recover following containers: {}".format(not_recovered_containers))
+                                         "Failed to recover following containers: {}".format(not_recovered_containers))
         except Exception as e:
             return self.status_exception(resp, "Error during containers recovery.", e)
         return self.status_ok(resp)

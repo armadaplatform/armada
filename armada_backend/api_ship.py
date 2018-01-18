@@ -1,10 +1,10 @@
 import logging
 import os
 import time
+import xmlrpc.client
 from socket import gethostname
 
 import six
-import xmlrpc.client
 
 from armada_backend import api_base, consul_config
 from armada_backend.models.services import get_local_services
@@ -69,6 +69,7 @@ def _restart_consul():
 
 class Name(api_base.ApiCommand):
     def on_get(self, req, resp):
+        resp.content_type = 'text/plain'
         resp.body = get_ship_name()
 
     def on_post(self, req, resp):

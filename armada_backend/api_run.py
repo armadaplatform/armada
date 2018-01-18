@@ -1,13 +1,12 @@
 from armada_backend.api_create import Create
 from armada_backend.api_start import Start
 from armada_backend.utils import shorten_container_id
-from armada_command.scripts.compat import json
 
 
 class Run(Create, Start):
     def on_post(self, req, resp):
         try:
-            post_data = json.loads(req.stream.read())
+            post_data = req.json
         except Exception as e:
             return self.status_exception(resp, 'API Run: Invalid input JSON.', e)
 

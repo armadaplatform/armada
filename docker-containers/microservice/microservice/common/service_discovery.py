@@ -1,18 +1,17 @@
-import requests
+from __future__ import print_function
 
-from microservice.common.docker_client import get_ship_ip
+import sys
+
+import requests
+from microservice.defines import ARMADA_API_URL
 
 
 class UnsupportedArmadaApiException(Exception):
     pass
 
 
-def _get_armada_url():
-    return 'http://{}:8900/'.format(get_ship_ip())
-
-
 def get_services(params=None):
-    response = requests.get(_get_armada_url() + 'list', params=params).json()
+    response = requests.get(ARMADA_API_URL + '/list', params=params).json()
     return response['result']
 
 
@@ -40,23 +39,30 @@ def register_service_in_armada(microservice_id, microservice_name, microservice_
         'container_created_timestamp': container_created_timestamp,
         'single_active_instance': single_active_instance,
     }
-    response = requests.post(_get_armada_url() + 'register', json=post_data)
+    response = requests.post(ARMADA_API_URL + '/register', json=post_data)
     response.raise_for_status()
+
+
+def print_err(*objs):
+    print(*objs, file=sys.stderr)
 
 
 def register_service_in_armada_v1(microservice_id, microservice_name, microservice_local_port, microservice_env,
                                   microservice_app_id, container_created_timestamp, single_active_instance):
+    if '/' not in microservice_local_port:
+        microservice_local_port = '{}/tcp'.format(microservice_local_port)
     post_data = {
-        'microservice_id': microservice_id,
         'microservice_name': microservice_name,
-        'microservice_port': microservice_local_port,
+        'microservice_local_port': microservice_local_port,
         'microservice_env': microservice_env,
         'microservice_app_id': microservice_app_id,
         'container_created_timestamp': container_created_timestamp,
         'single_active_instance': single_active_instance,
     }
-    url = '{}v1/register/{}'.format(_get_armada_url(), microservice_id)
+    url = '{}/v1/register/{}'.format(ARMADA_API_URL, microservice_id)
+    print_err(url)
     response = requests.post(url, json=post_data)
+    print_err(response)
     if response.status_code == 404:
         raise UnsupportedArmadaApiException('Endpoint /v1/register is unavailable.')
     response.raise_for_status()

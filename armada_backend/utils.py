@@ -1,12 +1,12 @@
 import base64
 import logging
 import os
-import six
 
 import requests
+import six
 from raven import Client, setup_logging
-# from raven.contrib.webpy.utils import get_data_from_request
 from raven.handlers.logging import SentryHandler
+from raven.middleware import Sentry
 
 from armada_backend import docker_client
 from armada_command._version import __version__
@@ -24,32 +24,29 @@ def shorten_container_id(long_container_id):
     return long_container_id[:12]
 
 
-class WebSentryClient(Client):
-    def capture(self, event_type, data=None, date=None, time_spent=None, extra=None, stack=None, tags=None, **kwargs):
-        request_data = get_data_from_request()
-        data.update(request_data)
-
-        return super(WebSentryClient, self).capture(event_type, data, date, time_spent, extra, stack, tags, **kwargs)
-
-
-def setup_sentry(is_web=False):
+def setup_sentry():
     sentry_url = get_ship_config().get('sentry_url', '')
 
-    # client_class = WebSentryClient if is_web else Client
-    client_class = Client
     tags = {'ship_IP': get_external_ip()}
 
-    sentry_client = client_class(sentry_url,
-                                 include_paths=sentry_include_path,
-                                 release=__version__,
-                                 auto_log_stacks=True,
-                                 ignore_exceptions=sentry_ignore_exceptions,
-                                 tags=tags)
+    sentry_client = Client(sentry_url,
+                           include_paths=sentry_include_path,
+                           release=__version__,
+                           auto_log_stacks=True,
+                           ignore_exceptions=sentry_ignore_exceptions,
+                           tags=tags)
 
     handler = SentryHandler(sentry_client, level=logging.WARNING)
     setup_logging(handler)
 
     return sentry_client
+
+
+def setup_sentry_for_falcon(app):
+    sentry_url = get_ship_config().get('sentry_url')
+    if sentry_url:
+        app = Sentry(app, setup_sentry())
+    return app
 
 
 def get_logger():

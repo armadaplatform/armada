@@ -8,7 +8,7 @@ from armada_backend.api_stop import Stop
 from armada_backend.models.services import get_services_by_ship
 from armada_backend.utils import shorten_container_id
 from armada_command import armada_api
-from armada_command.consul.kv import kv_get, kv_list
+from armada_command.consul.kv import kv_get
 from armada_command.scripts.compat import json
 
 

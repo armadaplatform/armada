@@ -102,7 +102,7 @@ class Create(api_base.ApiCommand):
             self._tag_local_image(docker_api, image_path)
             image_path = '{}:{}'.format(image_name, image_tag)
 
-        host_config = docker_client.create_host_config(docker_api, resource_limits, volume_bindings, port_bindings)
+        host_config = docker_client.create_host_config(resource_limits, volume_bindings, port_bindings)
         container_info = docker_api.create_container(image_path,
                                                      ports=ports,
                                                      environment=environment,
@@ -155,7 +155,7 @@ class Create(api_base.ApiCommand):
 
     def on_post(self, req, resp):
         try:
-            post_data = json.loads(req.stream.read())
+            post_data = req.json
         except Exception as e:
             return self.status_exception(resp, 'API Run: Invalid input JSON.', e)
 

@@ -20,6 +20,7 @@ from microservice.common.consul import consul_query, consul_post, consul_get, co
 from microservice.common.docker_client import get_docker_inspect
 from microservice.common.service_discovery import register_service_in_armada, register_service_in_armada_v1, \
     UnsupportedArmadaApiException
+from microservice.defines import ARMADA_API_URL
 from microservice.register_in_service_discovery import REGISTRATION_DIRECTORY
 from requests.exceptions import HTTPError
 
@@ -137,10 +138,9 @@ def _register_service_from_file(file_path):
                                       os.environ.get('MICROSERVICE_APP_ID'), container_created_timestamp,
                                       single_active_instance)
         return
-    except UnsupportedArmadaApiException as e:
-        logging.exception(e)
-        logging.warning("Armada is using older API than service. '--single-active-instance' flag won't be available "
-                        "until armada is upgraded.")
+    except UnsupportedArmadaApiException:
+        logging.warning("Armada is using deprecated microservice API. "
+                        "Consider upgrading armada at least to version 2.5.0")
     except Exception as e:
         logging.exception(e)
 
@@ -207,12 +207,29 @@ def _get_consul_health_endpoint(return_code):
 
 # service may be deregistered without our knowledge,
 # if we were unsuccessful on reporting health status - that might be the case,
-# so let's try to register it again and retry
-@retry(num_retries=1, action=_register_services, expected_exception=HTTPError)
-def _report_health_status(service_id, health_check_code):
-    endpoint = _get_consul_health_endpoint(health_check_code)
-    response = consul_get('agent/check/{endpoint}/service:{service_id}'.format(**locals()))
-    response.raise_for_status()
+# so let's try to register it again
+def _report_health_status(microservice_id, health_check_code):
+    try:
+        _report_health_status_v1(microservice_id, health_check_code)
+        return
+    except UnsupportedArmadaApiException:
+        logging.warning("Armada is using deprecated microservice API. "
+                        "Consider upgrading armada at least to version 2.5.0")
+    # Support for old armada (<= 2.4.3) version:
+    try:
+        endpoint = _get_consul_health_endpoint(health_check_code)
+        response = consul_get('agent/check/{endpoint}/service:{microservice_id}'.format(**locals()))
+        response.raise_for_status()
+    except HTTPError:
+        _register_services()
+
+
+def _report_health_status_v1(microservice_id, health_check_code):
+    url = '{}/v1/health/{}'.format(ARMADA_API_URL, microservice_id)
+    r = requests.put(url, json={'health_check_code': health_check_code})
+    if r.status_code == 404:
+        raise UnsupportedArmadaApiException()
+    r.raise_for_status()
 
 
 def _terminate_processes(pids):
@@ -345,6 +362,8 @@ def main():
             sleep_duration = period - duration
             time.sleep(sleep_duration)
         print_err()
+        sys.stdout.flush()
+        sys.stderr.flush()
 
 
 if __name__ == '__main__':

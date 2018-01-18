@@ -1,11 +1,12 @@
 import argparse
 import os
 import re
-import six
 import sys
 from collections import Counter
 from time import sleep
 from uuid import uuid4
+
+import six
 
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.models.services import save_container, get_local_services, create_consul_services_key, \

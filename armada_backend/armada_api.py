@@ -1,12 +1,13 @@
-import os
-
 import falcon as falcon
+import falcon_json_middleware
 
 from armada_backend.api_create import Create
 from armada_backend.api_env import GetEnv
+from armada_backend.api_health import HealthV1
 from armada_backend.api_images import Images
 from armada_backend.api_info import Info
 from armada_backend.api_list import List
+from armada_backend.api_ports import PortsV1
 from armada_backend.api_recover import Recover
 from armada_backend.api_register import Register, RegisterV1
 from armada_backend.api_restart import Restart
@@ -17,10 +18,12 @@ from armada_backend.api_ssh import SshAddress
 from armada_backend.api_start import Start
 from armada_backend.api_stop import Stop
 from armada_backend.api_version import GetVersion
+from armada_backend.utils import setup_sentry_for_falcon
 
 
 class Health(object):
     def on_get(self, req, resp):
+        resp.content_type = 'text/plain'
         resp.body = 'ok'
 
 
@@ -29,7 +32,6 @@ def _get_module_path_to_class(c):
 
 
 def main():
-    autoreload = os.environ.get('ARMADA_AUTORELOAD') == 'true'
     urls = (
         '/health', Health.__name__,
 
@@ -45,7 +47,6 @@ def main():
         '/restart', _get_module_path_to_class(Restart),
         '/recover', _get_module_path_to_class(Recover),
         '/register', _get_module_path_to_class(Register),
-        '/v1/register', _get_module_path_to_class(RegisterV1),
 
         '/ssh-address', _get_module_path_to_class(SshAddress),
         '/hermes_address', _get_module_path_to_class(HermesAddress),
@@ -54,16 +55,20 @@ def main():
         '/images/{image_name}', _get_module_path_to_class(Images),
         '/list', _get_module_path_to_class(List),
         '/info', _get_module_path_to_class(Info),
+
+        '/v1/register/{microservice_id}', _get_module_path_to_class(RegisterV1),
+        '/v1/ports/{microservice_id}', _get_module_path_to_class(PortsV1),
+        '/v1/health/{microservice_id}', _get_module_path_to_class(HealthV1),
     )
-    print(urls)
+    # Adapt ~web.py routes to falcon routes:
     routes = list(zip(urls[::2], urls[1::2]))
-    print(routes)
-    app = falcon.API()
+    middleware = [falcon_json_middleware.Middleware()]
+    app = falcon.API(middleware=middleware)
     for endpoint, path in routes:
         app.add_route(endpoint, eval(path.split('.')[-1] + '()'))
 
-    # app = web.application(urls, globals(), autoreload=autoreload)
-    # app.run()
+    setup_sentry_for_falcon(app)
+
     return app
 
 
