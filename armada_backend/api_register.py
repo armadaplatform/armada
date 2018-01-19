@@ -2,20 +2,15 @@ import falcon
 
 from armada_backend import api_base, docker_client
 from armada_backend.exceptions import BadRequestException
-from armada_command.armada_utils import print_err
-from armada_command.consul.consul import consul_post, consul_query
+from armada_backend.models.services import update_service_dict
+from armada_backend.models.ships import get_ship_name
+from armada_backend.utils import exists_service
+from armada_command.consul.consul import consul_post
 from armada_command.consul.kv import kv_set, kv_remove
 
 
-def _exists_service(service_id):
-    try:
-        return service_id in consul_query('agent/services')
-    except:
-        return False
-
-
 def register_service_in_consul(microservice_data):
-    if _exists_service(microservice_data['microservice_id']):
+    if exists_service(microservice_data['microservice_id']):
         return
     consul_service_data = {
         'ID': microservice_data['microservice_id'],
@@ -67,7 +62,6 @@ class RegisterV1(api_base.ApiCommand):
     def on_post(self, req, resp, microservice_id):
         try:
             input_json = req.json
-            print_err('input_json: {}'.format(input_json))
             container_id = microservice_id.split(':')[0]
             microservice_data = {
                 'microservice_id': microservice_id,
@@ -83,9 +77,12 @@ class RegisterV1(api_base.ApiCommand):
                 microservice_tags.append('app_id:{}'.format(input_json['microservice_app_id']))
             if microservice_tags:
                 microservice_data['microservice_tags'] = microservice_tags
+            microservice_version = input_json.get('microservice_version')
+            if microservice_version:
+                update_service_dict(get_ship_name(), input_json['microservice_name'], container_id,
+                                    'microservice_version', microservice_version)
             register_service_in_consul(microservice_data)
             resp.json = microservice_data
         except Exception as e:
-            print_err(str(e))
             resp.json = {'error': 'Could not register service: {}'.format(repr(e))}
             resp.status = falcon.HTTP_400

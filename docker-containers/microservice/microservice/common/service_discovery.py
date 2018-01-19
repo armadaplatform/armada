@@ -48,7 +48,8 @@ def print_err(*objs):
 
 
 def register_service_in_armada_v1(microservice_id, microservice_name, microservice_local_port, microservice_env,
-                                  microservice_app_id, container_created_timestamp, single_active_instance):
+                                  microservice_app_id, container_created_timestamp, single_active_instance,
+                                  microservice_version):
     if '/' not in microservice_local_port:
         microservice_local_port = '{}/tcp'.format(microservice_local_port)
     post_data = {
@@ -58,11 +59,10 @@ def register_service_in_armada_v1(microservice_id, microservice_name, microservi
         'microservice_app_id': microservice_app_id,
         'container_created_timestamp': container_created_timestamp,
         'single_active_instance': single_active_instance,
+        'microservice_version': microservice_version,
     }
     url = '{}/v1/register/{}'.format(ARMADA_API_URL, microservice_id)
-    print_err(url)
     response = requests.post(url, json=post_data)
-    print_err(response)
     if response.status_code == 404:
         raise UnsupportedArmadaApiException('Endpoint /v1/register is unavailable.')
     response.raise_for_status()

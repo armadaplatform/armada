@@ -23,7 +23,12 @@ class List(api_base.ApiCommand):
             }
 
             services_list = _get_services_list(**filters)
-            services_list.update(_get_running_services(**filters))
+            running_services = _get_running_services(**filters)
+            for container_id, service_dict in six.iteritems(running_services):
+                if container_id in services_list:
+                    services_list[container_id].update(service_dict)
+                else:
+                    services_list[container_id] = service_dict
             services_list = _choose_active_instances(services_list, filters['filter_local'])
 
             services_list = sorted(six.itervalues(services_list), key=_extended_sort_info)
@@ -148,6 +153,7 @@ def _parse_single_ship(services_dict, filter_microservice_name, filter_env, filt
         container_id = service_dict['container_id']
         microservice_start_timestamp = service_dict['start_timestamp']
         single_active_instance = service_dict.get('single_active_instance', False)
+        microservice_version = service_dict.get('microservice_version')
         not_available = 'n/a'
 
         microservice_tags_dict = {}
@@ -173,6 +179,8 @@ def _parse_single_ship(services_dict, filter_microservice_name, filter_env, filt
                 'start_timestamp': microservice_start_timestamp,
                 'single_active_instance': single_active_instance,
             }
+            if microservice_version:
+                microservice_dict['microservice_version'] = microservice_version
             result[microservice_id] = microservice_dict
 
     return result

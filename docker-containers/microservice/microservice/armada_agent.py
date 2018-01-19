@@ -22,6 +22,7 @@ from microservice.common.service_discovery import register_service_in_armada, re
     UnsupportedArmadaApiException
 from microservice.defines import ARMADA_API_URL
 from microservice.register_in_service_discovery import REGISTRATION_DIRECTORY
+from microservice.version import VERSION
 from requests.exceptions import HTTPError
 
 HEALTH_CHECKS_PERIOD = 10
@@ -136,7 +137,7 @@ def _register_service_from_file(file_path):
     try:
         register_service_in_armada_v1(service_id, service_name, service_local_port, os.environ.get('MICROSERVICE_ENV'),
                                       os.environ.get('MICROSERVICE_APP_ID'), container_created_timestamp,
-                                      single_active_instance)
+                                      single_active_instance, VERSION)
         return
     except UnsupportedArmadaApiException:
         logging.warning("Armada is using deprecated microservice API. "

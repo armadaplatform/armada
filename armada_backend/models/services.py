@@ -57,3 +57,10 @@ def update_container_status(status, ship=None, service_name=None, container_id=N
         return
     service_dict['Status'] = status
     kv_set(key, service_dict)
+
+
+def update_service_dict(ship, service_name, container_id, key, value):
+    consul_key = create_consul_services_key(ship, service_name, container_id)
+    service_dict = kv_get(consul_key)
+    service_dict[key] = value
+    kv_set(consul_key, service_dict)

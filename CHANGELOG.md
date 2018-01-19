@@ -9,6 +9,8 @@
     $ curl 172.17.0.1:8900/v1/ports/f30690a0f8af
     {"80/tcp": "4261/tcp"}
     ```
+- New flag in `armada list`: `-m/--microservice-version`. It shows the version of microservice package inside
+    the container. Works only for microservices based on version >= 2.5.0.
 
 ### Improvements
 - Armada internal API is now running on python3 + uwsgi + falcon.

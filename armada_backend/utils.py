@@ -152,3 +152,10 @@ def run_command_in_container(command, container_id):
 def trigger_hook(hook_name, container_id):
     cmd = '/opt/microservice/src/run_hooks.py {}'.format(hook_name)
     run_command_in_container(cmd, container_id)
+
+
+def exists_service(service_id):
+    try:
+        return service_id in consul_query('agent/services')
+    except:
+        return False
