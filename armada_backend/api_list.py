@@ -14,7 +14,6 @@ from armada_command.consul.consul import consul_query
 class List(api_base.ApiCommand):
     def on_get(self, req, resp):
         try:
-            # get_args = web.input(local=False, microservice_name=None, env=None, app_id=None)
             local = req.get_param('local', default=False)
             filters = {
                 'filter_local': bool(local and strtobool(str(local))),

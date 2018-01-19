@@ -60,10 +60,11 @@ def main():
         '/v1/ports/{microservice_id}', _get_module_path_to_class(PortsV1),
         '/v1/health/{microservice_id}', _get_module_path_to_class(HealthV1),
     )
-    # Adapt ~web.py routes to falcon routes:
-    routes = list(zip(urls[::2], urls[1::2]))
     middleware = [falcon_json_middleware.Middleware()]
     app = falcon.API(middleware=middleware)
+
+    # Adapt ~web.py routes to falcon routes:
+    routes = list(zip(urls[::2], urls[1::2]))
     for endpoint, path in routes:
         app.add_route(endpoint, eval(path.split('.')[-1] + '()'))
 
