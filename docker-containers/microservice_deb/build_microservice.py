@@ -64,12 +64,9 @@ def _create_package(options, version):
     for dep in options['suggests']:
         fpm_options += ['--deb-suggests', dep]
 
-    try:
-        subprocess.check_output(fpm_options)
-        print('OK')
-    except subprocess.CalledProcessError as e:
-        print(e.output)
-        raise
+
+    subprocess.check_call(fpm_options)
+    print('OK')
 
 
 if __name__ == '__main__':
