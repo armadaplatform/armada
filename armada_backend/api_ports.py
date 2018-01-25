@@ -21,7 +21,10 @@ class PortsV1(ApiCommand):
     def on_get(self, req, resp, microservice_id):
         if not exists_service(microservice_id):
             resp.status = falcon.HTTP_404
-            resp.json = {'error': 'Could not find service "{microservice_id}"'.format(**locals())}
+            resp.json = {
+                'error': 'Could not find service "{microservice_id}"'.format(**locals()),
+                'error_id': 'SERVICE_NOT_FOUND',
+            }
             return
         try:
             container_id = microservice_id.split(':')[0]
