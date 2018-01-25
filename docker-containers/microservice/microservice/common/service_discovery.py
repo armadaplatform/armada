@@ -1,7 +1,5 @@
 from __future__ import print_function
 
-import sys
-
 import requests
 from microservice.defines import ARMADA_API_URL
 
@@ -41,10 +39,6 @@ def register_service_in_armada(microservice_id, microservice_name, microservice_
     }
     response = requests.post(ARMADA_API_URL + '/register', json=post_data)
     response.raise_for_status()
-
-
-def print_err(*objs):
-    print(*objs, file=sys.stderr)
 
 
 def register_service_in_armada_v1(microservice_id, microservice_name, microservice_local_port, microservice_env,

@@ -18,7 +18,7 @@ def add_arguments(parser):
     parser.add_argument('-l', '--local', action='store_true', help='Show only services that are running on local ship.')
     parser.add_argument('-u', '--uptime', action='store_true', help="Displays startup time")
     parser.add_argument('-q', '--quiet', action='store_true', help='Show only container ids.')
-    parser.add_argument('-m', '--microservice-version', action='store_true',
+    parser.add_argument('--microservice-version', action='store_true',
                         help='Show column with microservice package version.')
 
 

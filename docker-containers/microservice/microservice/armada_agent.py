@@ -16,14 +16,16 @@ from datetime import datetime
 from functools import wraps, partial
 
 import requests
+from requests.exceptions import HTTPError
+
 from microservice.common.consul import consul_query, consul_post, consul_get, consul_put
 from microservice.common.docker_client import get_docker_inspect
 from microservice.common.service_discovery import register_service_in_armada, register_service_in_armada_v1, \
     UnsupportedArmadaApiException
 from microservice.defines import ARMADA_API_URL
+from microservice.exceptions import ArmadaApiServiceNotFound
 from microservice.register_in_service_discovery import REGISTRATION_DIRECTORY
 from microservice.version import VERSION
-from requests.exceptions import HTTPError
 
 HEALTH_CHECKS_PERIOD = 10
 HEALTH_CHECKS_TIMEOUT = 10
@@ -208,7 +210,8 @@ def _get_consul_health_endpoint(return_code):
 
 # service may be deregistered without our knowledge,
 # if we were unsuccessful on reporting health status - that might be the case,
-# so let's try to register it again
+# so let's try to register it again and retry
+@retry(num_retries=1, action=_register_services, expected_exception=ArmadaApiServiceNotFound)
 def _report_health_status(microservice_id, health_check_code):
     try:
         _report_health_status_v1(microservice_id, health_check_code)
@@ -219,17 +222,27 @@ def _report_health_status(microservice_id, health_check_code):
     # Support for old armada (<= 2.4.3) version:
     try:
         endpoint = _get_consul_health_endpoint(health_check_code)
-        response = consul_get('agent/check/{endpoint}/service:{microservice_id}'.format(**locals()))
+        response = consul_put('agent/check/{endpoint}/service:{microservice_id}'.format(**locals()))
         response.raise_for_status()
     except HTTPError:
-        _register_services()
+        raise ArmadaApiServiceNotFound()
 
 
 def _report_health_status_v1(microservice_id, health_check_code):
     url = '{}/v1/health/{}'.format(ARMADA_API_URL, microservice_id)
     r = requests.put(url, json={'health_check_code': health_check_code})
     if r.status_code == 404:
-        raise UnsupportedArmadaApiException()
+        if r.content == b'not found':
+            raise UnsupportedArmadaApiException()
+        service_not_found = False
+        try:
+            error_json = r.json()
+            if error_json['error_id'] == 'SERVICE_NOT_FOUND':
+                service_not_found = True
+        except:
+            pass
+        if service_not_found:
+            raise ArmadaApiServiceNotFound()
     r.raise_for_status()
 
 

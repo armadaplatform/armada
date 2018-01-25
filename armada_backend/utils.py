@@ -2,11 +2,11 @@ import base64
 import logging
 import os
 
+import falcon
 import requests
 import six
 from raven import Client, setup_logging
 from raven.handlers.logging import SentryHandler
-from raven.middleware import Sentry
 
 from armada_backend import docker_client
 from armada_command._version import __version__
@@ -42,10 +42,36 @@ def setup_sentry():
     return sentry_client
 
 
+class FalconErrorHandler:
+    def __init__(self, sentry_client) -> None:
+        self.sentry_client = sentry_client
+
+    def __call__(self, ex, req, resp, params):
+        if isinstance(ex, falcon.HTTPNotFound):
+            raise ex
+        data = {
+            'request': {
+                'url': req.url,
+                'method': req.method,
+                'query_string': req.query_string,
+                'env': req.env,
+                'data': req.params,
+                'headers': req.headers,
+            }
+        }
+        message = isinstance(ex, falcon.HTTPError) and ex.title or str(ex)
+        exception_id = self.sentry_client.captureException(message=message, data=data)
+        if not isinstance(ex, falcon.HTTPError):
+            raise falcon.HTTPInternalServerError(exception_id, str(ex))
+        raise ex
+
+
 def setup_sentry_for_falcon(app):
     sentry_url = get_ship_config().get('sentry_url')
     if sentry_url:
-        app = Sentry(app, setup_sentry())
+        sentry_client = setup_sentry()
+        error_handler = FalconErrorHandler(sentry_client)
+        app.add_error_handler(Exception, error_handler)
     return app
 
 

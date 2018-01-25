@@ -1,8 +1,7 @@
 FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
-RUN apt-get update
-RUN apt-get install -y rsync openssh-server libffi-dev libssl-dev python3-dev
+RUN apt-get update && apt-get install -y rsync openssh-server libffi-dev libssl-dev python3-dev
 RUN pip3 install paramiko 'docker==2.4.2' raven contextlib2 ujson colored armada-heal six falcon uwsgi \
     falcon_json_middleware
 

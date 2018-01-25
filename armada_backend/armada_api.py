@@ -62,13 +62,13 @@ def main():
     )
     middleware = [falcon_json_middleware.Middleware()]
     app = falcon.API(middleware=middleware)
+    setup_sentry_for_falcon(app)
 
     # Adapt ~web.py routes to falcon routes:
     routes = list(zip(urls[::2], urls[1::2]))
     for endpoint, path in routes:
-        app.add_route(endpoint, eval(path.split('.')[-1] + '()'))
-
-    setup_sentry_for_falcon(app)
+        endpoint_class = eval(path.split('.')[-1])
+        app.add_route(endpoint, endpoint_class())
 
     return app
 
