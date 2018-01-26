@@ -1,6 +1,4 @@
-from armada_command.scripts.compat import json
-
-CONFIG_PATH = '/etc/consul.config'
+CONFIG_PATH = '/etc/consul.json'
 
 # File where runtime settings are saved after something changes.
 RUNTIME_SETTINGS_PATH = '/opt/armada/runtime_settings.json'
@@ -49,4 +47,4 @@ def get_consul_config(consul_mode, ship_ips, datacenter, ship_external_ip, ship_
         {'type': 'keyprefix', 'prefix': 'services/{}/'.format(ship_name), 'handler': save_running_containers_cmd},
     ]
 
-    return json.dumps(config, sort_keys=True, indent=4)
+    return config

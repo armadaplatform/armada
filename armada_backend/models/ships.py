@@ -1,5 +1,6 @@
 import os
 
+import consul_config
 from armada_backend.utils import get_logger
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
@@ -36,7 +37,7 @@ def set_ship_name(new_name):
             kv.kv_remove(container)
     kv.kv_set('ships/{}/name'.format(ship_ip), new_name)
     kv.kv_set('ships/{}/ip'.format(new_name), ship_ip)
-    os.system('sed -i \'s|ships/{}/|ships/{}/|\' /etc/consul.config'.format(old_name, new_name))
+    os.system('sed -i \'s|ships/{}/|ships/{}/|\' {}'.format(old_name, new_name, consul_config.CONFIG_PATH))
     try:
         os.system('/usr/local/bin/consul reload')
     except Exception as e:
