@@ -6,7 +6,6 @@ from armada_backend import api_base, docker_client
 from armada_backend.api_run_hermes import process_hermes
 from armada_backend.utils import get_logger
 from armada_command.armada_utils import split_image_path
-from armada_command.dockyard.alias import INSECURE_REGISTRY_ERROR_MSG
 from armada_command.scripts.compat import json
 
 
@@ -140,12 +139,7 @@ class Create(api_base.ApiCommand):
     def _pull_latest_image(self, docker_api, image_path):
         dockyard_address, image_name, image_tag = split_image_path(image_path)
         if dockyard_address:
-            try:
-                docker_client.docker_pull(docker_api, dockyard_address, image_name, image_tag)
-            except Exception as e:
-                if "ping attempt failed" in str(e):
-                    raise RuntimeError(INSECURE_REGISTRY_ERROR_MSG.format(header="ERROR!", address=dockyard_address))
-                raise e
+            docker_client.docker_pull(docker_api, dockyard_address, image_name, image_tag)
 
     def _tag_local_image(self, docker_api, image_path):
         dockyard_address, image_name, image_tag = split_image_path(image_path)

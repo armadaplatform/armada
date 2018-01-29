@@ -1,5 +1,6 @@
-from armada_command.armada_utils import ArmadaCommandException, split_image_path
+from armada_command.armada_utils import split_image_path
 from armada_command.dockyard import dockyard
+from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ADDRESS
 
 
 class InvalidImagePathException(Exception):
@@ -10,6 +11,8 @@ class ArmadaImageFactory(object):
     def __new__(cls, image_path, dockyard_alias=None, fallback_service_name=None):
         dockyard_address, image_name, image_tag = split_image_path(image_path)
         image_name = image_name or fallback_service_name
+        if not dockyard_address and not dockyard_alias and image_name.startswith('microservice'):
+            dockyard_address = DOCKYARD_FALLBACK_ADDRESS
 
         if not image_name:
             raise InvalidImagePathException
@@ -18,8 +21,7 @@ class ArmadaImageFactory(object):
             return LocalArmadaImage(dockyard_address, image_name, image_tag)
 
         if dockyard_alias and dockyard_address:
-            raise ArmadaCommandException('Ambiguous dockyard. Please specify either -d/--dockyard '
-                                         'or dockyard_hostname[:port]/image_name')
+            dockyard_address = None
 
         return RemoteArmadaImage(dockyard_address, image_name, image_tag, dockyard_alias)
 
