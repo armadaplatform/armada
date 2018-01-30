@@ -1,8 +1,8 @@
 import requests
 
 from armada_backend import api_base
+from armada_backend.api_list import get_list
 from armada_backend.models.ships import get_ship_ip, get_ship_name
-from armada_command import armada_api
 from armada_command.consul.consul import consul_query
 
 
@@ -33,7 +33,7 @@ def get_armada_version(address):
 
 
 def _get_running_armada_services():
-    return armada_api.get_json('list', {'microservice_name': 'armada'})
+    return get_list('armada')
 
 
 def _create_ip_to_service(services):

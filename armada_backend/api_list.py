@@ -14,28 +14,37 @@ from armada_command.consul.consul import consul_query
 class List(api_base.ApiCommand):
     def on_get(self, req, resp):
         try:
-            local = req.get_param('local', default=False)
-            filters = {
-                'filter_local': bool(local and strtobool(str(local))),
-                'filter_microservice_name': req.get_param('microservice_name'),
-                'filter_env': req.get_param('env'),
-                'filter_app_id': req.get_param('app_id'),
-            }
+            microservice_name = req.get_param('microservice_name')
+            microservice_env = req.get_param('env')
+            microservice_app_id = req.get_param('app_id')
+            local_param = req.get_param('local', default=False)
+            local = bool(local_param and strtobool(str(local_param)))
 
-            services_list = _get_services_list(**filters)
-            running_services = _get_running_services(**filters)
-            for container_id, service_dict in six.iteritems(running_services):
-                if container_id in services_list:
-                    services_list[container_id].update(service_dict)
-                else:
-                    services_list[container_id] = service_dict
-            services_list = _choose_active_instances(services_list, filters['filter_local'])
-
-            services_list = sorted(six.itervalues(services_list), key=_extended_sort_info)
+            services_list = get_list(microservice_name, microservice_env, microservice_app_id, local)
 
             return self.status_ok(resp, {'result': services_list})
         except Exception as e:
             return self.status_exception(resp, "Cannot get the list of services.", e)
+
+
+def get_list(microservice_name=None, microservice_env=None, microservice_app_id=None, local=False):
+    filters = {
+        'filter_microservice_name': microservice_name,
+        'filter_env': microservice_env,
+        'filter_app_id': microservice_app_id,
+        'filter_local': local,
+    }
+
+    services_list = _get_services_list(**filters)
+    running_services = _get_running_services(**filters)
+    for container_id, service_dict in six.iteritems(running_services):
+        if container_id in services_list:
+            services_list[container_id].update(service_dict)
+        else:
+            services_list[container_id] = service_dict
+    services_list = _choose_active_instances(services_list, filters['filter_local'])
+
+    return sorted(six.itervalues(services_list), key=_extended_sort_info)
 
 
 def _extended_sort_info(service):

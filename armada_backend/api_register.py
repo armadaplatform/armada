@@ -83,19 +83,12 @@ class RegisterV1(api_base.ApiCommand):
             if microservice_tags:
                 microservice_data['microservice_tags'] = microservice_tags
             microservice_version = input_json.get('microservice_version')
-            print_err('before register_service_in_consul')
-            print_err(json.dumps(kv_get_recurse('services/'), sort_keys=True, indent=4))
             register_service_in_consul(microservice_data)
-            ship_name = get_ship_name()
-            save_container(ship_name, container_id, status='started')
-            print_err('after register_service_in_consul')
-            print_err(json.dumps(kv_get_recurse('services/'), sort_keys=True, indent=4))
             if microservice_version:
-                print_err('updating version...')
+                ship_name = get_ship_name()
+                save_container(ship_name, container_id, status='started')
                 update_service_dict(ship_name, input_json['microservice_name'], container_id,
                                     'microservice_version', microservice_version)
-            print_err('after updating version')
-            print_err(json.dumps(kv_get_recurse('services/'), sort_keys=True, indent=4))
             resp.json = microservice_data
         except Exception as e:
             traceback.print_exc()
