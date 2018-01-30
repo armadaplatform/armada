@@ -9,7 +9,7 @@
     $ curl 172.17.0.1:8900/v1/ports/f30690a0f8af
     {"80/tcp": "4261/tcp"}
     ```
-- New flag in `armada list`: `-m/--microservice-version`. It shows the version of microservice package inside
+- New flag in `armada list`: `--microservice-version`. It shows the version of microservice package inside
     the container. Works only for microservices based on version >= 2.5.0.
 
 ### Improvements
@@ -17,6 +17,7 @@
 - New internal API for microservices (registering service, reporting health checks).
     - It should not change behavior. This is only a step towards removing docker and consul dependencies
         in microservices.
+- Upgrade `requests` pip package in `microservice` base image from 2.9.1 to 2.18.4.
 
 ## 2.4.3 (2018-01-11)
 

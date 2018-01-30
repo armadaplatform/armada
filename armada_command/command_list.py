@@ -57,4 +57,4 @@ def command_list(args):
             output_row.append(microservice_version)
         output_rows.append(output_row)
 
-    print_table([output_rows[0]] + output_rows[1:])
+    print_table(output_rows)

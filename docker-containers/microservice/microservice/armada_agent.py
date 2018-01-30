@@ -123,6 +123,7 @@ def _walk_registration_files(directory):
 
 
 def _register_service_from_file(file_path):
+    print_err('_register_service_from_file {}'.format(file_path))
     with open(file_path) as f:
         registration_service_data = json.load(f)
 
@@ -136,6 +137,7 @@ def _register_service_from_file(file_path):
     docker_inspect = get_docker_inspect(container_id)
     container_created_timestamp = _datetime_string_to_timestamp(docker_inspect["Created"])
 
+    print_err('registering service new way...')
     try:
         register_service_in_armada_v1(service_id, service_name, service_local_port, os.environ.get('MICROSERVICE_ENV'),
                                       os.environ.get('MICROSERVICE_APP_ID'), container_created_timestamp,
@@ -146,13 +148,14 @@ def _register_service_from_file(file_path):
                         "Consider upgrading armada at least to version 2.5.0")
     except Exception as e:
         logging.exception(e)
-
+    print_err('registering service old way...')
     service_tags = _create_tags()
     register_service_in_armada(service_id, service_name, service_port, service_tags, container_created_timestamp,
                                single_active_instance)
 
 
 def _register_services():
+    print_err('_register_services()')
     num_registered = 0
     for filename in _walk_registration_files(REGISTRATION_DIRECTORY):
         _register_service_from_file(filename)
@@ -213,16 +216,20 @@ def _get_consul_health_endpoint(return_code):
 # so let's try to register it again and retry
 @retry(num_retries=1, action=_register_services, expected_exception=ArmadaApiServiceNotFound)
 def _report_health_status(microservice_id, health_check_code):
+    print_err('_report_health_status {} {}'.format(microservice_id, health_check_code))
     try:
         _report_health_status_v1(microservice_id, health_check_code)
+        print_err('ok')
         return
     except UnsupportedArmadaApiException:
         logging.warning("Armada is using deprecated microservice API. "
                         "Consider upgrading armada at least to version 2.5.0")
+    print_err('falling back to older version...')
     # Support for old armada (<= 2.4.3) version:
     try:
         endpoint = _get_consul_health_endpoint(health_check_code)
         response = consul_put('agent/check/{endpoint}/service:{microservice_id}'.format(**locals()))
+        print_err('reponse from old health endpoint: {} {}'.format(response.status_code, response.content))
         response.raise_for_status()
     except HTTPError:
         raise ArmadaApiServiceNotFound()
@@ -230,7 +237,9 @@ def _report_health_status(microservice_id, health_check_code):
 
 def _report_health_status_v1(microservice_id, health_check_code):
     url = '{}/v1/health/{}'.format(ARMADA_API_URL, microservice_id)
+    print_err('_report_health_status_v1 {} {} {}'.format(microservice_id, health_check_code, url))
     r = requests.put(url, json={'health_check_code': health_check_code})
+    print_err('response from new health endpoint {} {}'.format(r.status_code, r.content))
     if r.status_code == 404:
         if r.content == b'not found':
             raise UnsupportedArmadaApiException()
