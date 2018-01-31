@@ -56,9 +56,9 @@ def main():
         '/list', _get_module_path_to_class(List),
         '/info', _get_module_path_to_class(Info),
 
-        '/v1/register/{microservice_id}', _get_module_path_to_class(RegisterV1),
-        '/v1/ports/{microservice_id}', _get_module_path_to_class(PortsV1),
-        '/v1/health/{microservice_id}', _get_module_path_to_class(HealthV1),
+        '/v1/local/register/{microservice_id}', _get_module_path_to_class(RegisterV1),
+        '/v1/local/ports/{microservice_id}', _get_module_path_to_class(PortsV1),
+        '/v1/local/health/{microservice_id}', _get_module_path_to_class(HealthV1),
     )
     middleware = [falcon_json_middleware.Middleware()]
     app = falcon.API(middleware=middleware)

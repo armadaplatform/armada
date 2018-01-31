@@ -228,7 +228,7 @@ def _report_health_status(microservice_id, health_check_code):
 
 
 def _report_health_status_v1(microservice_id, health_check_code):
-    url = '{}/v1/health/{}'.format(ARMADA_API_URL, microservice_id)
+    url = '{}/v1/local/health/{}'.format(ARMADA_API_URL, microservice_id)
     r = requests.put(url, json={'health_check_code': health_check_code})
     if r.status_code == 404:
         if r.content == b'not found':

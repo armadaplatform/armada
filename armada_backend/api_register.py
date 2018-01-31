@@ -1,5 +1,4 @@
-import json
-import traceback
+import logging
 
 import falcon
 
@@ -8,9 +7,8 @@ from armada_backend.exceptions import BadRequestException
 from armada_backend.models.services import update_service_dict, save_container
 from armada_backend.models.ships import get_ship_name
 from armada_backend.utils import exists_service
-from armada_command.armada_utils import print_err
 from armada_command.consul.consul import consul_post
-from armada_command.consul.kv import kv_set, kv_remove, kv_get_recurse
+from armada_command.consul.kv import kv_set, kv_remove
 
 
 def register_service_in_consul(microservice_data):
@@ -91,6 +89,6 @@ class RegisterV1(api_base.ApiCommand):
                                     'microservice_version', microservice_version)
             resp.json = microservice_data
         except Exception as e:
-            traceback.print_exc()
+            logging.exception(e)
             resp.json = {'error': 'Could not register service: {}'.format(repr(e))}
             resp.status = falcon.HTTP_400

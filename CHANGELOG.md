@@ -3,10 +3,10 @@
 ## Unreleased
 
 ### Features
-- New API endpoint `/v1/ports/{microservice_id}` for microservices, available inside the container.
+- New API endpoint `/v1/local/ports/{microservice_id}` for microservices, available inside the container.
     - It returns the mapping of local ports in container to external ports on host. E.g:
     ```
-    $ curl 172.17.0.1:8900/v1/ports/f30690a0f8af
+    $ curl 172.17.0.1:8900/v1/local/ports/f30690a0f8af
     {"80/tcp": "4261/tcp"}
     ```
 - New flag in `armada list`: `--microservice-version`. It shows the version of microservice package inside
