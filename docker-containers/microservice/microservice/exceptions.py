@@ -1,0 +1,2 @@
+class ArmadaApiServiceNotFound(Exception):
+    pass

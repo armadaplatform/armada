@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- New API endpoint `/v1/local/ports/{microservice_id}` for microservices, available inside the container.
+    - It returns the mapping of local ports in container to external ports on host. E.g:
+    ```
+    $ curl 172.17.0.1:8900/v1/local/ports/f30690a0f8af
+    {"80/tcp": "4261/tcp"}
+    ```
+- New flag in `armada list`: `--microservice-version`. It shows the version of microservice package inside
+    the container. Works only for microservices based on version >= 2.5.0.
+
+### Improvements
+- Armada internal API is now running on python3 + uwsgi + falcon.
+- New internal API for microservices (registering service, reporting health checks).
+    - It should not change behavior. This is only a step towards removing docker and consul dependencies
+        in microservices.
+- Upgrade `requests` pip package in `microservice` base image from 2.9.1 to 2.18.4.
+
 ## 2.4.3 (2018-01-11)
 
 We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.

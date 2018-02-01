@@ -5,8 +5,8 @@ import sys
 import traceback
 
 import requests
-from armada_utils import is_verbose, print_err, ship_name_to_ip, is_ip
 
+from armada_command.armada_utils import is_verbose, print_err, ship_name_to_ip, is_ip
 from armada_command.consul.consul import consul_query, ConsulException
 from armada_command.exceptions import ArmadaApiException
 from armada_command.scripts.compat import json
@@ -97,3 +97,13 @@ def print_result_from_armada_api(result):
         else:
             print_err(result)
         sys.exit(1)
+
+
+def get_env(container_id, env):
+    url = '{}/env/{}/{}'.format(__get_armada_address(), container_id, env)
+    response = requests.get(url)
+    response.raise_for_status()
+    result = response.json()
+    if result['status'] != 'ok':
+        raise ArmadaApiException('Armada API did not return correct status: {0}'.format(result))
+    return result['value']

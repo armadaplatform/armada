@@ -19,7 +19,7 @@ setup(
     ],
     install_requires=[
         'docker==2.4.2',
-        'requests==2.9.1',
+        'requests==2.18.4',
         'armada',
     ],
 )

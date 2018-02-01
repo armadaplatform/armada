@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import os
+import six
 import sys
 import traceback
 
@@ -62,7 +63,7 @@ def command_restart(args):
                 new_container_id = result['container_id']
                 print('Service has been restarted and is running in container {new_container_id} '
                       'available at addresses:'.format(**locals()))
-                for service_address, docker_port in result['endpoints'].iteritems():
+                for service_address, docker_port in six.iteritems(result['endpoints']):
                     print('  {0} ({1})'.format(service_address, docker_port))
                 if instances_count > 1:
                     print()

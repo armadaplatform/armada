@@ -2,7 +2,7 @@ import fnmatch
 import random
 from distutils.util import strtobool
 
-import web
+import six
 
 from armada_backend import api_base
 from armada_backend.models.ships import get_ship_name
@@ -12,25 +12,39 @@ from armada_command.consul.consul import consul_query
 
 
 class List(api_base.ApiCommand):
-    def GET(self):
+    def on_get(self, req, resp):
         try:
-            get_args = web.input(local=False, microservice_name=None, env=None, app_id=None)
-            filters = {
-                'filter_local': bool(get_args.local and strtobool(str(get_args.local))),
-                'filter_microservice_name': get_args.microservice_name,
-                'filter_env': get_args.env,
-                'filter_app_id': get_args.app_id
-            }
+            microservice_name = req.get_param('microservice_name')
+            microservice_env = req.get_param('env')
+            microservice_app_id = req.get_param('app_id')
+            local_param = req.get_param('local', default=False)
+            local = bool(local_param and strtobool(str(local_param)))
 
-            services_list = _get_services_list(**filters)
-            services_list.update(_get_running_services(**filters))
-            services_list = _choose_active_instances(services_list, filters['filter_local'])
+            services_list = get_list(microservice_name, microservice_env, microservice_app_id, local)
 
-            services_list = sorted(services_list.values(), key=_extended_sort_info)
-
-            return self.status_ok({'result': services_list})
+            return self.status_ok(resp, {'result': services_list})
         except Exception as e:
-            return self.status_exception("Cannot get the list of services.", e)
+            return self.status_exception(resp, "Cannot get the list of services.", e)
+
+
+def get_list(microservice_name=None, microservice_env=None, microservice_app_id=None, local=False):
+    filters = {
+        'filter_microservice_name': microservice_name,
+        'filter_env': microservice_env,
+        'filter_app_id': microservice_app_id,
+        'filter_local': local,
+    }
+
+    services_list = _get_services_list(**filters)
+    running_services = _get_running_services(**filters)
+    for container_id, service_dict in six.iteritems(running_services):
+        if container_id in services_list:
+            services_list[container_id].update(service_dict)
+        else:
+            services_list[container_id] = service_dict
+    services_list = _choose_active_instances(services_list, filters['filter_local'])
+
+    return sorted(six.itervalues(services_list), key=_extended_sort_info)
 
 
 def _extended_sort_info(service):
@@ -71,16 +85,16 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
 
 def _get_running_services(filter_microservice_name, filter_env, filter_app_id, filter_local):
     if filter_local:
-        local_microservices_ids = set(consul_query('agent/services').keys())
+        local_microservices_ids = set(consul_query('agent/services'))
     if filter_microservice_name:
-        names = list(consul_query('catalog/services').keys())
+        names = list(consul_query('catalog/services'))
         microservices_names = fnmatch.filter(names, filter_microservice_name)
     else:
-        microservices_names = list(consul_query('catalog/services').keys())
+        microservices_names = list(consul_query('catalog/services'))
     start_timestamps = kv.kv_get_recurse('start_timestamp/') or {}
     single_active_instances = kv.kv_get_recurse('single_active_instance/')
     if single_active_instances:
-        single_active_instances_list = single_active_instances.keys()
+        single_active_instances_list = list(single_active_instances)
     else:
         single_active_instances_list = []
     services_list_from_catalog = {}
@@ -129,7 +143,7 @@ def _get_running_services(filter_microservice_name, filter_env, filter_app_id, f
 
 def _parse_single_ship(services_dict, filter_microservice_name, filter_env, filter_app_id):
     try:
-        services_list = services_dict.keys()
+        services_list = list(services_dict)
     except AttributeError:
         services_list = None
 
@@ -148,6 +162,7 @@ def _parse_single_ship(services_dict, filter_microservice_name, filter_env, filt
         container_id = service_dict['container_id']
         microservice_start_timestamp = service_dict['start_timestamp']
         single_active_instance = service_dict.get('single_active_instance', False)
+        microservice_version = service_dict.get('microservice_version')
         not_available = 'n/a'
 
         microservice_tags_dict = {}
@@ -173,6 +188,8 @@ def _parse_single_ship(services_dict, filter_microservice_name, filter_env, filt
                 'start_timestamp': microservice_start_timestamp,
                 'single_active_instance': single_active_instance,
             }
+            if microservice_version:
+                microservice_dict['microservice_version'] = microservice_version
             result[microservice_id] = microservice_dict
 
     return result
@@ -181,7 +198,7 @@ def _parse_single_ship(services_dict, filter_microservice_name, filter_env, filt
 def _choose_active_instances(services_dicts, filter_local):
     result = services_dicts
     running_services_with_single_active_instances = {}
-    for microservice_id, service_dict in services_dicts.items():
+    for microservice_id, service_dict in six.iteritems(services_dicts):
         if service_dict.get('single_active_instance') and service_dict['status'] in ('passing', 'warning'):
             key = 'chosen_active_instance/{},env={},app_id={}'.format(service_dict['name'],
                                                                       service_dict['tags'].get('env') or '',
@@ -190,7 +207,7 @@ def _choose_active_instances(services_dicts, filter_local):
                 running_services_with_single_active_instances[key] = set()
             running_services_with_single_active_instances[key].add(microservice_id)
 
-    for key, running_microservice_ids in running_services_with_single_active_instances.items():
+    for key, running_microservice_ids in six.iteritems(running_services_with_single_active_instances):
         currently_picked_instance = kv.kv_get(key)
         if not filter_local and currently_picked_instance not in running_microservice_ids:
             currently_picked_instance = random.choice(list(running_microservice_ids))
