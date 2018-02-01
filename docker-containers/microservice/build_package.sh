@@ -15,4 +15,4 @@ fi
 docker build --rm -t "${SERVICE_NAME}" -f packaging/Dockerfile ./packaging
 docker run --rm -t -v "$(pwd)/packaging:/opt/microservice" "${SERVICE_NAME}" --version="${PACKAGE_VERSION}"
 
-mv -f $(pwd)/packaging/armada-microservice_${PACKAGE_VERSION}_amd64.deb $(pwd)/
+mv -f "$(pwd)/packaging/armada-microservice_${PACKAGE_VERSION}_amd64.deb" "$(pwd)/"
