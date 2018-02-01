@@ -12,6 +12,10 @@ ENV FORCE_UPDATE 2
 RUN apt-get update
 RUN apt-get upgrade -y
 
+COPY ./armada-microservice_${MICROSERVICE_VERSION}_amd64.deb /tmp
+RUN dpkg -i /tmp/armada-microservice_${MICROSERVICE_VERSION}_amd64.deb
+RUN apt-get install -f -y
+
 RUN add-apt-repository -y ppa:vbernat/haproxy-1.8
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends haproxy
