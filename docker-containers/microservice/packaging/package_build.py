@@ -25,7 +25,10 @@ options = {
         "sudo",
         "file",
         "iproute2",
-        "bash-completion"
+        "bash-completion",
+        "ca-certificates",
+        "python3-openssl",
+        "python-openssl"
     ],
     'suggests': [
         "haproxy"
