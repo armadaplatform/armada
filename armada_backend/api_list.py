@@ -42,7 +42,7 @@ def get_list(microservice_name=None, microservice_env=None, microservice_app_id=
             services_list[container_id].update(service_dict)
         else:
             services_list[container_id] = service_dict
-    services_list = _choose_active_instances(services_list, filters['filter_local'])
+    services_list = _choose_active_instances(services_list, local)
 
     return sorted(six.itervalues(services_list), key=_extended_sort_info)
 
