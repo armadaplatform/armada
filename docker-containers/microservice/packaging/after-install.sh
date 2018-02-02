@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 sudo -H pip3 install -U pip setuptools
 sudo -H pip2 install -U pip setuptools
@@ -14,6 +14,3 @@ sudo -H pip2 install -U /opt/microservice
 sudo -H pip3 install -U /opt/microservice
 
 chmod +x /opt/microservice/scripts/* /opt/microservice/src/run_hooks.py
-
-apt-get clean
-rm -rf /var/lib/apt/lists/*

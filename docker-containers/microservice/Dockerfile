@@ -11,6 +11,8 @@ ENV FORCE_UPDATE 2
 
 RUN apt-get update
 RUN apt-get upgrade -y
+RUN apt-get install -y --no-install-recommends supervisor python python-dev python-pip python3-pip curl mc less \
+    software-properties-common wget vim gcc unzip apt-utils net-tools cron netcat sudo file iproute2 bash-completion
 
 COPY ./armada-microservice_${MICROSERVICE_VERSION}_amd64.deb /tmp/armada-microservice_${MICROSERVICE_VERSION}_amd64.deb 
 RUN dpkg -i /tmp/armada-microservice_${MICROSERVICE_VERSION}_amd64.deb || true
