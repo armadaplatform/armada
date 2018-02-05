@@ -1,6 +1,6 @@
 import base64
 
-import web
+import six
 
 from armada_backend import api_base, docker_client
 from armada_backend.api_run_hermes import process_hermes
@@ -54,10 +54,11 @@ class Create(api_base.ApiCommand):
         if dev:
             restart_parameters['image_path'] = image_path.split('/', 1)[-1]
 
-        environment['ARMADA_RUN_COMMAND'] = base64.b64encode(run_command)
+        environment['ARMADA_RUN_COMMAND'] = base64.b64encode(run_command.encode())
         environment['IMAGE_NAME'] = image_name
         environment['MICROSERVICE_NAME'] = microservice_name
-        environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(json.dumps(restart_parameters, sort_keys=True))
+        environment['RESTART_CONTAINER_PARAMETERS'] = base64.b64encode(
+            json.dumps(restart_parameters, sort_keys=True).encode())
 
         if microservice_env:
             environment['MICROSERVICE_ENV'] = microservice_env
@@ -79,19 +80,19 @@ class Create(api_base.ApiCommand):
         ports = None
         port_bindings = None
         if dict_ports:
-            ports = map(int, dict_ports.values())
+            ports = [int(port) for port in six.itervalues(dict_ports)]
             port_bindings = dict((int(port_container), int(port_host))
-                                 for port_host, port_container in dict_ports.iteritems())
+                                 for port_host, port_container in six.iteritems(dict_ports))
 
         environment = dict_environment or None
 
         volumes = None
         volume_bindings = None
         if dict_volumes:
-            volumes = dict_volumes.values()
+            volumes = list(dict_volumes.values())
             volume_bindings = dict(
                 (path_host, {'bind': path_container, 'ro': False}) for path_host, path_container in
-                dict_volumes.iteritems())
+                six.iteritems(dict_volumes))
 
         dockyard_address, image_name, image_tag = split_image_path(image_path)
         docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)
@@ -101,7 +102,7 @@ class Create(api_base.ApiCommand):
             self._tag_local_image(docker_api, image_path)
             image_path = '{}:{}'.format(image_name, image_tag)
 
-        host_config = docker_client.create_host_config(docker_api, resource_limits, volume_bindings, port_bindings)
+        host_config = docker_client.create_host_config(resource_limits, volume_bindings, port_bindings)
         container_info = docker_api.create_container(image_path,
                                                      ports=ports,
                                                      environment=environment,
@@ -152,14 +153,14 @@ class Create(api_base.ApiCommand):
         if dockyard_address:
             docker_client.docker_tag(docker_api, dockyard_address, image_name, image_tag)
 
-    def POST(self):
+    def on_post(self, req, resp):
         try:
-            post_data = json.loads(web.data())
+            post_data = req.json
         except Exception as e:
-            return self.status_exception('API Run: Invalid input JSON.', e)
+            return self.status_exception(resp, 'API Run: Invalid input JSON.', e)
 
         try:
             long_container_id = self._create_service(**post_data)
-            return self.status_ok({'long_container_id': long_container_id})
+            return self.status_ok(resp, {'long_container_id': long_container_id})
         except Exception as e:
-            return self.status_exception("Cannot create service's container.", e)
+            return self.status_exception(resp, "Cannot create service's container.", e)

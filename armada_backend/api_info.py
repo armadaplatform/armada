@@ -1,8 +1,8 @@
 import requests
 
 from armada_backend import api_base
+from armada_backend.api_list import get_list
 from armada_backend.models.ships import get_ship_ip, get_ship_name
-from armada_command import armada_api
 from armada_command.consul.consul import consul_query
 
 
@@ -33,7 +33,7 @@ def get_armada_version(address):
 
 
 def _get_running_armada_services():
-    return armada_api.get_json('list', {'microservice_name': 'armada'})
+    return get_list('armada')
 
 
 def _create_ip_to_service(services):
@@ -41,7 +41,7 @@ def _create_ip_to_service(services):
 
 
 class Info(api_base.ApiCommand):
-    def GET(self):
+    def on_get(self, req, resp):
         try:
             catalog_nodes_dict = consul_query('catalog/nodes')
 
@@ -75,5 +75,5 @@ class Info(api_base.ApiCommand):
                 }
                 result.append(armada_instance)
         except Exception as e:
-            return self.status_exception('Could not get armada info.', e)
-        return self.status_ok({'result': result})
+            return self.status_exception(resp, 'Could not get armada info.', e)
+        return self.status_ok(resp, {'result': result})

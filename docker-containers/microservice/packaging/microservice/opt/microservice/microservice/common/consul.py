@@ -4,7 +4,6 @@ import json
 import sys
 
 import requests
-
 from microservice.common import docker_client
 
 _CONSUL_TIMEOUT_IN_SECONDS = 7
@@ -33,5 +32,6 @@ def consul_post(query, data):
     return requests.post(get_consul_url() + query, data=json.dumps(data), timeout=_CONSUL_TIMEOUT_IN_SECONDS)
 
 
-def consul_put(query, data):
+def consul_put(query, data=None):
+    data = data or {}
     return requests.put(get_consul_url() + query, data=json.dumps(data), timeout=_CONSUL_TIMEOUT_IN_SECONDS)

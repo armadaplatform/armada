@@ -1,5 +1,6 @@
 import os
 import random
+import six
 import sys
 
 from armada_command.armada_utils import ArmadaCommandException
@@ -63,7 +64,7 @@ class RunPayload(object):
             self._payload['environment'][env_key] = env_value
 
     def update_ports(self, ports):
-        for port_host, port_container in self._ports_to_mapping_dict(ports).items():
+        for port_host, port_container in six.iteritems(self._ports_to_mapping_dict(ports)):
             self._payload['ports'][str(port_host)] = str(port_container)
 
     def update_volumes(self, volumes):

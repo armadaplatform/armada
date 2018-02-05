@@ -34,7 +34,8 @@ def consul_post(query, data, consul_address=None):
                          timeout=CONSUL_TIMEOUT_IN_SECONDS)
 
 
-def consul_put(query, data, consul_address=None):
+def consul_put(query, data=None, consul_address=None):
+    data = data or {}
     return requests.put(__get_consul_url(query, consul_address), data=json.dumps(data),
                         timeout=CONSUL_TIMEOUT_IN_SECONDS)
 

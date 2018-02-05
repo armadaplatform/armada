@@ -38,9 +38,9 @@ def get_consul_config(consul_mode, ship_ips, datacenter, ship_external_ip, ship_
 
     env_pythonpath = 'PYTHONPATH=/opt/armada-docker:$PYTHONPATH'
 
-    save_runtime_settings_cmd = '{env_pythonpath} python -m armada_backend.runtime_settings'.format(**locals())
+    save_runtime_settings_cmd = '{env_pythonpath} python3 -m armada_backend.runtime_settings'.format(**locals())
     running_containers_parameters_path = RUNNING_CONTAINERS_PARAMETERS_PATH
-    save_running_containers_cmd = ('{env_pythonpath} python -m armada_backend.save_running_containers '
+    save_running_containers_cmd = ('{env_pythonpath} python3 -m armada_backend.save_running_containers '
                                    '{running_containers_parameters_path} '
                                    '>> /tmp/save_running_containers.out 2>&1').format(**locals())
     config['watches'] = [
