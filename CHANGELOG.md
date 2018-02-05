@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Improvements
-- Increase uwsgi timeout (aka harakri) from 11s to 20s.
+- Increase uwsgi timeout (aka harakiri) from 11s to 20s.
 
 ### Bug fixes
 - Split unit tests for command (python 2) and backend (python 3).
