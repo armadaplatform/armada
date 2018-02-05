@@ -17,6 +17,7 @@ RUN apt-get install -y --no-install-recommends supervisor python python-dev pyth
 COPY ./armada-microservice_${MICROSERVICE_VERSION}_amd64.deb /tmp/armada-microservice_${MICROSERVICE_VERSION}_amd64.deb 
 RUN dpkg -i /tmp/armada-microservice_${MICROSERVICE_VERSION}_amd64.deb || true
 RUN apt-get install -f -y
+RUN dpkg -l armada-microservice
 
 RUN add-apt-repository -y ppa:vbernat/haproxy-1.8
 RUN apt-get update
