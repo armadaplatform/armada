@@ -1,9 +1,9 @@
 from __future__ import print_function
 
 from armada_command.armada_utils import print_err, print_table
+from armada_command.dockyard import alias
 from armada_command.dockyard.alias import print_http_dockyard_unavailability_warning
 from armada_command.dockyard.dockyard import dockyard_factory, DockyardFactoryException, DockyardDetectionException
-from dockyard import alias
 
 
 def add_arguments(parser):

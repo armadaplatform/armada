@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Increase uwsgi timeout (aka harakri) from 11s to 20s.
+
+### Bug fixes
+- Split unit tests for command (python 2) and backend (python 3).
+
+
 ## 2.5.0 (2018-02-05)
 
 We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.

@@ -32,7 +32,8 @@ your platform more service oriented.
 
 In the root directory of the repository run:
 
-    python -m tests.unit_tests
+    python2 -m tests.unit_tests UnitTests.test_import_of_all_command_python_files
+    python3 -m tests.unit_tests UnitTests.test_import_of_all_backend_python_files
 
 # Workflow for Armada development:
 

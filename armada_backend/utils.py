@@ -43,7 +43,7 @@ def setup_sentry():
 
 
 class FalconErrorHandler:
-    def __init__(self, sentry_client) -> None:
+    def __init__(self, sentry_client):
         self.sentry_client = sentry_client
 
     def __call__(self, ex, req, resp, params):
