@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.5.0 (2018-02-05)
+
+We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
 
 ### Features
 - New API endpoint `/v1/local/ports/{microservice_id}` for microservices, available inside the container.
