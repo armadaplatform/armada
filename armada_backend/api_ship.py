@@ -12,7 +12,6 @@ from armada_backend.models.services import get_local_services
 from armada_backend.models.ships import get_ship_name, set_ship_name, get_other_ship_ips
 from armada_backend.runtime_settings import override_runtime_settings
 from armada_backend.utils import deregister_services, get_current_datacenter, get_logger
-from armada_command.armada_utils import print_err
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query, consul_put
 from armada_command.scripts.compat import json
@@ -47,7 +46,6 @@ def wait_for_consul_ready(timeout_seconds=60):
         time.sleep(1)
         try:
             armada_instances = get_list('armada', local=True)
-            print_err('armada_instances: {}'.format(armada_instances))
             if armada_instances[0]['status'] == 'passing':
                 return True
         except Exception as e:
