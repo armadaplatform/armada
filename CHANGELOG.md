@@ -3,10 +3,14 @@
 ## Unreleased
 
 ### Improvements
-- Increase uwsgi timeout (aka harakiri) from 11s to 20s.
+- Increase uwsgi timeout (aka harakiri) from 11s to 30s.
+- Set uwsgi socket-timeout to 30s.
+- Use 3 threads per uwsgi process instead of 3.
+- Don't run http worker as separate process in uwsgi.
 
 ### Bug fixes
 - Split unit tests for command (python 2) and backend (python 3).
+- Fix bug with updating microservice_version in `armada list` for microservices with subservices.
 
 
 ## 2.5.0 (2018-02-05)
