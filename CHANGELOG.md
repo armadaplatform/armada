@@ -5,7 +5,7 @@
 ### Improvements
 - Increase uwsgi timeout (aka harakiri) from 11s to 30s.
 - Set uwsgi socket-timeout to 30s.
-- Use 3 threads per uwsgi process instead of 3.
+- Use 3 threads per uwsgi process instead of 2.
 - Don't run http worker as separate process in uwsgi.
 
 ### Bug fixes
