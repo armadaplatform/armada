@@ -1,7 +1,6 @@
 armada-heal
 colored
 contextlib2
-cython
 docker==2.4.2
 falcon
 falcon_json_middleware
