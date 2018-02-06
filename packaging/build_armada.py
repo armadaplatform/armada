@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser
 import logging
 import os
 import shutil
 import subprocess
+from argparse import ArgumentParser
 from os import path
 from tempfile import mkdtemp
 
@@ -15,6 +15,9 @@ defaults = {
     'docker_compatibility_path': '/opt/armada/docker_compatibility.py',
     'autocomplete_src': 'packaging/bash_completion.d/armada',
     'autocomplete_path': '/etc/bash_completion.d/armada',
+
+    'armada_command_requirements_src': 'armada_command/armada_command_requirements.txt',
+    'armada_command_requirements_file_path': '/opt/armada/armada_command_requirements.txt',
 
     'binaries_path': '/usr/local/bin/',
     'binaries': ['armada', 'armada-runner'],
@@ -110,6 +113,8 @@ def _create_env(options, version):
                  _path_join(tmp_dir, options['docker_compatibility_path']))
     shutil.copy2(_path_join(options['autocomplete_src']),
                  _path_join(tmp_dir, options['autocomplete_path']))
+    shutil.copy2(_path_join(options['armada_command_requirements_src']),
+                 _path_join(tmp_dir, options['armada_command_requirements_file_path']))
     shutil.copy2(_path_join(options['default_file_src']), _path_join(tmp_dir, options['default_file_path']))
     shutil.copy2(_path_join(options['initd_script_src']), _path_join(tmp_dir, options['initd_script_file_path']))
     shutil.copy2(_path_join(options['systemd_file_src']), _path_join(tmp_dir, options['systemd_service_file_path']))

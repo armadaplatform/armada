@@ -2,8 +2,8 @@ FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
 RUN apt-get update && apt-get install -y rsync openssh-server libffi-dev libssl-dev python3-dev
-RUN pip3 install paramiko 'docker==2.4.2' raven contextlib2 ujson colored armada-heal six falcon uwsgi \
-    falcon_json_middleware
+COPY armada_backend/armada_backend_requirements.txt /tmp/
+RUN pip3 install -r /tmp/armada_backend_requirements.txt
 
 # Consul
 RUN curl -s https://releases.hashicorp.com/consul/0.7.5/consul_0.7.5_linux_amd64.zip | zcat > /usr/local/bin/consul \
