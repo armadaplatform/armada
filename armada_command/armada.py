@@ -8,29 +8,29 @@ import traceback
 
 from requests.packages import urllib3
 
-import armada_api
-import command_build
-import command_create
-import command_develop
-import command_diagnose
-import command_dockyard
-import command_info
-import command_list
-import command_name
-import command_push
-import command_recover
-import command_restart
-import command_run
-import command_ssh
-import command_stop
-import command_version
-import command_poker
-from _version import __version__
+from armada_command import armada_api
+from armada_command import command_build
+from armada_command import command_create
 from armada_command import command_deploy
+from armada_command import command_develop
+from armada_command import command_diagnose
+from armada_command import command_dockyard
+from armada_command import command_info
+from armada_command import command_list
+from armada_command import command_name
+from armada_command import command_poker
+from armada_command import command_push
+from armada_command import command_recover
+from armada_command import command_restart
+from armada_command import command_run
 from armada_command import command_shutdown
+from armada_command import command_ssh
+from armada_command import command_stop
+from armada_command import command_version
+from armada_command._version import __version__
+from armada_command.armada_logging import log_command
+from armada_command.armada_utils import set_verbose, is_verbose
 from armada_command.scripts.update import version_check
-from armada_logging import log_command
-from armada_utils import set_verbose, is_verbose
 
 
 def parse_args():

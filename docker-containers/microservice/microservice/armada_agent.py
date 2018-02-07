@@ -61,7 +61,7 @@ def _create_tags():
 def _register_service(consul_service_data):
     print_err('Registering service...')
     response = consul_post('agent/service/register', consul_service_data)
-    assert response.status_code == requests.codes.ok
+    response.raise_for_status()
     print_err('Successfully registered.', '\n')
 
 
@@ -75,7 +75,7 @@ def _store_start_timestamp(container_id, container_created_timestamp):
     key = "kv/start_timestamp/" + container_id
     if consul_get(key).status_code == requests.codes.not_found:
         response = consul_put(key, str(container_created_timestamp))
-        assert response.status_code == requests.codes.ok
+        response.raise_for_status()
 
 
 def retry(num_retries, action=None, expected_exception=Exception):

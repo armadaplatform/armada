@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Increase uwsgi timeout (aka harakiri) from 11s to 31s.
+- Set uwsgi socket-timeout to 31s.
+- Use 3 threads per uwsgi process instead of 2.
+- Don't run http worker as separate process in uwsgi.
+
+### Bug fixes
+- Split unit tests for command (python 2) and backend (python 3).
+- Fix bug with updating microservice_version in `armada list` for microservices with subservices.
+
+
 ## 2.5.0 (2018-02-05)
 
 We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.

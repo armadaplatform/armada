@@ -5,7 +5,7 @@ import os
 import pipes
 import shlex
 
-import armada_utils
+from armada_command import armada_utils
 
 
 def add_arguments(parser):

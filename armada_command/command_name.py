@@ -1,4 +1,4 @@
-import armada_api
+from armada_command import armada_api
 
 
 def add_arguments(parser):

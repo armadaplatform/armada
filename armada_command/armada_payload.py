@@ -1,11 +1,11 @@
 import os
 import random
-import six
 import sys
 
-from armada_command.armada_utils import ArmadaCommandException
+import six
+
+from armada_command.armada_utils import ArmadaCommandException, is_port_available
 from armada_command.dockyard import dockyard
-from armada_utils import is_port_available
 
 
 class RunPayload(object):
