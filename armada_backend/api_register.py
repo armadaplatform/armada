@@ -4,7 +4,7 @@ import falcon
 
 from armada_backend import api_base, docker_client
 from armada_backend.exceptions import BadRequestException
-from armada_backend.models.services import update_service_dict, save_container
+from armada_backend.models.services import update_service_dict, save_container, is_subservice
 from armada_backend.models.ships import get_ship_name
 from armada_backend.utils import exists_service
 from armada_command.consul.consul import consul_post
@@ -83,7 +83,7 @@ class RegisterV1(api_base.ApiCommand):
                 microservice_data['microservice_tags'] = microservice_tags
             microservice_version = input_json.get('microservice_version')
             register_service_in_consul(microservice_data)
-            if microservice_version and microservice_name != 'armada' and not _is_subservice(microservice_name):
+            if microservice_version and microservice_name != 'armada' and not is_subservice(microservice_name):
                 ship_name = get_ship_name()
                 save_container(ship_name, container_id, status='started')
                 update_service_dict(ship_name, microservice_name, container_id,
@@ -93,7 +93,3 @@ class RegisterV1(api_base.ApiCommand):
             logging.exception(e)
             resp.json = {'error': 'Could not register service: {}'.format(repr(e))}
             resp.status = falcon.HTTP_400
-
-
-def _is_subservice(microservice_name):
-    return ':' in microservice_name
