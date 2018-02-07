@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+
 ### Features
 - New API endpoint `/v1/local/ports/{microservice_id}` for microservices, available inside the container.
     - It returns the mapping of local ports in container to external ports on host. E.g:
@@ -18,6 +19,7 @@
     - It should not change behavior. This is only a step towards removing docker and consul dependencies
         in microservices.
 - Upgrade `requests` pip package in `microservice` base image from 2.9.1 to 2.18.4.
+- Microservice image is now building from deb package.
 
 ## 2.4.3 (2018-01-11)
 
