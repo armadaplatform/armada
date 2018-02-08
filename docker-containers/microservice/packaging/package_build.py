@@ -54,6 +54,7 @@ def _create_package(options, version):
         "--url", "armada.sh",
         "--after-install", 'after-install.sh',
         "--after-remove", 'after-remove.sh',
+        "--template-scripts",
         "--name", 'armada-microservice',
         "--version", version,
         "--architecture", 'x86_64',
