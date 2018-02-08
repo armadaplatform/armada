@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Improvements
+- Increase uwsgi timeout (aka harakiri) from 11s to 31s.
+- Set uwsgi socket-timeout to 31s.
+- Use 3 threads per uwsgi process instead of 2.
+- Don't run http worker as separate process in uwsgi.
+- Microservice image is now building from deb package.
+
+### Bug fixes
+- Split unit tests for command (python 2) and backend (python 3).
+- Fix bug with updating microservice_version in `armada list` for microservices with subservices.
+
+
+## 2.5.0 (2018-02-05)
+
+We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
 
 ### Features
 - New API endpoint `/v1/local/ports/{microservice_id}` for microservices, available inside the container.
@@ -19,7 +34,6 @@
     - It should not change behavior. This is only a step towards removing docker and consul dependencies
         in microservices.
 - Upgrade `requests` pip package in `microservice` base image from 2.9.1 to 2.18.4.
-- Microservice image is now building from deb package.
 
 ## 2.4.3 (2018-01-11)
 

@@ -2,10 +2,11 @@ from __future__ import print_function
 
 import argparse
 import os
-import six
 import sys
 
-import armada_api
+import six
+
+from armada_command import armada_api
 from armada_command.armada_payload import RunPayload
 from armada_command.armada_utils import ArmadaCommandException, is_verbose, notify_about_detected_dev_environment, \
     is_armada_develop_on

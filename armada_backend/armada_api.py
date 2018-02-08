@@ -34,7 +34,6 @@ def _get_module_path_to_class(c):
 def main():
     urls = (
         '/health', Health.__name__,
-
         '/name', _get_module_path_to_class(Name),
         '/join', _get_module_path_to_class(Join),
         '/promote', _get_module_path_to_class(Promote),

@@ -67,3 +67,7 @@ def update_service_dict(ship, service_name, container_id, key, value):
     service_dict = kv_get(consul_key)
     service_dict[key] = value
     kv_set(consul_key, service_dict)
+
+
+def is_subservice(microservice_name):
+    return ':' in microservice_name

@@ -31,8 +31,9 @@ your platform more service oriented.
 # Running tests
 
 In the root directory of the repository run:
-
-    python -m tests.unit_tests
+```
+tests/run_tests.sh
+```
 
 # Workflow for Armada development:
 

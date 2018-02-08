@@ -1,12 +1,13 @@
 from __future__ import print_function
 
 import os
-import six
 import sys
 import traceback
 
-import armada_api
-import armada_utils
+import six
+
+from armada_command import armada_api
+from armada_command import armada_utils
 
 
 def add_arguments(parser):

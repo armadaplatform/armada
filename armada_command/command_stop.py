@@ -1,12 +1,13 @@
 from __future__ import print_function
 
 import os
-import six
 import sys
 import traceback
 
-import armada_api
-import armada_utils
+import six
+
+from armada_command import armada_api
+from armada_command import armada_utils
 from armada_command.armada_utils import ArmadaCommandException
 
 
@@ -25,7 +26,7 @@ def command_stop(args):
     armada_utils.notify_about_detected_dev_environment(microservice_handles[0])
 
     services = {microservice_handle: armada_utils.get_matched_containers(microservice_handle)
-                 for microservice_handle in microservice_handles}
+                for microservice_handle in microservice_handles}
 
     for microservice_handle, instances in six.iteritems(services):
         instances_count = len(instances)
@@ -54,7 +55,8 @@ def command_stop(args):
                 ship_name = instance['Address']
                 result = armada_api.post('stop', payload, ship_name=ship_name)
 
-                if result['status'] == 'error' and result['error'].startswith('armada API exception: ValueError - Cannot find ship:'):
+                if result['status'] == 'error' and result['error'].startswith(
+                        'armada API exception: ValueError - Cannot find ship:'):
                     payload['force'] = True
                     result = armada_api.post('stop', payload)
 
