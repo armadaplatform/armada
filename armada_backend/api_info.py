@@ -3,6 +3,7 @@ import requests
 from armada_backend import api_base
 from armada_backend.api_list import get_list
 from armada_backend.models.ships import get_ship_ip, get_ship_name
+from armada_backend.utils import get_logger
 from armada_command.consul.consul import consul_query
 
 
@@ -26,8 +27,8 @@ def get_armada_version(address):
         result = requests.get(url, timeout=0.5)
         result.raise_for_status()
         version = result.text.split()[0]
-    except:
-        pass
+    except Exception as e:
+        get_logger().exception(e)
 
     return version
 
@@ -59,7 +60,8 @@ class Info(api_base.ApiCommand):
                 service_armada_version = get_armada_version(service_armada_address)
                 try:
                     ship_role = get_ship_role(ship_ip)
-                except:
+                except Exception as e:
+                    get_logger().exception(e)
                     ship_role = '?'
 
                 is_current = (ship_ip == current_ship_ip)

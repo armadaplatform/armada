@@ -29,7 +29,8 @@ class Stop(api_base.ApiCommand):
 
         try:
             keys = fnmatch.filter(service_list, '*/{}'.format(container_id))
-        except (IndexError, TypeError):
+        except (IndexError, TypeError) as e:
+            get_logger().exception(e)
             keys = []
 
         if not is_container_running(container_id):

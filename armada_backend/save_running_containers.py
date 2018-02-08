@@ -29,11 +29,12 @@ def _save_containers_parameters_list_in_file(containers_parameters_list, saved_c
 
 def _is_recovery_completed():
     try:
-        with open(RECOVERY_COMPLETED_PATH) as recovery_completed_file:
-            if recovery_completed_file.read() == '1':
-                return True
-    except:
-        pass
+        if os.path.isfile(RECOVERY_COMPLETED_PATH):
+            with open(RECOVERY_COMPLETED_PATH) as recovery_completed_file:
+                if recovery_completed_file.read() == '1':
+                    return True
+    except Exception as e:
+        get_logger().exception(e)
     return False
 
 
@@ -61,7 +62,6 @@ def main():
 
         _save_containers_parameters_list_in_file(containers_parameters_dict, saved_containers_path)
         get_logger().info('Containers have been saved to {}.'.format(saved_containers_path))
-
 
     except Exception as e:
         get_logger().exception(e)

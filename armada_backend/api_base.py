@@ -10,19 +10,22 @@ class ApiCommand(object):
         try:
             get_data = req.get_parameter(parameter_name)
             result = get_data[parameter_name]
-        except:
+        except Exception as e:
+            get_logger().exception(e)
             return None, "Invalid input data - no parameter '{0}'.".format(parameter_name)
         return result, None
 
     def get_post_parameter(self, req, parameter_name):
         try:
             post_data = req.json
-        except:
+        except Exception as e:
+            get_logger().exception(e)
             return None, 'Invalid input data - invalid json.'
 
         try:
             result = post_data[parameter_name]
-        except:
+        except Exception as e:
+            get_logger().exception(e)
             return None, "Invalid input data - no parameter '{0}'.".format(parameter_name)
 
         return result, None

@@ -3,6 +3,7 @@ import os
 import time
 import xmlrpc.client
 from socket import gethostname
+from subprocess import check_call
 
 import six
 
@@ -35,7 +36,8 @@ def _get_armada_size():
     try:
         catalog_nodes_dict = consul_query('catalog/nodes')
         return len(catalog_nodes_dict)
-    except:
+    except Exception as e:
+        get_logger().exception(e)
         return 0
 
 
@@ -99,7 +101,8 @@ class Join(api_base.ApiCommand):
         try:
             agent_self_dict = consul_query('agent/self', consul_address='{0}:8500'.format(consul_host))
             datacenter = agent_self_dict['Config']['Datacenter']
-        except:
+        except Exception as e:
+            get_logger().exception(e)
             return self.status_error(resp, 'Could not read remote host datacenter address.')
 
         current_consul_mode = _get_current_consul_mode()
@@ -143,22 +146,26 @@ class Shutdown(api_base.ApiCommand):
     def on_post(self, req, resp):
         try:
             # 'startsecs=0' is to avoid restarting consul after `consul leave`.
-            os.system('sed -i \'/autorestart=true/cautorestart=false\' /etc/supervisor/conf.d/consul.conf')
-            os.system('echo startsecs=0 >> /etc/supervisor/conf.d/consul.conf')
+            check_call('sed -i \'/autorestart=true/cautorestart=false\' /etc/supervisor/conf.d/consul.conf', shell=True)
+            check_call('echo startsecs=0 >> /etc/supervisor/conf.d/consul.conf', shell=True)
 
-            os.system('supervisorctl update consul')
+            check_call(['supervisorctl', 'update', 'consul'])
 
             # As 'supervisorctl update' will restart Consul, we have to wait for it to be running.
             deadline = time.time() + 15
+            ok = False
             while time.time() < deadline:
                 try:
                     get_current_datacenter()
+                    ok = True
                     break
                 except:
                     time.sleep(1)
+            if not ok:
+                get_logger().warn('Restarting consul timed out.')
 
             deregister_services(gethostname())
-            os.system('consul leave')
+            check_call(['consul', 'leave'])
         finally:
             post_data = json.loads(req.stream.read() or '{}')
             runtime_settings_path = '/opt/armada/runtime_settings.json'

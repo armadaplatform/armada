@@ -12,14 +12,15 @@ def _get_runtime_settings():
         shutil.copy(consul_config.RUNTIME_SETTINGS_PATH, consul_config.ORIGINAL_RUNTIME_SETTINGS_PATH)
         with open(consul_config.ORIGINAL_RUNTIME_SETTINGS_PATH) as runtime_settings_json:
             runtime_settings = json.load(runtime_settings_json)
-    except:
+    except Exception as e:
+        get_logger().exception(e)
         runtime_settings = {}
 
     try:
         with open(consul_config.OVERRIDE_RUNTIME_SETTINGS_PATH) as runtime_settings_json:
             runtime_settings.update(json.load(runtime_settings_json))
-    except:
-        pass
+    except Exception as e:
+        get_logger().exception(e)
 
     ship_ips = runtime_settings.get('ships', [])
     consul_mode = consul_config.ConsulMode.BOOTSTRAP

@@ -162,7 +162,7 @@ def is_container_running(container_id):
     try:
         inspect = docker_api.inspect_container(container_id)
         return inspect['State']['Running']
-    except:
+    except Exception:
         return False
 
 
@@ -183,5 +183,6 @@ def trigger_hook(hook_name, container_id):
 def exists_service(service_id):
     try:
         return service_id in consul_query('agent/services')
-    except:
+    except Exception as e:
+        get_logger().exception(e)
         return False

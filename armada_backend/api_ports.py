@@ -3,7 +3,7 @@ import six
 
 from armada_backend import docker_client
 from armada_backend.api_base import ApiCommand
-from armada_backend.utils import exists_service
+from armada_backend.utils import exists_service, get_logger
 
 
 def get_container_ports_mapping(container_id):
@@ -31,5 +31,6 @@ class PortsV1(ApiCommand):
             mapping = get_container_ports_mapping(container_id)
             resp.json = mapping
         except Exception as e:
+            get_logger().exception(e)
             resp.json = {'error': 'Could not get ports: {}'.format(repr(e))}
             resp.status = falcon.HTTP_500
