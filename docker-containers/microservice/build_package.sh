@@ -12,6 +12,8 @@ if [[ ! -n ${PACKAGE_VERSION} ]]; then
     PACKAGE_VERSION=$(grep 'ENV MICROSERVICE_VERSION' Dockerfile | awk '{ print $3 }'  | tr -d '[[:space:]]')
 fi
 
+echo VERSION = \"${PACKAGE_VERSION}\" > packaging/microservice/opt/microservice/microservice/version.py
+
 docker build --rm -t "${SERVICE_NAME}" -f packaging/Dockerfile ./packaging
 docker run --rm -t -v "$(pwd)/packaging:/opt/microservice" "${SERVICE_NAME}" --version="${PACKAGE_VERSION}"
 
