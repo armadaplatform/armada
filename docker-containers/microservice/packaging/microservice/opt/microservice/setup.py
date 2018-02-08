@@ -1,6 +1,5 @@
-from setuptools import setup
-
 from microservice.version import VERSION
+from setuptools import setup
 
 setup(
     name='armada-microservice',
@@ -21,5 +20,6 @@ setup(
         'docker==2.4.2',
         'requests==2.18.4',
         'armada',
+        'pyopenssl',
     ],
 )
