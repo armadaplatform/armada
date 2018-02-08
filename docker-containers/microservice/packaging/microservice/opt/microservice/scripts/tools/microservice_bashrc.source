@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source /opt/microservice/scripts/tools/acd.bashrc
+source /opt/microservice/scripts/tools/actl.bashrc
+source /opt/microservice/scripts/tools/ahelp.bashrc

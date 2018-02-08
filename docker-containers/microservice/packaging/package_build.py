@@ -56,6 +56,7 @@ def _create_package(options, version):
         "--maintainer", "cerebro@ganymede.eu",
         "--url", "armada.sh",
         "--after-install", 'after-install.sh',
+        "--after-remove", 'after-remove.sh',
         "--name", 'armada-microservice',
         "--version", version,
         "--architecture", 'x86_64',
