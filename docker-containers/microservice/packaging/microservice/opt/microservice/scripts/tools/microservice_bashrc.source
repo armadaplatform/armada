@@ -3,3 +3,4 @@
 source /opt/microservice/scripts/tools/acd.bashrc
 source /opt/microservice/scripts/tools/actl.bashrc
 source /opt/microservice/scripts/tools/ahelp.bashrc
+source /etc/bash_completion_armada
