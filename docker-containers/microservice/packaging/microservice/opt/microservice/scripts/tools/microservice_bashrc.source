@@ -3,4 +3,6 @@
 source /opt/microservice/scripts/tools/acd.bashrc
 source /opt/microservice/scripts/tools/actl.bashrc
 source /opt/microservice/scripts/tools/ahelp.bashrc
-source /etc/bash_completion_armada
+source /etc/bash_completion_armada/acd
+source /etc/bash_completion_armada/atail
+source /etc/bash_completion_armada/supervisorctl
