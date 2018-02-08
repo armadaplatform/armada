@@ -7,8 +7,6 @@ ENV CONFIG_DIR config
 
 ENV MICROSERVICE_VERSION 2.5.0
 
-ENV FORCE_UPDATE 2
-
 RUN apt-get update
 RUN apt-get upgrade -y
 RUN apt-get install -y --no-install-recommends supervisor python python-dev python-pip python3-pip curl mc less \
