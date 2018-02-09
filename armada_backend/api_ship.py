@@ -64,7 +64,7 @@ def _restart_consul():
     request_body = json.dumps({'Node': node_name})
     consul_put('catalog/deregister', data=request_body)
 
-    os.system('consul leave')
+    check_call(['consul', 'leave'])
     return wait_for_consul_ready()
 
 
