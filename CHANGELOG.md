@@ -7,6 +7,7 @@
 - Set uwsgi socket-timeout to 31s.
 - Use 3 threads per uwsgi process instead of 2.
 - Don't run http worker as separate process in uwsgi.
+- Microservice image is now building from deb package.
 
 ### Bug fixes
 - Split unit tests for command (python 2) and backend (python 3).
