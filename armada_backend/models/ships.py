@@ -55,13 +55,3 @@ def get_other_ship_ips():
     except Exception as e:
         get_logger().exception(e)
         return []
-
-
-def get_ship_names():
-    try:
-        catalog_nodes_dict = consul_query('catalog/nodes')
-        ship_names = list(get_ship_name(consul_node['Address']) for consul_node in catalog_nodes_dict)
-        return ship_names
-    except Exception as e:
-        get_logger().exception(e)
-        return []
