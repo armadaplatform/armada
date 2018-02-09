@@ -17,8 +17,9 @@ def _get_runtime_settings():
         runtime_settings = {}
 
     try:
-        with open(consul_config.OVERRIDE_RUNTIME_SETTINGS_PATH) as runtime_settings_json:
-            runtime_settings.update(json.load(runtime_settings_json))
+        if os.path.isfile(consul_config.OVERRIDE_RUNTIME_SETTINGS_PATH):
+            with open(consul_config.OVERRIDE_RUNTIME_SETTINGS_PATH) as runtime_settings_json:
+                runtime_settings.update(json.load(runtime_settings_json))
     except Exception as e:
         get_logger().exception(e)
 
