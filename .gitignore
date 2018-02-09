@@ -3,3 +3,5 @@
 *.pyc
 *.BAK
 /dist/
+docker-containers/microservice/*.deb
+docker-containers/microservice/packaging/microservice/opt/microservice/src
