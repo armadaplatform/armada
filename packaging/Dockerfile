@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		make \
 		python3 \
 		rpm \
-		ruby-dev
+		ruby-dev \
+		libffi-dev
 
 # install package builder
 RUN gem install fpm
