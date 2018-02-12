@@ -138,7 +138,8 @@ def _check_if_we_should_recover(saved_containers_path):
         else:
             get_logger().info('No need to recover.')
             return False
-    except:
+    except Exception as e:
+        get_logger().exception(e)
         return False
 
 
@@ -173,7 +174,7 @@ def _add_running_services_at_startup():
             if not containers_saved_in_kv or key not in containers_saved_in_kv:
                 save_container(ship, service_id, 'started')
                 get_logger().info('Added running service: {}'.format(service_id))
-    except:
+    except Exception:
         get_logger().exception('Unable to add running services.')
 
 

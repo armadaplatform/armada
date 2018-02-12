@@ -1,9 +1,9 @@
-import os
-import grp
 import fcntl
+import grp
 import logging
-from functools import wraps
+import os
 from contextlib import contextmanager
+from functools import wraps
 
 from armada_command.scripts.update_config import LOG_FILE_PATH
 
@@ -58,7 +58,9 @@ def suppress_exception(logger):
             except Exception as e:
                 if logger is not None:
                     logger.exception('An error occurred while checking for new version of armada: {}.'.format(e))
+
         return wrapper
+
     return decorator
 
 

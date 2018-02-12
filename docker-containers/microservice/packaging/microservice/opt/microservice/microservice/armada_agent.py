@@ -46,7 +46,8 @@ def print_exc():
 def _exists_service(service_id):
     try:
         return service_id in consul_query('agent/services')
-    except:
+    except Exception as e:
+        logging.exception(e)
         return False
 
 
@@ -238,7 +239,7 @@ def _report_health_status_v1(microservice_id, health_check_code):
             error_json = r.json()
             if error_json['error_id'] == 'SERVICE_NOT_FOUND':
                 service_not_found = True
-        except:
+        except Exception:
             pass
         if service_not_found:
             raise ArmadaApiServiceNotFound()
@@ -363,8 +364,8 @@ def main():
             print_err('=== {service_name} STATUS: {status} ==='.format(**locals()))
             try:
                 _report_health_status(service_id, health_check_code)
-            except:
-                print_exc()
+            except Exception as e:
+                logging.exception(e)
             if status == 'critical':
                 is_critical = True
 

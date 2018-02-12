@@ -1,4 +1,4 @@
-import os
+from subprocess import check_call
 
 from armada_backend.utils import get_logger
 from armada_command.consul import kv
@@ -36,9 +36,9 @@ def set_ship_name(new_name):
             kv.kv_remove(container)
     kv.kv_set('ships/{}/name'.format(ship_ip), new_name)
     kv.kv_set('ships/{}/ip'.format(new_name), ship_ip)
-    os.system('sed -i \'s|ships/{}/|ships/{}/|\' /etc/consul.config'.format(old_name, new_name))
+    check_call('sed -i \'s|ships/{}/|ships/{}/|\' /etc/consul.config'.format(old_name, new_name), shell=True)
     try:
-        os.system('/usr/local/bin/consul reload')
+        check_call(['/usr/local/bin/consul', 'reload'])
     except Exception as e:
         get_logger().exception(e)
 
@@ -52,14 +52,6 @@ def get_other_ship_ips():
         if my_ship_ip in ship_ips:
             ship_ips.remove(my_ship_ip)
         return ship_ips
-    except:
-        return []
-
-
-def get_ship_names():
-    try:
-        catalog_nodes_dict = consul_query('catalog/nodes')
-        ship_names = list(get_ship_name(consul_node['Address']) for consul_node in catalog_nodes_dict)
-        return ship_names
-    except:
+    except Exception as e:
+        get_logger().exception(e)
         return []
