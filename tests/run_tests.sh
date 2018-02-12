@@ -17,7 +17,7 @@ if [[ ! -d "${VENV_PATH}" ]]; then
 fi
 source "${VENV_PATH}"/bin/activate
 pip install -U pip setuptools
-pip install docker-containers/microservice
+pip install docker-containers/microservice/packaging/microservice/opt/microservice
 pip install -r armada_backend/armada_backend_requirements.txt
 python3 -m tests.unit_tests UnitTests.test_import_of_all_backend_python_files
 deactivate
