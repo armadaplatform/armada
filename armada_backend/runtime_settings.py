@@ -1,7 +1,7 @@
 from armada_backend import consul_config
 from armada_backend.models.ships import get_ship_name, get_other_ship_ips
 from armada_backend.utils import get_current_datacenter, is_ship_commander, \
-    setup_sentry
+    setup_sentry, get_logger
 from armada_command.dockyard import alias
 from armada_command.scripts.compat import json
 
@@ -38,7 +38,8 @@ def _init_dockyards():
     try:
         with open(consul_config.ORIGINAL_RUNTIME_SETTINGS_PATH) as runtime_settings_json:
             runtime_settings = json.load(runtime_settings_json)
-    except:
+    except Exception as e:
+        get_logger().exception(e)
         runtime_settings = {}
 
     # Initialize dockyard list with fallback dockyard.
