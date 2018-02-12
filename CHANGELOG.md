@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.5.1 (2018-02-12)
+
+We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
 
 ### Improvements
 - Increase uwsgi timeout (aka harakiri) from 11s to 31s.
