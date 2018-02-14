@@ -9,6 +9,7 @@ from requests.exceptions import SSLError
 from six.moves.urllib.parse import urlparse
 
 from armada_command import armada_api
+from armada_command.armada_utils import split_image_path
 from armada_command.dockyard import alias
 from armada_command.scripts.compat import json
 
@@ -176,7 +177,7 @@ class Dockyard(object):
     def __init__(self):
         pass
 
-    def get_image_creation_time(self, name, tag='latest'):
+    def get_image_creation_time(self, image_path, tag='latest'):
         raise NotImplementedError()
 
     def is_remote(self):
@@ -203,8 +204,9 @@ class DockyardV1(RemoteDockyard):
     def __init__(self, url, auth=None):
         super(DockyardV1, self).__init__(url, auth)
 
-    def get_image_creation_time(self, name, tag='latest'):
-        long_image_id = self.__get_remote_long_image_id(name, tag)
+    def get_image_creation_time(self, image_path, tag='latest'):
+        image_name = split_image_path(image_path)[1]
+        long_image_id = self.__get_remote_long_image_id(image_name, tag)
         url = '{}/v1/images/{}/json'.format(self.url, long_image_id)
         image_dict = _http_get(url, auth=self.auth).json()
         return str(image_dict.get('created'))
@@ -218,8 +220,9 @@ class DockyardV2(RemoteDockyard):
     def __init__(self, url, auth=None):
         super(DockyardV2, self).__init__(url, auth)
 
-    def get_image_creation_time(self, name, tag='latest'):
-        url = '{}/v2/{}/manifests/{}'.format(self.url, name, tag)
+    def get_image_creation_time(self, image_path, tag='latest'):
+        image_name = split_image_path(image_path)[1]
+        url = '{}/v2/{}/manifests/{}'.format(self.url, image_name, tag)
         manifests = _http_get(url, auth=self.auth).json()
         if 'history' not in manifests:
             return None
@@ -230,14 +233,16 @@ class LocalDockyard(Dockyard):
     def __init__(self):
         super(LocalDockyard, self).__init__()
 
-    def get_image_creation_time(self, name, tag='latest'):
-        images_response = json.loads(armada_api.get('images/{}'.format(name)))
+    def get_image_creation_time(self, image_path, tag='latest'):
+        images_response = json.loads(armada_api.get('images/{}'.format(image_path)))
         if images_response['status'] == 'ok':
             image_infos = json.loads(images_response['image_info'])
-            name_with_tag = '{}:{}'.format(name, tag)
-            image_info_for_tag = [image_info for image_info in image_infos if name_with_tag in image_info['RepoTags']]
-            if image_info_for_tag:
-                return datetime.utcfromtimestamp(int(image_info_for_tag[0]['Created'])).isoformat()
+            print(image_infos)
+            name_with_tag = '{}:{}'.format(image_path, tag)
+            for image_info in image_infos:
+                repo_tags = image_info.get('RepoTags') or []
+                if name_with_tag in repo_tags:
+                    return datetime.utcfromtimestamp(int(image_info['Created'])).isoformat()
         return None
 
     def is_remote(self):

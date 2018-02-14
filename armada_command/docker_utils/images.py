@@ -27,7 +27,7 @@ class ArmadaImageFactory(object):
 
 
 class LocalArmadaImage(object):
-    def __init__(self, dockyard_address, image_name, image_tag):
+    def __init__(self, dockyard_address, image_name, image_tag='latest'):
         self.image_tag = image_tag
         self.image_name = image_name
         self.dockyard_address = dockyard_address
@@ -57,7 +57,7 @@ class LocalArmadaImage(object):
         return self.image_path
 
     def get_image_creation_time(self):
-        return self.dockyard.get_image_creation_time(self.image_name, self.image_tag)
+        return self.dockyard.get_image_creation_time(self.image_path, self.image_tag)
 
     def exists(self):
         return self.get_image_creation_time() is not None

@@ -51,7 +51,8 @@ def main():
         '/hermes_address', _get_module_path_to_class(HermesAddress),
         '/env/{container_id}/{key}', _get_module_path_to_class(GetEnv),
         '/version', _get_module_path_to_class(GetVersion),
-        '/images/{image_name}', _get_module_path_to_class(Images),
+        '/images/{image_name_or_address}', _get_module_path_to_class(Images),
+        '/images/{image_name_or_address}/{image_name}', _get_module_path_to_class(Images),
         '/list', _get_module_path_to_class(List),
         '/info', _get_module_path_to_class(Info),
 
