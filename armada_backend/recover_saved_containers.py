@@ -6,6 +6,8 @@ from collections import Counter
 from time import sleep
 from uuid import uuid4
 
+import six
+
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.models.services import save_container, get_local_services, create_consul_services_key, \
     update_container_status
@@ -36,7 +38,7 @@ def _load_saved_containers_parameters(running_containers_parameters_path):
 
 def _convert_to_consul_services_format(services_parameters):
     new_format = {}
-    for key, params in services_parameters.iteritems():
+    for key, params in six.iteritems(services_parameters):
         pattern = re.compile(
             r'ships/(?P<ship>.*)/service/(?P<service_name>.*)/(?P<container_id>.*)')
         match = pattern.match(key)
@@ -79,14 +81,14 @@ def _multiset_difference(a, b):
 
 
 def _load_from_dict(services_parameters, ship):
-    key = services_parameters.iterkeys().next()
+    key = next(iter(six.iterkeys(services_parameters)))
 
     # convert from armada 1.x format
     # todo: remove in future version
     if key.startswith('ships'):
         services_parameters = _convert_to_consul_services_format(services_parameters)
 
-    saved_containers_list = [saved_container['params'] for saved_container in services_parameters.values()]
+    saved_containers_list = [saved_container['params'] for saved_container in six.itervalues(services_parameters)]
     _load_from_list(saved_containers_list, ship)
 
 
@@ -136,7 +138,8 @@ def _check_if_we_should_recover(saved_containers_path):
         else:
             get_logger().info('No need to recover.')
             return False
-    except:
+    except Exception as e:
+        get_logger().exception(e)
         return False
 
 
@@ -162,7 +165,7 @@ def _add_running_services_at_startup():
         all_services = consul_query('agent/services')
         if 'consul' in all_services:
             del all_services['consul']
-        for service_id, service_dict in all_services.items():
+        for service_id, service_dict in six.iteritems(all_services):
             if ':' in service_id:
                 continue
             if service_dict['Service'] == 'armada':
@@ -171,7 +174,7 @@ def _add_running_services_at_startup():
             if not containers_saved_in_kv or key not in containers_saved_in_kv:
                 save_container(ship, service_id, 'started')
                 get_logger().info('Added running service: {}'.format(service_id))
-    except:
+    except Exception:
         get_logger().exception('Unable to add running services.')
 
 

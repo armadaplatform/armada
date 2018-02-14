@@ -3,16 +3,15 @@ import time
 
 import requests
 
+from armada_backend.api_list import get_list
 from armada_backend.utils import get_container_ssh_address, get_logger, setup_sentry
-from armada_command import armada_api
 from armada_command.scripts.compat import json
 
 HERMES_DIRECTORY = '/etc/opt'
 
 
 def _consul_discover(service_name):
-    params = {'microservice_name': service_name}
-    services = armada_api.get_json('list', params)
+    services = get_list(service_name)
     service_addresses = set()
     for service in services:
         if service['status'] in ['passing', 'warning']:

@@ -2,9 +2,10 @@ import base64
 import logging
 import os
 
+import falcon
 import requests
+import six
 from raven import Client, setup_logging
-from raven.contrib.webpy.utils import get_data_from_request
 from raven.handlers.logging import SentryHandler
 
 from armada_backend import docker_client
@@ -23,31 +24,55 @@ def shorten_container_id(long_container_id):
     return long_container_id[:12]
 
 
-class WebSentryClient(Client):
-    def capture(self, event_type, data=None, date=None, time_spent=None, extra=None, stack=None, tags=None, **kwargs):
-        request_data = get_data_from_request()
-        data.update(request_data)
-
-        return super(WebSentryClient, self).capture(event_type, data, date, time_spent, extra, stack, tags, **kwargs)
-
-
-def setup_sentry(is_web=False):
+def setup_sentry():
     sentry_url = get_ship_config().get('sentry_url', '')
 
-    client_class = WebSentryClient if is_web else Client
     tags = {'ship_IP': get_external_ip()}
 
-    sentry_client = client_class(sentry_url,
-                                 include_paths=sentry_include_path,
-                                 release=__version__,
-                                 auto_log_stacks=True,
-                                 ignore_exceptions=sentry_ignore_exceptions,
-                                 tags=tags)
+    sentry_client = Client(sentry_url,
+                           include_paths=sentry_include_path,
+                           release=__version__,
+                           auto_log_stacks=True,
+                           ignore_exceptions=sentry_ignore_exceptions,
+                           tags=tags)
 
     handler = SentryHandler(sentry_client, level=logging.WARNING)
     setup_logging(handler)
 
     return sentry_client
+
+
+class FalconErrorHandler:
+    def __init__(self, sentry_client):
+        self.sentry_client = sentry_client
+
+    def __call__(self, ex, req, resp, params):
+        if isinstance(ex, falcon.HTTPNotFound):
+            raise ex
+        data = {
+            'request': {
+                'url': req.url,
+                'method': req.method,
+                'query_string': req.query_string,
+                'env': req.env,
+                'data': req.params,
+                'headers': req.headers,
+            }
+        }
+        message = isinstance(ex, falcon.HTTPError) and ex.title or str(ex)
+        exception_id = self.sentry_client.captureException(message=message, data=data)
+        if not isinstance(ex, falcon.HTTPError):
+            raise falcon.HTTPInternalServerError(exception_id, str(ex))
+        raise ex
+
+
+def setup_sentry_for_falcon(app):
+    sentry_url = get_ship_config().get('sentry_url')
+    if sentry_url:
+        sentry_client = setup_sentry()
+        error_handler = FalconErrorHandler(sentry_client)
+        app.add_error_handler(Exception, error_handler)
+    return app
 
 
 def get_logger():
@@ -67,7 +92,7 @@ def get_logger():
 
 def deregister_services(container_id):
     services_dict = consul_query('agent/services')
-    for service_id, service_dict in services_dict.items():
+    for service_id, service_dict in six.iteritems(services_dict):
         if service_id.startswith(container_id):
             consul_get('agent/service/deregister/{service_id}'.format(**locals()))
             try:
@@ -137,7 +162,7 @@ def is_container_running(container_id):
     try:
         inspect = docker_api.inspect_container(container_id)
         return inspect['State']['Running']
-    except:
+    except Exception:
         return False
 
 
@@ -153,3 +178,11 @@ def run_command_in_container(command, container_id):
 def trigger_hook(hook_name, container_id):
     cmd = '/opt/microservice/src/run_hooks.py {}'.format(hook_name)
     run_command_in_container(cmd, container_id)
+
+
+def exists_service(service_id):
+    try:
+        return service_id in consul_query('agent/services')
+    except Exception as e:
+        get_logger().exception(e)
+        return False

@@ -58,7 +58,7 @@ do
 done
 
 
-$sh_c "$pip install -U 'requests>=2.9.1' colored 2> /dev/null"
+$sh_c "$pip install -r /opt/armada/armada_command_requirements.txt 2> /dev/null"
 
 sudo bash -c ". /etc/bash_completion.d/armada"
 

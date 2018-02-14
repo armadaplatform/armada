@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-import fnmatch
+import logging
 import os
 import socket
 import subprocess
@@ -9,8 +9,8 @@ import sys
 from colored import style
 from colored.fore import *
 
+from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
-from consul import kv
 
 
 class ArmadaCommandException(Exception):
@@ -63,7 +63,7 @@ def get_matched_containers(microservice_name_or_container_id_prefix):
                     if container_id in [i['ServiceID'].split(':')[0] for i in instances]:
                         continue
                 except Exception as e:
-                    pass
+                    logging.exception(e)
 
             if microservice_name_or_container_id_prefix == service_name:
                 matched_containers_by_name.append(service_dict)

@@ -1,11 +1,13 @@
 import random
 import time
 
+import six
+
 from armada_backend import docker_client
+from armada_backend.api_list import get_list
 from armada_backend.models.services import get_local_services, update_container_status
-from armada_backend.utils import deregister_services, shorten_container_id, setup_sentry, get_logger
 from armada_backend.models.ships import get_ship_ip, get_ship_name
-from armada_command import armada_api
+from armada_backend.utils import deregister_services, shorten_container_id, setup_sentry, get_logger
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query
 
@@ -36,7 +38,7 @@ def _deregister_not_running_services():
         ship = get_ship_ip()
     services = _get_local_services()
     running_containers_ids = _get_running_container_ids()
-    for service_id in services.keys():
+    for service_id in six.iterkeys(services):
         container_id, is_subservice = _get_container_id_with_subservice(service_id)
         if container_id in running_containers_ids:
             continue
@@ -66,7 +68,7 @@ def _clean_up_kv_store():
     get_logger().info('Cleaning up kv-store:')
     next_kv_clean_up_timestamp = get_next_kv_clean_up_timestamp()
 
-    services = armada_api.get_json('list')
+    services = get_list()
     valid_container_ids = set(service.get('container_id') for service in services)
 
     start_timestamp_keys = kv.kv_list('start_timestamp/') or []

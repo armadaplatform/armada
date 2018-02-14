@@ -1,5 +1,43 @@
 # Changelog
 
+## 2.5.1 (2018-02-12)
+
+We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
+
+### Improvements
+- Increase uwsgi timeout (aka harakiri) from 11s to 31s.
+- Set uwsgi socket-timeout to 31s.
+- Use 3 threads per uwsgi process instead of 2.
+- Don't run http worker as separate process in uwsgi.
+- Microservice image is now building from deb package.
+- More verbose logs.
+
+### Bug fixes
+- Split unit tests for command (python 2) and backend (python 3).
+- Fix bug with updating microservice_version in `armada list` for microservices with subservices.
+
+
+## 2.5.0 (2018-02-05)
+
+We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
+
+### Features
+- New API endpoint `/v1/local/ports/{microservice_id}` for microservices, available inside the container.
+    - It returns the mapping of local ports in container to external ports on host. E.g:
+    ```
+    $ curl 172.17.0.1:8900/v1/local/ports/f30690a0f8af
+    {"80/tcp": "4261/tcp"}
+    ```
+- New flag in `armada list`: `--microservice-version`. It shows the version of microservice package inside
+    the container. Works only for microservices based on version >= 2.5.0.
+
+### Improvements
+- Armada internal API is now running on python3 + uwsgi + falcon.
+- New internal API for microservices (registering service, reporting health checks).
+    - It should not change behavior. This is only a step towards removing docker and consul dependencies
+        in microservices.
+- Upgrade `requests` pip package in `microservice` base image from 2.9.1 to 2.18.4.
+
 ## 2.4.3 (2018-01-11)
 
 We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.

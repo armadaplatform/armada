@@ -4,7 +4,9 @@ import argparse
 import os
 import sys
 
-import armada_api
+import six
+
+from armada_command import armada_api
 from armada_command.armada_payload import RunPayload
 from armada_command.armada_utils import ArmadaCommandException, is_verbose, notify_about_detected_dev_environment, \
     is_armada_develop_on
@@ -78,7 +80,7 @@ def add_arguments(parser):
 
 
 def warn_if_hit_crontab_environment_variable_length(env_variables_dict):
-    for env_key, env_value in env_variables_dict.items():
+    for env_key, env_value in six.iteritems(env_variables_dict):
         env_declaration = '{0}="{1}"'.format(env_key, env_value)
         if len(env_declaration) >= 1000:
             print('Warning: Environment variable {0} may have not been added to container\'s crontab because of '
@@ -191,5 +193,5 @@ def _handle_result(result, is_restart):
               'available at addresses:'.format(**locals()))
     else:
         print('Service is running in container {container_id} available at addresses:'.format(**locals()))
-    for service_address, docker_port in result['endpoints'].iteritems():
+    for service_address, docker_port in six.iteritems(result['endpoints']):
         print('  {0} ({1})'.format(service_address, docker_port))

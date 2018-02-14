@@ -38,7 +38,7 @@ def docker_tag(docker_api, dockyard_address, image_name, image_tag):
         raise DockerException('Cannot tag image {}:{}'.format(image_address, image_tag))
 
 
-def create_host_config(docker_api, resource_limits, binds, port_bindings):
+def create_host_config(resource_limits, binds, port_bindings):
     resource_limits = resource_limits or {}
     privileged = get_ship_config().get('privileged', 'false').lower() == 'true'
     params = {

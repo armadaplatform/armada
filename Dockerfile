@@ -1,9 +1,9 @@
 FROM microservice
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
-ENV ARMADA_APT_GET_UPDATE_DATE 2016-12-29
-RUN apt-get update && apt-get install -y rsync openssh-server libffi-dev libssl-dev python-dev
-RUN pip install paramiko web.py 'docker==2.4.2' raven contextlib2 ujson colored armada-heal
+RUN apt-get update && apt-get install -y rsync openssh-server libffi-dev libssl-dev python3-dev
+COPY armada_backend/armada_backend_requirements.txt /tmp/
+RUN pip3 install -r /tmp/armada_backend_requirements.txt
 
 # Consul
 RUN curl -s https://releases.hashicorp.com/consul/0.7.5/consul_0.7.5_linux_amd64.zip | zcat > /usr/local/bin/consul \
@@ -18,7 +18,7 @@ RUN /opt/armada-docker/armada_backend/scripts/setup_ssh.sh
 RUN ln -s /opt/armada-docker/microservice_templates /opt/templates
 RUN ln -s /opt/armada-docker/packaging/bin/armada /usr/local/bin/armada
 
-ENV ARMADA_VERSION 2.4.3
+ENV ARMADA_VERSION 2.5.1
 RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_command/_version.py
 
 ENV PYTHONPATH /opt/armada-docker:$PYTHONPATH

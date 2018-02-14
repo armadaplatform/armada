@@ -189,8 +189,10 @@ case "$1" in
             run_options+=" --privileged=true"
         fi
 
-        if [ "${ARMADA_AUTORELOAD,,}" == "true" ]; then
-            run_options+=" -v /opt/armada-src/:/opt/armada-docker/ -e ARMADA_AUTORELOAD=true"
+        if [ "${ARMADA_AUTORELOAD}" == "1" ]; then
+            run_options+=" -v /opt/armada-src/:/opt/armada-docker/ -e ARMADA_AUTORELOAD=1"
+        else
+            run_options+=" -e ARMADA_AUTORELOAD=0"
         fi
 
         docker run $run_options "armada:${ARMADA_VERSION}" >> "${ARMADA_LOGFILE}" 2>&1

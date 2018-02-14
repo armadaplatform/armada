@@ -2,8 +2,9 @@ import base64
 import calendar
 import time
 
+from armada_backend.api_env import get_env
 from armada_backend.models.ships import get_ship_name
-from armada_command.consul.kv import kv_get, get_env, kv_set, kv_list
+from armada_command.consul.kv import kv_get, kv_set, kv_list
 from armada_command.scripts.compat import json
 
 
@@ -16,6 +17,8 @@ def save_container(ship, container_id, status, params=None):
         service_name = params['microservice_name']
     else:
         service_name = get_env(container_id, 'MICROSERVICE_NAME')
+        if service_name == 'armada':
+            return
         params = json.loads(base64.b64decode(get_env(container_id, 'RESTART_CONTAINER_PARAMETERS')))
         if not start_timestamp:
             start_timestamp = str(calendar.timegm(time.gmtime()))
@@ -57,3 +60,14 @@ def update_container_status(status, ship=None, service_name=None, container_id=N
         return
     service_dict['Status'] = status
     kv_set(key, service_dict)
+
+
+def update_service_dict(ship, service_name, container_id, key, value):
+    consul_key = create_consul_services_key(ship, service_name, container_id)
+    service_dict = kv_get(consul_key)
+    service_dict[key] = value
+    kv_set(consul_key, service_dict)
+
+
+def is_subservice(microservice_name):
+    return ':' in microservice_name

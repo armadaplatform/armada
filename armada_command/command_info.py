@@ -3,8 +3,8 @@ from __future__ import print_function
 import sys
 from collections import Counter
 
-import armada_api
-from armada_utils import print_table
+from armada_command import armada_api
+from armada_command.armada_utils import print_table
 
 
 def command_info(args):

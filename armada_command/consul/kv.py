@@ -21,7 +21,7 @@ def kv_get_recurse(key):
     query_result = consul_query('kv/{key}?recurse=true'.format(**locals()))
     if query_result is None:
         return None
-    return {item['Key'].replace(key,''): json.loads(base64.b64decode(item['Value'])) for item in query_result}
+    return {item['Key'].replace(key, ''): json.loads(base64.b64decode(item['Value'])) for item in query_result}
 
 
 def kv_set(key, value):
@@ -47,13 +47,3 @@ def __get_armada_address():
     for service in agent_services_dict.values():
         if service['Service'] == 'armada':
             return 'http://127.0.0.1:{}'.format(service['Port'])
-
-
-def get_env(container_id, env):
-    url = '{}/env/{}/{}'.format(__get_armada_address(), container_id, env)
-    response = requests.get(url)
-    response.raise_for_status()
-    result = response.json()
-    if result['status'] != 'ok':
-        raise ArmadaApiException('Armada API did not return correct status: {0}'.format(result))
-    return result['value']

@@ -25,7 +25,8 @@ _armada()
         list)
             if [ $COMP_CWORD -eq 2 ];then
                 local services=$(armada list | sed '1d' | awk '{print($1)}' | tr '\n' ' ')
-                COMPREPLY=( $(compgen -W "${services}" -- ${cur}) )
+                local list_opts="--app_id --env --help --local --microservice-version --quiet --uptime --verbose"
+                COMPREPLY=( $(compgen -W "${services} ${list_opts}" -- ${cur}) )
             fi
             return 0
             ;;

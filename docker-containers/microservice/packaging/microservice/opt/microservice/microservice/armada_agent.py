@@ -20,8 +20,12 @@ from requests.exceptions import HTTPError
 
 from microservice.common.consul import consul_query, consul_post, consul_get, consul_put
 from microservice.common.docker_client import get_docker_inspect
-from microservice.common.service_discovery import register_service_in_armada, UnsupportedArmadaApiException
+from microservice.common.service_discovery import register_service_in_armada, register_service_in_armada_v1, \
+    UnsupportedArmadaApiException
+from microservice.defines import ARMADA_API_URL
+from microservice.exceptions import ArmadaApiServiceNotFound
 from microservice.register_in_service_discovery import REGISTRATION_DIRECTORY
+from microservice.version import VERSION
 
 HEALTH_CHECKS_PERIOD = 10
 HEALTH_CHECKS_TIMEOUT = 10
@@ -42,7 +46,8 @@ def print_exc():
 def _exists_service(service_id):
     try:
         return service_id in consul_query('agent/services')
-    except:
+    except Exception as e:
+        logging.exception(e)
         return False
 
 
@@ -57,7 +62,7 @@ def _create_tags():
 def _register_service(consul_service_data):
     print_err('Registering service...')
     response = consul_post('agent/service/register', consul_service_data)
-    assert response.status_code == requests.codes.ok
+    response.raise_for_status()
     print_err('Successfully registered.', '\n')
 
 
@@ -71,7 +76,7 @@ def _store_start_timestamp(container_id, container_created_timestamp):
     key = "kv/start_timestamp/" + container_id
     if consul_get(key).status_code == requests.codes.not_found:
         response = consul_put(key, str(container_created_timestamp))
-        assert response.status_code == requests.codes.ok
+        response.raise_for_status()
 
 
 def retry(num_retries, action=None, expected_exception=Exception):
@@ -124,52 +129,27 @@ def _register_service_from_file(file_path):
 
     service_id = registration_service_data['service_id']
     service_name = registration_service_data['service_name']
+    service_local_port = registration_service_data['service_container_port']
     service_port = registration_service_data['service_port']
     single_active_instance = registration_service_data['single_active_instance']
-    service_tags = _create_tags()
 
     container_id = service_id.split(':')[0]
     docker_inspect = get_docker_inspect(container_id)
     container_created_timestamp = _datetime_string_to_timestamp(docker_inspect["Created"])
 
     try:
-        register_service_in_armada(service_id, service_name, service_port, service_tags, container_created_timestamp,
-                                   single_active_instance)
+        register_service_in_armada_v1(service_id, service_name, service_local_port, os.environ.get('MICROSERVICE_ENV'),
+                                      os.environ.get('MICROSERVICE_APP_ID'), container_created_timestamp,
+                                      single_active_instance, VERSION)
         return
-    except UnsupportedArmadaApiException as e:
-        logging.exception(e)
-        logging.warning("Armada is using older API than service. '--single-active-instance' flag won't be available "
-                        "until armada is upgraded.")
+    except UnsupportedArmadaApiException:
+        logging.warning("Armada is using deprecated microservice API. "
+                        "Consider upgrading armada at least to version 2.5.0")
     except Exception as e:
         logging.exception(e)
-
-    if _exists_service(service_id):
-        return
-
-    consul_service_data = {
-        'ID': service_id,
-        'Name': service_name,
-        'Port': service_port,
-        'Check': {
-            'TTL': '15s',
-        }
-    }
-    if service_tags:
-        consul_service_data['Tags'] = service_tags
-
-    print_err('\nconsul_service_data:\n{0}\n'.format(json.dumps(consul_service_data)))
-
-    try:
-        _register_service(consul_service_data)
-    except:
-        print_err('ERROR on registering service:')
-        traceback.print_exc()
-
-    try:
-        _store_start_timestamp(container_id, container_created_timestamp)
-    except:
-        print_err('ERROR on storing timestamp:')
-        traceback.print_exc()
+    service_tags = _create_tags()
+    register_service_in_armada(service_id, service_name, service_port, service_tags, container_created_timestamp,
+                               single_active_instance)
 
 
 def _register_services():
@@ -231,11 +211,39 @@ def _get_consul_health_endpoint(return_code):
 # service may be deregistered without our knowledge,
 # if we were unsuccessful on reporting health status - that might be the case,
 # so let's try to register it again and retry
-@retry(num_retries=1, action=_register_services, expected_exception=HTTPError)
-def _report_health_status(service_id, health_check_code):
-    endpoint = _get_consul_health_endpoint(health_check_code)
-    response = consul_get('agent/check/{endpoint}/service:{service_id}'.format(**locals()))
-    response.raise_for_status()
+@retry(num_retries=1, action=_register_services, expected_exception=ArmadaApiServiceNotFound)
+def _report_health_status(microservice_id, health_check_code):
+    try:
+        _report_health_status_v1(microservice_id, health_check_code)
+        return
+    except UnsupportedArmadaApiException:
+        logging.warning("Armada is using deprecated microservice API. "
+                        "Consider upgrading armada at least to version 2.5.0")
+    # Support for old armada (<= 2.4.3) version:
+    try:
+        endpoint = _get_consul_health_endpoint(health_check_code)
+        response = consul_put('agent/check/{endpoint}/service:{microservice_id}'.format(**locals()))
+        response.raise_for_status()
+    except HTTPError:
+        raise ArmadaApiServiceNotFound()
+
+
+def _report_health_status_v1(microservice_id, health_check_code):
+    url = '{}/v1/local/health/{}'.format(ARMADA_API_URL, microservice_id)
+    r = requests.put(url, json={'health_check_code': health_check_code})
+    if r.status_code == 404:
+        if r.content == b'not found':
+            raise UnsupportedArmadaApiException()
+        service_not_found = False
+        try:
+            error_json = r.json()
+            if error_json['error_id'] == 'SERVICE_NOT_FOUND':
+                service_not_found = True
+        except Exception:
+            pass
+        if service_not_found:
+            raise ArmadaApiServiceNotFound()
+    r.raise_for_status()
 
 
 def _terminate_processes(pids):
@@ -356,8 +364,8 @@ def main():
             print_err('=== {service_name} STATUS: {status} ==='.format(**locals()))
             try:
                 _report_health_status(service_id, health_check_code)
-            except:
-                print_exc()
+            except Exception as e:
+                logging.exception(e)
             if status == 'critical':
                 is_critical = True
 
@@ -368,6 +376,8 @@ def main():
             sleep_duration = period - duration
             time.sleep(sleep_duration)
         print_err()
+        sys.stdout.flush()
+        sys.stderr.flush()
 
 
 if __name__ == '__main__':
