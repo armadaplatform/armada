@@ -38,7 +38,7 @@ work-around and access it by running proxy service:
 
 def get_docker_server_version():
     # Tested for versions 1.3.0 - 1.10.0
-    cmd = 'docker version | grep -i server -A1 | grep -i version | head -n1 | cut -d: -f2'
+    cmd = 'docker version | grep -i server -A2 | grep -i version | head -n1 | cut -d: -f2'
     return subprocess.check_output(cmd, shell=True).strip()
 
 
