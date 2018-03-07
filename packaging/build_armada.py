@@ -60,6 +60,7 @@ def main():
     create_deb_package(version)
     create_rpm_package(version)
     create_amazon_linux_package(version)
+    create_pacman_package(version)
 
     logger.info('All packages creates successfully and stored in dist folder.')
 
@@ -97,6 +98,18 @@ def create_amazon_linux_package(version):
     packaging_options = defaults.copy()
     packaging_options.update(rpm)
     logger.info('Creating amazon linux package')
+    _create_package(packaging_options, version)
+
+
+def create_pacman_package(version):
+    deb = {
+        'package_type': 'pacman',
+        'depends': ['python2', 'python2-pip', 'conntrack-tools', 'iproute2'],
+        'suggests': ['python2-pyaudio'],
+    }
+    packaging_options = defaults.copy()
+    packaging_options.update(deb)
+    logger.info('Creating pacman package')
     _create_package(packaging_options, version)
 
 
