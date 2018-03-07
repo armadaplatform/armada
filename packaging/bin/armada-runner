@@ -125,7 +125,7 @@ stop_armada() {
 }
 
 docker_server_version() {
-    echo $(docker version | grep -i server -A1 | grep -i version | head -n1 | cut -d: -f2)
+    echo $(echo -e "GET /version HTTP/1.0\r\n" | nc -U /var/run/docker.sock | tail -n 1 | jq .Version |   sed 's/[",]//g' | tr -d '[[:space:]]')
 }
 
 get_static_docker_client_if_missing() {

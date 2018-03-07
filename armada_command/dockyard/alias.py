@@ -6,6 +6,7 @@ from six.moves.urllib.parse import urlparse
 
 from armada_command.armada_utils import print_err
 from armada_command.consul import kv
+from armada_command.docker_utils.compatibility import get_docker_version
 
 DOCKYARD_FALLBACK_ALIAS = 'armada'
 DOCKYARD_FALLBACK_ADDRESS = 'dockyard.armada.sh'
@@ -36,14 +37,8 @@ work-around and access it by running proxy service:
 """
 
 
-def get_docker_server_version():
-    # Tested for versions 1.3.0 - 1.10.0
-    cmd = 'docker version | grep -i server -A1 | grep -i version | head -n1 | cut -d: -f2'
-    return subprocess.check_output(cmd, shell=True).strip()
-
-
 def print_http_dockyard_unavailability_warning(address, alias, header="Warning!"):
-    docker_version = Version(get_docker_server_version())
+    docker_version = Version(get_docker_version())
 
     if docker_version >= Version('1.8.0'):
         if address.split(':')[0] not in ['127.0.0.1', 'localhost']:
