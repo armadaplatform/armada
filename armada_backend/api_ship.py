@@ -159,7 +159,7 @@ class Shutdown(api_base.ApiCommand):
                     get_current_datacenter()
                     ok = True
                     break
-                except:
+                except Exception:
                     time.sleep(1)
             if not ok:
                 get_logger().warn('Restarting consul timed out.')
@@ -167,7 +167,7 @@ class Shutdown(api_base.ApiCommand):
             deregister_services(gethostname())
             check_call(['consul', 'leave'])
         finally:
-            post_data = json.loads(req.stream.read() or '{}')
+            post_data = req.json
             runtime_settings_path = '/opt/armada/runtime_settings.json'
             if not post_data.get('keep-joined') and os.path.isfile(runtime_settings_path):
                 with open(runtime_settings_path) as f:
