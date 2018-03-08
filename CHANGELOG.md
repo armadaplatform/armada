@@ -4,6 +4,9 @@
 
 We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
 
+### Features
+- Build tar.xz (pacman) linux package.
+
 ### Bug fixes
 - Fix getting docker version in docker > 17.10
 
