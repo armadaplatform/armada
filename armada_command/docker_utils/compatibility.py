@@ -12,7 +12,7 @@ from tempfile import mkdtemp
 DOCKER_STATIC_CLIENT_DIR = '/opt/armada-docker-client/'
 
 
-def _get_docker_version():
+def get_docker_version():
     output = check_output(['docker', '--version'])
     match = re.search(r'^Docker version (?P<version>\d+\.\d+\.\d+)', output)
     try:
@@ -29,7 +29,7 @@ def _get_subclasses(base_class):
 
 
 def _docker_backend_factory():
-    version = StrictVerboseVersion(_get_docker_version())
+    version = StrictVerboseVersion(get_docker_version())
     for subclass in set(_get_subclasses(BaseDockerBackend)):
         if subclass.is_supported_version(version):
             return subclass(version)

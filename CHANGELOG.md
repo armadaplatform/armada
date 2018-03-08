@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
+
+### Bug fixes
+- Fix getting docker version in docker > 17.10
+
 ## 2.5.1 (2018-02-12)
 
 We do best effort to support docker versions 1.12.0 - 17.10.0 with this release.
