@@ -8,6 +8,7 @@ We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
 - Build tar.xz (pacman) linux package.
 
 ### Bug fixes
+- Fix stopping armada service, caused ship lefts cluster
 - Fix getting docker version in docker > 17.10
 
 ## 2.5.1 (2018-02-12)
