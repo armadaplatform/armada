@@ -56,6 +56,11 @@ class Register(api_base.ApiCommand):
             microservice_data = req.json
             register_service_in_consul(microservice_data)
             result = {'microservice_data': microservice_data}
+
+            ship_name = get_ship_name()
+            microservice_id = microservice_data['microservice_id']
+            container_id = microservice_id.split(':')[0]
+            save_container(ship_name, container_id, status='started')
         except Exception as e:
             return self.status_exception(resp, 'Could not register service.', e)
         return self.status_ok(resp, {'result': result})

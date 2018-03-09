@@ -2,10 +2,13 @@ import base64
 import calendar
 import time
 
+from requests.exceptions import RequestException
+
 from armada_backend.api_env import get_env
 from armada_backend.models.ships import get_ship_name
 from armada_command.consul.kv import kv_get, kv_set, kv_list
 from armada_command.scripts.compat import json
+from armada_command.armada_utils import is_ip
 
 
 def save_container(ship, container_id, status, params=None):
@@ -22,7 +25,15 @@ def save_container(ship, container_id, status, params=None):
         params = json.loads(base64.b64decode(get_env(container_id, 'RESTART_CONTAINER_PARAMETERS')))
         if not start_timestamp:
             start_timestamp = str(calendar.timegm(time.gmtime()))
-    address = kv_get('ships/{}/ip'.format(ship)) or ship
+
+    if is_ip(ship):
+        address = ship
+    else:
+        try:
+            address = kv_get('ships/{}/ip'.format(ship)) or ship
+        except RequestException as e:
+            address = None
+
     service_dict = {
         'ServiceName': service_name,
         'Status': status,
