@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM docker.io/ubuntu:16.04
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
 ENV LANG='C.UTF-8' LC_ALL='C.UTF-8'
