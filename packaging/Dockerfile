@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		make \
 		python3 \
 		rpm \
+		xz-utils \
+		tar \
+		bsdtar \
 		ruby-dev \
 		libffi-dev
 

@@ -60,6 +60,7 @@ def main():
     create_deb_package(version)
     create_rpm_package(version)
     create_amazon_linux_package(version)
+    create_pacman_package(version)
 
     logger.info('All packages creates successfully and stored in dist folder.')
 
@@ -67,7 +68,7 @@ def main():
 def create_deb_package(version):
     deb = {
         'package_type': 'deb',
-        'depends': ['python', 'python-pip', 'conntrack', 'iproute2'],
+        'depends': ['python', 'python-pip', 'conntrack', 'iproute2', 'jq', 'netcat-openbsd'],
         'suggests': ['python-pyaudio'],
     }
     packaging_options = defaults.copy()
@@ -79,7 +80,7 @@ def create_deb_package(version):
 def create_rpm_package(version):
     rpm = {
         'package_type': 'rpm',
-        'depends': ['python', 'python-pip', 'conntrack-tools'],
+        'depends': ['python', 'python-pip', 'conntrack-tools', 'jq', 'nmap-ncat'],
     }
     packaging_options = defaults.copy()
     packaging_options.update(rpm)
@@ -91,12 +92,24 @@ def create_amazon_linux_package(version):
     # amazon linux has custom installed pip, and default python in version 2.6.x
     rpm = {
         'package_type': 'rpm',
-        'depends': ['conntrack-tools'],
+        'depends': ['conntrack-tools', 'jq', 'nc'],
         'name': 'armada-amzn',
     }
     packaging_options = defaults.copy()
     packaging_options.update(rpm)
     logger.info('Creating amazon linux package')
+    _create_package(packaging_options, version)
+
+
+def create_pacman_package(version):
+    deb = {
+        'package_type': 'pacman',
+        'depends': ['python2', 'python2-pip', 'conntrack-tools', 'iproute2', 'jq', 'gnu-netcat'],
+        'suggests': ['python2-pyaudio'],
+    }
+    packaging_options = defaults.copy()
+    packaging_options.update(deb)
+    logger.info('Creating pacman package')
     _create_package(packaging_options, version)
 
 
