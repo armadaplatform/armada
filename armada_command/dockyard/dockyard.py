@@ -237,7 +237,6 @@ class LocalDockyard(Dockyard):
         images_response = json.loads(armada_api.get('images/{}'.format(image_path)))
         if images_response['status'] == 'ok':
             image_infos = json.loads(images_response['image_info'])
-            print(image_infos)
             name_with_tag = '{}:{}'.format(image_path, tag)
             for image_info in image_infos:
                 repo_tags = image_info.get('RepoTags') or []

@@ -2,7 +2,6 @@ from six.moves.urllib.parse import urlparse
 
 from armada_command.armada_utils import print_err
 from armada_command.consul import kv
-from armada_command.docker_utils.compatibility import get_docker_version
 
 DOCKYARD_FALLBACK_ALIAS = 'armada'
 DOCKYARD_FALLBACK_ADDRESS = 'dockyard.armada.sh'

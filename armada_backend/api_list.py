@@ -61,7 +61,7 @@ def _extended_sort_info(service):
     env = service['tags'].get('env', '')
     app_id = service['tags'].get('app_id', '')
 
-    return (clean_name, env, app_id, ip, service['microservice_id'])
+    return clean_name, env, app_id, ip, service['microservice_id']
 
 
 def __create_dict_from_tags(tags):
