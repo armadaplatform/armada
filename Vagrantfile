@@ -6,6 +6,9 @@ load armada_vagrantfile_path
 armada_vagrantfile :microservice_name => 'armada-src'
 
 Vagrant.configure("2") do |config|
+    config.vm.provider "virtualbox" do |vb|
+        vb.cpus = 2
+    end
     config.vm.provision "shell", inline: <<SCRIPT
         chmod +x /opt/armada-src/armada_command/armada_dev/*
         ln -sf /opt/armada-src/armada_command/armada_dev/* /usr/local/bin/

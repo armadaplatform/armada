@@ -11,11 +11,12 @@ from armada_command.scripts.compat import json
 from armada_command.armada_utils import is_ip
 
 
-def save_container(ship, container_id, status, params=None):
-    try:
-        start_timestamp = kv_get('start_timestamp/{}'.format(container_id))
-    except:
-        start_timestamp = None
+def save_container(ship_name, container_id, status, params=None, start_timestamp=None, ship_ip=None):
+    if start_timestamp is None:
+        try:
+            start_timestamp = kv_get('start_timestamp/{}'.format(container_id))
+        except:
+            pass
     if status == 'crashed':
         service_name = params['microservice_name']
     else:
@@ -26,11 +27,11 @@ def save_container(ship, container_id, status, params=None):
         if not start_timestamp:
             start_timestamp = str(calendar.timegm(time.gmtime()))
 
-    if is_ip(ship):
-        address = ship
+    if ship_ip is not None:
+        address = ship_ip
     else:
         try:
-            address = kv_get('ships/{}/ip'.format(ship)) or ship
+            address = kv_get('ships/{}/ip'.format(ship_name)) or ship_name
         except RequestException as e:
             address = None
 
@@ -43,7 +44,7 @@ def save_container(ship, container_id, status, params=None):
         'ServiceID': container_id,
         'Address': address
     }
-    kv_set(create_consul_services_key(ship, service_name, container_id), service_dict)
+    kv_set(create_consul_services_key(ship_name, service_name, container_id), service_dict)
 
 
 def get_local_services():
