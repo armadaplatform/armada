@@ -104,7 +104,7 @@ def create_amazon_linux_package(version):
 def create_pacman_package(version):
     deb = {
         'package_type': 'pacman',
-        'depends': ['python2', 'python2-pip', 'conntrack-tools', 'iproute2', 'jq', 'gnu-netcat'],
+        'depends': ['python2', 'python2-pip', 'conntrack-tools', 'iproute2', 'jq', 'openbsd-netcat'],
         'suggests': ['python2-pyaudio'],
     }
     packaging_options = defaults.copy()
