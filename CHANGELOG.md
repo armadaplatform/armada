@@ -7,6 +7,9 @@
 - Base images in `armada build` may now use explicit dockyard/docker registry addresses,
     e.g.: `FROM docker.io/golang:1.7.3`.
 
+### Bug fixes
+- Fix netcat version on ArchLinux
+
 ## 2.6.0 (2018-03-09)
 
 We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
