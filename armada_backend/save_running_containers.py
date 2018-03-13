@@ -4,7 +4,7 @@ import shutil
 import sys
 
 from armada_backend.api_ship import wait_for_consul_ready
-from armada_backend.models.services import get_local_services
+from armada_backend.models.services import get_ship_name
 from armada_backend.recover_saved_containers import RECOVERY_COMPLETED_PATH
 from armada_backend.utils import get_logger, setup_sentry
 from armada_command.consul import kv
@@ -49,12 +49,12 @@ def main():
 
     try:
         wait_for_consul_ready()
-        saved_containers = get_local_services()
         containers_parameters_dict = {}
+        services_key = 'services/{}'.format(get_ship_name())
+        containers_parameters = kv.kv_get_recurse(services_key)
 
-        for container in saved_containers:
-            container_dict = kv.kv_get(container)
-            containers_parameters_dict[container] = container_dict
+        for key, container_dict in containers_parameters.items():
+            containers_parameters_dict[services_key + key] = container_dict
 
         if not containers_parameters_dict:
             get_logger().info('Aborted saving container because list is empty.')

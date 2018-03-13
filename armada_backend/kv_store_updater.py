@@ -5,7 +5,7 @@ import six
 
 from armada_backend import docker_client
 from armada_backend.api_list import get_list
-from armada_backend.models.services import get_local_services, update_container_status
+from armada_backend.models.services import get_local_services, update_container_status, save_container
 from armada_backend.models.ships import get_ship_ip, get_ship_name
 from armada_backend.utils import deregister_services, shorten_container_id, setup_sentry, get_logger
 from armada_command.consul import kv
@@ -16,7 +16,7 @@ def _get_local_services():
     all_services = consul_query('agent/services')
     if 'consul' in all_services:
         del all_services['consul']
-    return all_services
+    return {key: value for key, value in all_services.items() if value['Service'] != 'armada'}
 
 
 def _get_running_container_ids():
@@ -31,26 +31,34 @@ def _get_container_id_with_subservice(service_id):
     return container_id, is_subservice
 
 
-def _deregister_not_running_services():
+def _update_running_services():
+    ship_ip = get_ship_ip()
     try:
-        ship = get_ship_name()
+        ship_name = get_ship_name(ship_ip)
     except:
-        ship = get_ship_ip()
+        ship_name = ship_ip
     services = _get_local_services()
     running_containers_ids = _get_running_container_ids()
+    local_services = get_local_services()
+    local_services_container_ids = [it.split('/')[-1] for it in local_services]
     for service_id in six.iterkeys(services):
         container_id, is_subservice = _get_container_id_with_subservice(service_id)
+        if container_id not in local_services_container_ids:
+            save_container(ship_name, container_id, 'started', ship_ip=ship_ip)
+            get_logger().info('Saved container in kv-store: {container_id}'.format(container_id=container_id))
         if container_id in running_containers_ids:
             continue
         if not is_subservice:
             name = services[service_id]['Service']
-            update_container_status('crashed', ship=ship, service_name=name, container_id=container_id)
+            update_container_status('crashed', ship=ship_name, service_name=name, container_id=container_id)
+            get_logger().info('Set status to "crashed": {container_id}'.format(container_id=container_id))
         deregister_services(container_id)
 
-    for service_key in get_local_services():
+    for service_key in local_services:
         container_id = service_key.split('/')[-1]
         if container_id not in running_containers_ids:
             update_container_status('crashed', key=service_key)
+            get_logger().info('Set status to "crashed": {container_id}'.format(container_id=container_id))
             deregister_services(container_id)
 
 
@@ -90,7 +98,7 @@ def _clean_up_kv_store():
 def main():
     setup_sentry()
     while True:
-        _deregister_not_running_services()
+        _update_running_services()
         _clean_up_kv_store()
         time.sleep(60 + random.uniform(-5, 5))
 

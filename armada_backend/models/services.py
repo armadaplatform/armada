@@ -8,7 +8,6 @@ from armada_backend.api_env import get_env
 from armada_backend.models.ships import get_ship_name
 from armada_command.consul.kv import kv_get, kv_set, kv_list
 from armada_command.scripts.compat import json
-from armada_command.armada_utils import is_ip
 
 
 def save_container(ship_name, container_id, status, params=None, start_timestamp=None, ship_ip=None):

@@ -1,8 +1,7 @@
 import logging
 
 import falcon
-import random
-from requests.exceptions import ReadTimeout
+
 from armada_backend import api_base, docker_client
 from armada_backend.exceptions import BadRequestException
 from armada_backend.models.services import update_service_dict, save_container, is_subservice
@@ -26,8 +25,6 @@ def register_service_in_consul(microservice_data):
     microservice_tags = microservice_data.get('microservice_tags')
     if microservice_tags:
         consul_service_data['Tags'] = microservice_tags
-    if random.randint(0, 2) > 1:
-        raise ReadTimeout()
     response = consul_post('agent/service/register', consul_service_data)
     response.raise_for_status()
 
