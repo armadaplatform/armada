@@ -235,13 +235,14 @@ class LocalDockyard(Dockyard):
 
     def get_image_creation_time(self, image_path, tag='latest'):
         images_response = json.loads(armada_api.get('images/{}'.format(image_path)))
-        if images_response['status'] == 'ok':
-            image_infos = json.loads(images_response['image_info'])
-            name_with_tag = '{}:{}'.format(image_path, tag)
-            for image_info in image_infos:
-                repo_tags = image_info.get('RepoTags') or []
-                if name_with_tag in repo_tags:
-                    return datetime.utcfromtimestamp(int(image_info['Created'])).isoformat()
+        if images_response['status'] != 'ok':
+            return None
+        image_infos = json.loads(images_response['image_info'])
+        name_with_tag = '{}:{}'.format(image_path, tag)
+        for image_info in image_infos:
+            repo_tags = image_info.get('RepoTags') or []
+            if name_with_tag in repo_tags:
+                return datetime.utcfromtimestamp(int(image_info['Created'])).isoformat()
         return None
 
     def is_remote(self):

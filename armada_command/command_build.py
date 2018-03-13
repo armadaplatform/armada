@@ -3,7 +3,7 @@ from __future__ import print_function
 import os
 
 from armada_command.armada_utils import ArmadaCommandException, execute_local_command, is_verbose, \
-    notify_about_detected_dev_environment, split_image_path
+    notify_about_detected_dev_environment, split_image_path, print_err
 from armada_command.docker_utils.images import ArmadaImageFactory, InvalidImagePathException
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, print_http_dockyard_unavailability_warning
@@ -52,46 +52,13 @@ def command_build(args):
         if source_dockyard_address:
             base_image = ArmadaImageFactory(source_base_image_path, args.dockyard)
         else:
+            print_err('WARNING: Using image name only as base image ("FROM {}") has been deprecated. '
+                      'Consider providing full dockyard/docker registry address, '
+                      'e.g.: "FROM dockyard.armada.sh/microservice"'.format(source_base_image_path))
             base_image = ArmadaImageFactory(source_base_image_path, dockyard_alias)
 
-        if base_image.is_remote():
-            did_print = False
-            if not base_image.dockyard_address:
-                if not base_image.exists():
-                    if dockyard_alias == DOCKYARD_FALLBACK_ALIAS:
-                        was_fallback_dockyard = True
-                    else:
-                        print('Base image {base_image} not found. '
-                              'Searching in official Armada dockyard...'.format(**locals()))
-                        dockyard_alias = DOCKYARD_FALLBACK_ALIAS
-                        base_image = ArmadaImageFactory(source_base_image_path, dockyard_alias)
-                        was_fallback_dockyard = False
-                    if was_fallback_dockyard or not base_image.exists():
-                        raise ArmadaCommandException('Base image {base_image} not found. Aborting.'.format(**locals()))
-                dockyard_dict = dockyard.get_dockyard_dict(dockyard_alias)
+        base_image_path = _pull_base_image(base_image, source_base_image_path, dockyard_alias)
 
-                d = dockyard_factory(dockyard_dict.get('address'), dockyard_dict.get('user'),
-                                     dockyard_dict.get('password'))
-                if d.is_http():
-                    did_print = print_http_dockyard_unavailability_warning(
-                        dockyard_dict['address'],
-                        dockyard_alias,
-                        "ERROR! Cannot pull from dockyard!",
-                    )
-            retries = 0 if did_print else 3
-
-            base_image_path = base_image.image_path_with_tag
-            if is_verbose():
-                print('Fetching base image: "{base_image_path}".\n'.format(**locals()))
-
-            pull_command = 'docker pull {base_image_path}'.format(**locals())
-
-            assert execute_local_command(pull_command, stream_output=True, retries=retries)[0] == 0
-        else:
-            base_image = ArmadaImageFactory(base_image.image_name, 'local')
-            if not base_image.exists():
-                raise ArmadaCommandException('Base image {base_image} not found. Aborting.'.format(**locals()))
-            base_image_path = base_image.image_path_with_tag
         if base_image_path != source_base_image_path:
             if is_verbose():
                 print('Tagging "{base_image_path}" as "{source_base_image_path}"\n'.format(**locals()))
@@ -101,6 +68,48 @@ def command_build(args):
 
     build_command = _generate_build_command(args, dockerfile_path, image)
     assert execute_local_command(' '.join(build_command), stream_output=True)[0] == 0
+
+
+def _pull_base_image(base_image, source_base_image_path, dockyard_alias):
+    if base_image.is_remote():
+        did_print = False
+        if not base_image.dockyard_address:
+            if not base_image.exists():
+                if dockyard_alias == DOCKYARD_FALLBACK_ALIAS:
+                    was_fallback_dockyard = True
+                else:
+                    print('Base image {base_image} not found. '
+                          'Searching in official Armada dockyard...'.format(**locals()))
+                    dockyard_alias = DOCKYARD_FALLBACK_ALIAS
+                    base_image = ArmadaImageFactory(source_base_image_path, dockyard_alias)
+                    was_fallback_dockyard = False
+                if was_fallback_dockyard or not base_image.exists():
+                    raise ArmadaCommandException('Base image {base_image} not found. Aborting.'.format(**locals()))
+            dockyard_dict = dockyard.get_dockyard_dict(dockyard_alias)
+
+            d = dockyard_factory(dockyard_dict.get('address'), dockyard_dict.get('user'),
+                                 dockyard_dict.get('password'))
+            if d.is_http():
+                did_print = print_http_dockyard_unavailability_warning(
+                    dockyard_dict['address'],
+                    dockyard_alias,
+                    "ERROR! Cannot pull from dockyard!",
+                )
+        retries = 0 if did_print else 3
+
+        base_image_path = base_image.image_path_with_tag
+        if is_verbose():
+            print('Fetching base image: "{base_image_path}".\n'.format(**locals()))
+
+        pull_command = 'docker pull {base_image_path}'.format(**locals())
+
+        assert execute_local_command(pull_command, stream_output=True, retries=retries)[0] == 0
+    else:
+        base_image = ArmadaImageFactory(base_image.image_name, 'local')
+        if not base_image.exists():
+            raise ArmadaCommandException('Base image {base_image} not found. Aborting.'.format(**locals()))
+        base_image_path = base_image.image_path_with_tag
+    return base_image_path
 
 
 def _generate_build_command(command_args, dockerfile_path, image):
