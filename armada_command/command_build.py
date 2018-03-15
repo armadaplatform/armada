@@ -3,7 +3,7 @@ from __future__ import print_function
 import os
 
 from armada_command.armada_utils import ArmadaCommandException, execute_local_command, is_verbose, \
-    notify_about_detected_dev_environment, split_image_path, print_err
+    notify_about_detected_dev_environment, split_image_path, print_warning
 from armada_command.docker_utils.images import ArmadaImageFactory, InvalidImagePathException
 from armada_command.dockyard import dockyard
 from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ALIAS, print_http_dockyard_unavailability_warning
@@ -52,9 +52,9 @@ def command_build(args):
         if source_dockyard_address:
             base_image = ArmadaImageFactory(source_base_image_path, args.dockyard)
         else:
-            print_err('WARNING: Using image name only as base image ("FROM {}") has been deprecated. '
-                      'Consider providing full dockyard/docker registry address, '
-                      'e.g.: "FROM dockyard.armada.sh/microservice"'.format(source_base_image_path))
+            print_warning('Using image name only as base image ("FROM {}") has been deprecated. '
+                          'Consider providing full dockyard/docker registry address, '
+                          'e.g.: "FROM dockyard.armada.sh/microservice".'.format(source_base_image_path))
             base_image = ArmadaImageFactory(source_base_image_path, dockyard_alias)
 
         base_image_path = _pull_base_image(base_image, source_base_image_path, dockyard_alias)
