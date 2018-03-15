@@ -16,4 +16,4 @@ if [[ ! -e "$LINK_TARGET" ]]; then
     sudo ln -s "$ARMADA_REPO_PATH" "$LINK_TARGET"
 fi
 
-sudo ARMADA_AUTORELOAD=1 /usr/local/bin/armada-runner restart
+sudo ARMADA_AUTORELOAD=1 "$ARMADA_REPO_PATH/packaging/bin/armada-runner" restart
