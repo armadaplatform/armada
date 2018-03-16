@@ -22,6 +22,12 @@ def get_ship_name(ship_ip=None):
     return ship_name
 
 
+def get_ship_ip_and_name():
+    ship_ip = get_ship_ip()
+    ship_name = get_ship_name(ship_ip)
+    return ship_ip, ship_name
+
+
 def set_ship_name(new_name):
     from armada_backend.models.services import get_services_by_ship, create_consul_services_key
     ship_ip = get_ship_ip()

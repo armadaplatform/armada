@@ -1,7 +1,7 @@
 import fnmatch
 
 from armada_backend import api_base, docker_client
-from armada_backend.models.services import get_local_services, get_services_by_ship
+from armada_backend.models.services import get_local_services_from_kv_store, get_services_by_ship
 from armada_backend.utils import (
     deregister_services, is_container_running, get_logger,
     run_command_in_container, trigger_hook
@@ -25,7 +25,7 @@ class Stop(api_base.ApiCommand):
         if force:
             service_list = get_services_by_ship()
         else:
-            service_list = get_local_services()
+            service_list = get_local_services_from_kv_store()
 
         try:
             keys = fnmatch.filter(service_list, '*/{}'.format(container_id))

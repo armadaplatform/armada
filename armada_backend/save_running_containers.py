@@ -49,18 +49,14 @@ def main():
 
     try:
         wait_for_consul_ready()
-        containers_parameters_dict = {}
         services_key = 'services/{}'.format(get_ship_name())
-        containers_parameters = kv.kv_get_recurse(services_key)
+        containers_parameters = kv.kv_get_recurse(services_key, strip_keys=False)
 
-        for key, container_dict in containers_parameters.items():
-            containers_parameters_dict[services_key + key] = container_dict
-
-        if not containers_parameters_dict:
+        if not containers_parameters:
             get_logger().info('Aborted saving container because list is empty.')
             return
 
-        _save_containers_parameters_list_in_file(containers_parameters_dict, saved_containers_path)
+        _save_containers_parameters_list_in_file(containers_parameters, saved_containers_path)
         get_logger().info('Containers have been saved to {}.'.format(saved_containers_path))
 
     except Exception as e:

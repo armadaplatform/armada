@@ -2,9 +2,8 @@ import six
 
 from armada_backend import api_base, docker_client
 from armada_backend.models.services import save_container
-from armada_backend.models.ships import get_ship_name, get_ship_ip
+from armada_backend.models.ships import get_ship_ip_and_name
 from armada_backend.utils import shorten_container_id
-from armada_command.consul.consul import consul_query
 
 
 class Start(api_base.ApiCommand):
@@ -13,11 +12,10 @@ class Start(api_base.ApiCommand):
         docker_api.start(long_container_id)
 
         service_endpoints = {}
-        service_ip = get_ship_ip()
+        service_ip, ship_name = get_ship_ip_and_name()
 
         docker_inspect = docker_api.inspect_container(long_container_id)
 
-        ship_name = get_ship_name(service_ip)
         container_id = shorten_container_id(long_container_id)
         save_container(ship_name, container_id, status='started', ship_ip=service_ip)
 

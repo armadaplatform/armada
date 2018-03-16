@@ -46,7 +46,7 @@ def save_container(ship_name, container_id, status, params=None, start_timestamp
     kv_set(create_consul_services_key(ship_name, service_name, container_id), service_dict)
 
 
-def get_local_services():
+def get_local_services_from_kv_store():
     ship = get_ship_name()
     return get_services_by_ship(ship)
 

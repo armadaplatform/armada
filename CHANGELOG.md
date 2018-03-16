@@ -8,6 +8,7 @@
 
 ### Bug fixes
 - Fix netcat version on ArchLinux
+- Fix filtering crashed services by name
 
 ## 2.6.0 (2018-03-09)
 
