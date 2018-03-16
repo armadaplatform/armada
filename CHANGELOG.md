@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Improvements
+- Set `TimeoutStartSec=30min` in systemd unit to prevent timeouts
+
 ### Bug fixes
 - Fix netcat version on ArchLinux
 
