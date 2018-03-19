@@ -4,7 +4,7 @@ After=docker.service
 Requires=docker.service
 
 [Service]
-TimeoutStartSec="infinity"
+TimeoutStartSec=30min
 Environment="CIDFILE=/var/run/armada.pid"
 ExecStartPre=/usr/local/bin/armada-runner restart
 ExecStart=/bin/bash -c "/usr/bin/docker wait $(cat ${CIDFILE})"

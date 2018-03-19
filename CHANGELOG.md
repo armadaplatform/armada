@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Improvements
+- Set `TimeoutStartSec=30min` in systemd unit to prevent timeouts
 - Decreased number of Consul queries executed during saving containers in KV store
 - Save missing containers in KV store
 
