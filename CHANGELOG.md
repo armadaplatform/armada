@@ -4,6 +4,7 @@
 
 ### Improvements
 - Set `TimeoutStartSec=30min` in systemd unit to prevent timeouts
+- If initial recovery is not completed after 10 minutes since armada start, armada has status `warning`
 
 ### Bug fixes
 - Fix netcat version on ArchLinux
