@@ -2,17 +2,20 @@ import base64
 import calendar
 import time
 
+from requests.exceptions import RequestException
+
 from armada_backend.api_env import get_env
 from armada_backend.models.ships import get_ship_name
 from armada_command.consul.kv import kv_get, kv_set, kv_list
 from armada_command.scripts.compat import json
 
 
-def save_container(ship, container_id, status, params=None):
-    try:
-        start_timestamp = kv_get('start_timestamp/{}'.format(container_id))
-    except:
-        start_timestamp = None
+def save_container(ship_name, container_id, status, params=None, start_timestamp=None, ship_ip=None):
+    if start_timestamp is None:
+        try:
+            start_timestamp = kv_get('start_timestamp/{}'.format(container_id))
+        except:
+            pass
     if status == 'crashed':
         service_name = params['microservice_name']
     else:
@@ -22,7 +25,15 @@ def save_container(ship, container_id, status, params=None):
         params = json.loads(base64.b64decode(get_env(container_id, 'RESTART_CONTAINER_PARAMETERS')))
         if not start_timestamp:
             start_timestamp = str(calendar.timegm(time.gmtime()))
-    address = kv_get('ships/{}/ip'.format(ship)) or ship
+
+    if ship_ip is not None:
+        address = ship_ip
+    else:
+        try:
+            address = kv_get('ships/{}/ip'.format(ship_name)) or ship_name
+        except RequestException as e:
+            address = None
+
     service_dict = {
         'ServiceName': service_name,
         'Status': status,
@@ -32,10 +43,10 @@ def save_container(ship, container_id, status, params=None):
         'ServiceID': container_id,
         'Address': address
     }
-    kv_set(create_consul_services_key(ship, service_name, container_id), service_dict)
+    kv_set(create_consul_services_key(ship_name, service_name, container_id), service_dict)
 
 
-def get_local_services():
+def get_local_services_from_kv_store():
     ship = get_ship_name()
     return get_services_by_ship(ship)
 

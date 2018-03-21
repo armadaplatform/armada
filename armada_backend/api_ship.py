@@ -9,7 +9,7 @@ import six
 
 from armada_backend import api_base, consul_config
 from armada_backend.api_list import get_list
-from armada_backend.models.services import get_local_services
+from armada_backend.models.services import get_local_services_from_kv_store
 from armada_backend.models.ships import get_ship_name, set_ship_name, get_other_ship_ips
 from armada_backend.runtime_settings import override_runtime_settings
 from armada_backend.utils import deregister_services, get_current_datacenter, get_logger
@@ -91,7 +91,7 @@ class Join(api_base.ApiCommand):
         if error:
             return self.status_error(resp, error)
         ship = get_ship_name()
-        local_services_data = {key: kv.kv_get(key) for key in get_local_services()}
+        local_services_data = {key: kv.kv_get(key) for key in get_local_services_from_kv_store()}
 
         armada_size = _get_armada_size()
         if armada_size > 1:

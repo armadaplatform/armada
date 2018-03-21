@@ -75,7 +75,7 @@ def _get_services_list(filter_microservice_name, filter_env, filter_app_id, filt
     if filter_local:
         consul_key = '{}/{}'.format(consul_key, get_ship_name())
 
-    services_by_ship = kv.kv_get_recurse(consul_key)
+    services_by_ship = kv.kv_get_recurse(consul_key, strip_keys=False)
 
     if not services_by_ship:
         return {}

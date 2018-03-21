@@ -5,7 +5,7 @@ import falcon
 from armada_backend import api_base, docker_client
 from armada_backend.exceptions import BadRequestException
 from armada_backend.models.services import update_service_dict, save_container, is_subservice
-from armada_backend.models.ships import get_ship_name
+from armada_backend.models.ships import get_ship_ip_and_name
 from armada_backend.utils import exists_service
 from armada_command.consul.consul import consul_post
 from armada_command.consul.kv import kv_set, kv_remove
@@ -56,6 +56,13 @@ class Register(api_base.ApiCommand):
             microservice_data = req.json
             register_service_in_consul(microservice_data)
             result = {'microservice_data': microservice_data}
+
+            ship_ip, ship_name = get_ship_ip_and_name()
+            microservice_id = microservice_data['microservice_id']
+            container_id = microservice_id.split(':')[0]
+            if not is_subservice(microservice_data['microservice_name']):
+                save_container(ship_name, container_id, status='started',
+                               start_timestamp=str(microservice_data['container_created_timestamp']), ship_ip=ship_ip)
         except Exception as e:
             return self.status_exception(resp, 'Could not register service.', e)
         return self.status_ok(resp, {'result': result})
@@ -84,8 +91,9 @@ class RegisterV1(api_base.ApiCommand):
             microservice_version = input_json.get('microservice_version')
             register_service_in_consul(microservice_data)
             if microservice_version and microservice_name != 'armada' and not is_subservice(microservice_name):
-                ship_name = get_ship_name()
-                save_container(ship_name, container_id, status='started')
+                ship_ip, ship_name = get_ship_ip_and_name()
+                save_container(ship_name, container_id, status='started',
+                               start_timestamp=str(input_json['container_created_timestamp']), ship_ip=ship_ip)
                 update_service_dict(ship_name, microservice_name, container_id,
                                     'microservice_version', microservice_version)
             resp.json = microservice_data

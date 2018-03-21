@@ -17,11 +17,12 @@ def kv_get(key):
     return json.loads(base64.b64decode(query_result[0]['Value']))
 
 
-def kv_get_recurse(key):
+def kv_get_recurse(key, strip_keys=True):
     query_result = consul_query('kv/{key}?recurse=true'.format(**locals()))
     if query_result is None:
         return None
-    return {item['Key'].replace(key, ''): json.loads(base64.b64decode(item['Value'])) for item in query_result}
+    return {item['Key'].replace(key, '') if strip_keys else item['Key']: json.loads(base64.b64decode(item['Value']))
+            for item in query_result}
 
 
 def kv_set(key, value):
