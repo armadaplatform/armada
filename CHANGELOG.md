@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+- `armada build` supports multi-staged Dockerfiles.
+- Base images in `armada build` may, and should now use explicit dockyard/docker registry addresses,
+    e.g.: `FROM docker.io/golang:1.7.3`, or `FROM dockyard.armada.sh/microservice`.
+
 ### Improvements
 - Set `TimeoutStartSec=30min` in systemd unit to prevent timeouts
 

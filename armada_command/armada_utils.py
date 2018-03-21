@@ -21,6 +21,12 @@ def print_err(*objs):
     print(*objs, file=sys.stderr)
 
 
+def print_warning(*objs):
+    print(fore.YELLOW + 'WARNING: ', end='', file=sys.stderr)
+    print_err(*objs)
+    print(style.RESET, end='', file=sys.stderr)
+
+
 def is_local_container(container_id):
     return container_id in (service_id.split(':')[0] for service_id in consul_query('agent/services').keys())
 
