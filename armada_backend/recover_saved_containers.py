@@ -9,9 +9,9 @@ from uuid import uuid4
 import six
 
 from armada_backend.api_ship import wait_for_consul_ready
-from armada_backend.models.services import save_container, get_local_services, create_consul_services_key, \
+from armada_backend.models.services import save_container, get_local_services_from_kv_store, create_consul_services_key, \
     update_container_status
-from armada_backend.models.ships import get_ship_name
+from armada_backend.models.ships import get_ship_ip_and_name
 from armada_backend.utils import get_logger, shorten_container_id, setup_sentry
 from armada_command import armada_api
 from armada_command.consul import kv
@@ -55,7 +55,7 @@ def _convert_to_consul_services_format(services_parameters):
 
 def _get_local_running_containers():
     result = []
-    for container in get_local_services():
+    for container in get_local_services_from_kv_store():
         container_parameters = kv.kv_get(container)['params']
         if container_parameters:
             result.append(container_parameters)
@@ -80,7 +80,7 @@ def _multiset_difference(a, b):
     return [json.loads(x) for x in difference.elements()]
 
 
-def _load_from_dict(services_parameters, ship):
+def _load_from_dict(services_parameters, ship_name, ship_ip):
     key = next(iter(six.iterkeys(services_parameters)))
 
     # convert from armada 1.x format
@@ -89,24 +89,24 @@ def _load_from_dict(services_parameters, ship):
         services_parameters = _convert_to_consul_services_format(services_parameters)
 
     saved_containers_list = [saved_container['params'] for saved_container in six.itervalues(services_parameters)]
-    _load_from_list(saved_containers_list, ship)
+    _load_from_list(saved_containers_list, ship_name, ship_ip)
 
 
-def _load_from_list(saved_containers, ship):
+def _load_from_list(saved_containers, ship_name, ship_ip):
     wait_for_consul_ready()
     running_containers = _get_local_running_containers()
     containers_to_be_added = _multiset_difference(saved_containers, running_containers)
     for container_parameters in containers_to_be_added:
         get_logger().info('Added service: {}'.format(container_parameters))
-        save_container(ship, _generate_id(), 'crashed', params=container_parameters)
+        save_container(ship_name, _generate_id(), 'crashed', params=container_parameters, ship_ip=ship_ip)
 
 
 def _load_containers_to_kv_store(saved_containers_path):
     wait_for_consul_ready()
     try:
-        ship = get_ship_name()
+        ship_ip, ship_name = get_ship_ip_and_name()
         saved_containers = _load_saved_containers_parameters(saved_containers_path)
-        _load_from_dict(saved_containers, ship)
+        _load_from_dict(saved_containers, ship_name, ship_ip)
     except:
         get_logger().exception('Unable to load from %s', saved_containers_path)
 
@@ -144,7 +144,7 @@ def _check_if_we_should_recover(saved_containers_path):
 
 
 def _get_crashed_services():
-    services_list = get_local_services()
+    services_list = get_local_services_from_kv_store()
     crashed_services = []
 
     for service in services_list:
@@ -159,8 +159,8 @@ def _get_crashed_services():
 def _add_running_services_at_startup():
     wait_for_consul_ready()
     try:
-        ship = get_ship_name()
-        containers_saved_in_kv = get_local_services()
+        ship_ip, ship_name = get_ship_ip_and_name()
+        containers_saved_in_kv = get_local_services_from_kv_store()
         sleep(10)
         all_services = consul_query('agent/services')
         if 'consul' in all_services:
@@ -170,9 +170,9 @@ def _add_running_services_at_startup():
                 continue
             if service_dict['Service'] == 'armada':
                 continue
-            key = create_consul_services_key(ship, service_dict['Service'], service_id)
+            key = create_consul_services_key(ship_name, service_dict['Service'], service_id)
             if not containers_saved_in_kv or key not in containers_saved_in_kv:
-                save_container(ship, service_id, 'started')
+                save_container(ship_name, service_id, 'started', ship_ip=ship_ip)
                 get_logger().info('Added running service: {}'.format(service_id))
     except Exception:
         get_logger().exception('Unable to add running services.')
@@ -209,8 +209,8 @@ def recover_containers_from_kv_store():
 def recover_saved_containers_from_parameters(saved_containers):
     wait_for_consul_ready()
     try:
-        ship = get_ship_name()
-        _load_from_dict(saved_containers, ship)
+        ship_ip, ship_name = get_ship_ip_and_name()
+        _load_from_dict(saved_containers, ship_name, ship_ip)
     except Exception as e:
         get_logger().exception(e)
 

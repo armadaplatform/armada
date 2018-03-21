@@ -1,5 +1,8 @@
-from armada_command.armada_utils import ArmadaCommandException, split_image_path
+from abc import ABCMeta
+
+from armada_command.armada_utils import split_image_path
 from armada_command.dockyard import dockyard
+from armada_command.dockyard.alias import DOCKYARD_FALLBACK_ADDRESS
 
 
 class InvalidImagePathException(Exception):
@@ -14,27 +17,28 @@ class ArmadaImageFactory(object):
         if not image_name:
             raise InvalidImagePathException
 
+        if not dockyard_address and not dockyard_alias and image_name.startswith('microservice'):
+            dockyard_address = DOCKYARD_FALLBACK_ADDRESS
+
         if dockyard_alias == 'local':
             return LocalArmadaImage(dockyard_address, image_name, image_tag)
 
         if dockyard_alias and dockyard_address:
-            raise ArmadaCommandException('Ambiguous dockyard. Please specify either -d/--dockyard '
-                                         'or dockyard_hostname[:port]/image_name')
+            dockyard_address = None
 
         return RemoteArmadaImage(dockyard_address, image_name, image_tag, dockyard_alias)
 
 
-class LocalArmadaImage(object):
-    def __init__(self, dockyard_address, image_name, image_tag):
-        self.image_tag = image_tag
-        self.image_name = image_name
-        self.dockyard_address = dockyard_address
-        self.dockyard = dockyard.LocalDockyard()
+class ArmadaImage(object):
+    __metaclass__ = ABCMeta
 
-        image_path = image_name
-        if dockyard_address:
-            image_path = '{}/{}'.format(dockyard_address, image_path)
-        self.image_path = image_path
+    def __init__(self, dockyard_address, image_name, image_tag):
+        super(ArmadaImage, self).__init__()
+        self.dockyard_address = dockyard_address
+        self.image_name = image_name
+        self.image_tag = image_tag
+        self.image_path = '{}/{}'.format(dockyard_address, image_name) if dockyard_address else image_name
+        self._dockyard = None
 
     @property
     def image_name_with_tag(self):
@@ -49,30 +53,58 @@ class LocalArmadaImage(object):
         return self.image_path
 
     def is_remote(self):
-        return self.dockyard.is_remote()
+        raise NotImplementedError
 
     def __str__(self):
         return self.image_path
 
     def get_image_creation_time(self):
-        return self.dockyard.get_image_creation_time(self.image_name, self.image_tag)
+        return self.dockyard.get_image_creation_time(self.image_path, self.image_tag)
 
     def exists(self):
         return self.get_image_creation_time() is not None
 
+    @property
+    def dockyard(self):
+        raise NotImplementedError
 
-class RemoteArmadaImage(LocalArmadaImage):
+
+class LocalArmadaImage(ArmadaImage):
+    def __init__(self, dockyard_address, image_name, image_tag='latest'):
+        super(LocalArmadaImage, self).__init__(dockyard_address, image_name, image_tag)
+
+    @property
+    def dockyard(self):
+        if self._dockyard is None:
+            self._dockyard = dockyard.LocalDockyard()
+        return self._dockyard
+
+    def is_remote(self):
+        return False
+
+
+class RemoteArmadaImage(ArmadaImage):
     def __init__(self, dockyard_address, image_name, image_tag, dockyard_alias):
-        self.image_name, self.image_tag = image_name, image_tag
-        dockyard_dict = {}
         if not dockyard_address:
-            dockyard_dict = dockyard.get_dockyard_dict(dockyard_alias)
-            dockyard_address = dockyard_dict['address']
+            dockyard_address = dockyard.get_dockyard_dict(dockyard_alias)['address']
+        self.dockyard_alias = dockyard_alias
+        super(RemoteArmadaImage, self).__init__(dockyard_address, image_name, image_tag)
 
-        self.image_path = '{}/{}'.format(dockyard_address, self.image_name)
-        self.dockyard = dockyard.remote_dockyard_factory(dockyard_address,
-                                                         dockyard_dict.get('user'),
-                                                         dockyard_dict.get('password'))
+    @property
+    def dockyard(self):
+        if self._dockyard is None:
+            dockyard_dict = {}
+            dockyard_address = self.dockyard_address
+            if not dockyard_address:
+                dockyard_dict = dockyard.get_dockyard_dict(self.dockyard_alias)
+                dockyard_address = dockyard_dict['address']
+            self._dockyard = dockyard.remote_dockyard_factory(dockyard_address,
+                                                              dockyard_dict.get('user'),
+                                                              dockyard_dict.get('password'))
+        return self._dockyard
+
+    def is_remote(self):
+        return True
 
 
 def select_latest_image(*armada_images):

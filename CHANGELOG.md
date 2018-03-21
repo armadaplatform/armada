@@ -2,12 +2,20 @@
 
 ## Unreleased
 
+### Features
+- `armada build` supports multi-staged Dockerfiles.
+- Base images in `armada build` may, and should now use explicit dockyard/docker registry addresses,
+    e.g.: `FROM docker.io/golang:1.7.3`, or `FROM dockyard.armada.sh/microservice`.
+
 ### Improvements
 - Set `TimeoutStartSec=30min` in systemd unit to prevent timeouts
+- Decreased number of Consul queries executed during saving containers in KV store
+- Save missing containers in KV store
 - If initial recovery is not completed after 10 minutes since armada start, armada has status `warning`
 
 ### Bug fixes
 - Fix netcat version on ArchLinux
+- Fix filtering crashed services by name
 
 ## 2.6.0 (2018-03-09)
 

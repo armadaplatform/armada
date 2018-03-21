@@ -16,4 +16,14 @@ if [[ ! -e "$LINK_TARGET" ]]; then
     sudo ln -s "$ARMADA_REPO_PATH" "$LINK_TARGET"
 fi
 
-sudo ARMADA_AUTORELOAD=1 /usr/local/bin/armada-runner restart
+sudo ln -sf "${ARMADA_REPO_PATH}/armada_command/armada_dev/build-armada" /usr/local/bin/build-armada
+sudo ln -sf "${ARMADA_REPO_PATH}/armada_command/armada_dev/restart-armada" /usr/local/bin/restart-armada
+sudo cp "${ARMADA_REPO_PATH}/armada_command/docker_utils/compatibility.py" /opt/armada/docker_compatibility.py
+
+sudo cp "${ARMADA_REPO_PATH}/packaging/bash_completion.d/armada" /etc/bash_completion.d/armada
+source /etc/bash_completion.d/armada
+
+sudo cp "${ARMADA_REPO_PATH}/packaging/systemd/armada.service" /etc/systemd/system/armada.service
+sudo systemctl daemon-reload
+
+sudo ARMADA_AUTORELOAD=1 "$ARMADA_REPO_PATH/packaging/bin/armada-runner" restart
