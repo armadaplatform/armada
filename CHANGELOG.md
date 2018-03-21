@@ -11,6 +11,7 @@
 - Set `TimeoutStartSec=30min` in systemd unit to prevent timeouts
 - Decreased number of Consul queries executed during saving containers in KV store
 - Save missing containers in KV store
+- If initial recovery is not completed after 10 minutes since armada start, armada has status `warning`
 
 ### Bug fixes
 - Fix netcat version on ArchLinux
