@@ -1,4 +1,3 @@
 {
-    "sentry_url": "your sentry url",
-    "rums_limit": 5
+    "sentry_url": ""
 }

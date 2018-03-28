@@ -1,10 +1,10 @@
 FROM microservice_flask
-ENV IMAGE_NAME=example-rum-counter
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
+ENV IMAGE_NAME=_MICROSERVICE_FLASK_TEMPLATE_
 
 RUN pip3 install -U raven[flask]
 
-ENV CONFIG_DIR config
+ADD . /opt/_MICROSERVICE_FLASK_TEMPLATE_
 
-ADD . /opt/$IMAGE_NAME
+EXPOSE 80

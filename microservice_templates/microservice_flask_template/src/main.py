@@ -1,48 +1,26 @@
-from collections import Counter
-import json
-import os
-import random
-import requests
 from armada import hermes
 
-from flask import Flask, Response
+import logging
+from flask import Flask
+
 from raven.contrib.flask import Sentry
 
 config = hermes.get_config('config.json', {})
+
+formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(name)s: %(message)s')
+
+handler = logging.StreamHandler()
+handler.setLevel(logging.INFO)
+handler.setFormatter(formatter)
+
+logging.getLogger('werkzeug').handlers = []
+logging.getLogger('werkzeug').addHandler(handler)
 
 app = Flask(__name__)
 
 sentry = Sentry(app, dsn=config.get('sentry_url'))
 
-rums = Counter()
-
 @app.route('/')
 def status():
-    return "OK"
+    return "OKej"
 
-
-@app.route('/drink/<user>/<int:count>', methods=['POST'])
-def drink(user, count):
-
-    rums_limit = config.get('rums_limit', 1)
-    if int(count) > rums_limit:
-        return "You can't drink that much! The limit is {0}.\n".format(rums_limit)
-
-    rums[user] += int(count)
-    return "{0}'s rums count is now {1}.\n".format(user, rums[user])
-
-
-@app.route('/report')
-def report():
-    r = Response(response=json.dumps(rums, sort_keys=True, indent=4) + "\n", status=200)
-    r.headers["Content-Type"] = "application/json"
-    return r
-
-
-@app.route('/delay/<int:seconds>')
-def delay(seconds):
-    session = requests.Session()
-    result = session.get('http://httpbin.org/delay/{0}?rnd={1}'.format(seconds, random.random()))
-    r = Response(response=result.text + "\n", status=200)
-    r.headers["Content-Type"] = "application/json"
-    return r

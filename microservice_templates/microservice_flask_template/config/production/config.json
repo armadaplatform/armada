@@ -1,5 +1,5 @@
 {
-    "rums_limit": 2,
+    "sentry_url": "",
     "use_apache": true,
     "apache_config":
     {
