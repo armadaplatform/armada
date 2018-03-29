@@ -85,22 +85,23 @@ class LocalArmadaImage(ArmadaImage):
 
 class RemoteArmadaImage(ArmadaImage):
     def __init__(self, dockyard_address, image_name, image_tag, dockyard_alias):
+        self._dockyard_dict = {}
         if not dockyard_address:
-            dockyard_address = dockyard.get_dockyard_dict(dockyard_alias)['address']
+            self._dockyard_dict = dockyard.get_dockyard_dict(dockyard_alias)
+            dockyard_address = self._dockyard_dict['address']
         self.dockyard_alias = dockyard_alias
         super(RemoteArmadaImage, self).__init__(dockyard_address, image_name, image_tag)
 
     @property
     def dockyard(self):
         if self._dockyard is None:
-            dockyard_dict = {}
             dockyard_address = self.dockyard_address
             if not dockyard_address:
-                dockyard_dict = dockyard.get_dockyard_dict(self.dockyard_alias)
-                dockyard_address = dockyard_dict['address']
+                self._dockyard_dict = dockyard.get_dockyard_dict(self.dockyard_alias)
+                dockyard_address = self._dockyard_dict['address']
             self._dockyard = dockyard.remote_dockyard_factory(dockyard_address,
-                                                              dockyard_dict.get('user'),
-                                                              dockyard_dict.get('password'))
+                                                              self._dockyard_dict.get('user'),
+                                                              self._dockyard_dict.get('password'))
         return self._dockyard
 
     def is_remote(self):
