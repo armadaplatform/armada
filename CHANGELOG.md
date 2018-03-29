@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.7.1 (2018-03-29)
+
+We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
 
 ### Bug fixes
 - Fix pushing images to remote dockyards with passwords.
