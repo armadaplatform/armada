@@ -1,0 +1,4 @@
+.git
+**/*.BAK
+**/*.pyc
+example-rum-counter
