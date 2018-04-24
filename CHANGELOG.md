@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.8.0 (2018-04-24)
+
+We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
 
 ### Features
 - Added new microservice_flask base image

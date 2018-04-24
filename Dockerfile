@@ -18,7 +18,7 @@ RUN /opt/armada-docker/armada_backend/scripts/setup_ssh.sh
 RUN ln -s /opt/armada-docker/microservice_templates /opt/templates
 RUN ln -s /opt/armada-docker/packaging/bin/armada /usr/local/bin/armada
 
-ENV ARMADA_VERSION 2.7.1
+ENV ARMADA_VERSION 2.8.0
 RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_command/_version.py
 
 ENV PYTHONPATH /opt/armada-docker:$PYTHONPATH
