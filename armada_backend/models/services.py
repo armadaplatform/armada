@@ -5,7 +5,7 @@ import time
 from requests.exceptions import RequestException
 
 from armada_backend.api_env import get_env
-from armada_backend.models.ships import get_ship_name
+from armada_backend.models.ships import get_ship_ip_and_name
 from armada_command.consul.kv import kv_get, kv_set, kv_list
 from armada_command.scripts.compat import json
 
@@ -47,8 +47,8 @@ def save_container(ship_name, container_id, status, params=None, start_timestamp
 
 
 def get_local_services_from_kv_store():
-    ship = get_ship_name()
-    return get_services_by_ship(ship)
+    ship_ip, ship_name = get_ship_ip_and_name()
+    return get_services_by_ship(ship_name) + get_services_by_ship(ship_ip)
 
 
 def get_services_by_ship(ship=None):
