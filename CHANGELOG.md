@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+-Fix stopping/recovering services saved to KV-store using ship IP instead of name.
+
 ## 2.8.0 (2018-04-24)
 
 We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.

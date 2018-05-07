@@ -48,6 +48,8 @@ def save_container(ship_name, container_id, status, params=None, start_timestamp
 
 def get_local_services_from_kv_store():
     ship_ip, ship_name = get_ship_ip_and_name()
+    if ship_name == ship_ip:
+        return get_services_by_ship(ship_name)
     return get_services_by_ship(ship_name) + get_services_by_ship(ship_ip)
 
 
