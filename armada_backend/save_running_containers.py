@@ -4,7 +4,7 @@ import shutil
 import sys
 
 from armada_backend.api_ship import wait_for_consul_ready
-from armada_backend.models.services import get_ship_name
+from armada_backend.models.ships import get_ship_name
 from armada_backend.recover_saved_containers import RECOVERY_COMPLETED_PATH
 from armada_backend.utils import get_logger, setup_sentry
 from armada_command.consul import kv
