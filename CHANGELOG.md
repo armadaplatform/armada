@@ -5,6 +5,9 @@
 ### Features
 - Add `nodejs` `v10.x`, remove unsupported `v8.x` version.
 
+### Bug fixes
+- Fix generating `CONFIG_PATH` on renamed microservices.
+
 ## 2.8.1 (2018-05-09)
 
 We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.

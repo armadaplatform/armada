@@ -35,6 +35,13 @@ def _nesting_level(path):
     return path.rstrip('/').count('/')
 
 
+def _generate_image_config_dirs(config_dir, config_dirs_combinations):
+    image_path = os.path.join("/opt", os.environ["IMAGE_NAME"])
+    image_config_dirs = [os.path.join(image_path, config_dir, path) for path in config_dirs_combinations]
+    image_config_dirs.sort(key=_nesting_level, reverse=True)
+    return image_config_dirs
+
+
 def main():
     if "CONFIG_DIR" in os.environ:
         service_path = os.path.join("/opt", os.environ["MICROSERVICE_NAME"])
@@ -44,9 +51,15 @@ def main():
 
         config_dirs_combinations = set(_get_all_parent_dirs_with_combinations(microservice_env, microservice_app_id))
 
-        config_dirs_full_paths = [os.path.join(service_path, config_dir, path) for path in config_dirs_combinations]
-        config_dirs_full_paths.sort(key=_nesting_level, reverse=True)
-        config_dirs_existing_paths = list(filter(os.path.isdir, config_dirs_full_paths))
+        service_config_dirs_full_paths = [os.path.join(service_path, config_dir, path)
+                                          for path in config_dirs_combinations]
+        service_config_dirs_full_paths.sort(key=_nesting_level, reverse=True)
+
+        if os.environ.get("IMAGE_NAME") != os.environ["MICROSERVICE_NAME"]:
+            image_config_dirs = _generate_image_config_dirs(config_dir, config_dirs_combinations)
+            service_config_dirs_full_paths.extend(image_config_dirs)
+
+        config_dirs_existing_paths = list(filter(os.path.isdir, service_config_dirs_full_paths))
 
         local_config_path = os.pathsep.join(config_dirs_existing_paths)
 
