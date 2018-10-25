@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- Add `nodejs` `v10.x`, remove unsupported `v8.x` version.
+- Add `nodejs` `v10.x`, remove unsupported `v4.x` version.
 
 ### Bug fixes
 - Fix generating `CONFIG_PATH` on renamed microservices.
