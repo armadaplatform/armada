@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Features
+- Add `nodejs` `v10.x`, remove unsupported `v4.x` version.
+
 ## 2.8.1 (2018-05-09)
 
 We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
