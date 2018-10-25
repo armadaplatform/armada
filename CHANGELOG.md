@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- Add `nodejs` `v10.x`, remove unsupported `v8.x` version.
+- Add `nodejs` `v10.x`, remove unsupported `v4.x` version.
 
 ## 2.8.1 (2018-05-09)
 
