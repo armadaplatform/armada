@@ -51,8 +51,9 @@ def main():
         config_dirs_combinations = set(_get_all_parent_dirs_with_combinations(microservice_env, microservice_app_id))
         service_config_dirs_full_paths = _generate_config_full_path(service_path, config_dir, config_dirs_combinations)
 
-        if os.environ.get("IMAGE_NAME") != os.environ["MICROSERVICE_NAME"]:
-            image_path = os.path.join("/opt", os.environ["IMAGE_NAME"])
+        image_name = os.environ.get("IMAGE_NAME")
+        if image_name and image_name != os.environ["MICROSERVICE_NAME"]:
+            image_path = os.path.join("/opt", image_name)
             image_config_dirs = _generate_config_full_path(image_path, config_dir, config_dirs_combinations)
             service_config_dirs_full_paths.extend(image_config_dirs)
 
