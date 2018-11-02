@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+- Fix microservice image not starting.
+
 ## 2.9.0 (2018-10-31)
 
 We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
