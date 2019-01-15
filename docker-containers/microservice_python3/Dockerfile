@@ -3,8 +3,8 @@ MAINTAINER Cerebro <cerebro@ganymede.eu>
 
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update
-RUN apt-get install -y python3.6 python3.6-dev build-essential gcc
-RUN rm /usr/bin/python3 && ln -s /usr/bin/python3.6 /usr/bin/python3
+RUN apt-get install -y python3.7 python3.7-dev build-essential gcc
+RUN rm /usr/bin/python3 && ln -s /usr/bin/python3.7 /usr/bin/python3
 RUN cd /tmp && wget https://bootstrap.pypa.io/get-pip.py && sync && python3 get-pip.py && rm get-pip.py
 RUN pip3 install -U setuptools
 RUN pip3 install -U /opt/microservice

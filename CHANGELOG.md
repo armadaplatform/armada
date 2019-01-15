@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+### Improvements
+- Python3 version in base image `microservice_python3` has been upgraded from `python3.6` to `python3.7`.
+- Don't build deprecated `microservice_python3.5`.
+- Armada internal API is now running on `python3.7`.
+
 ## 2.9.1 (2018-11-02)
 
 We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
