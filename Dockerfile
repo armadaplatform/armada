@@ -1,7 +1,7 @@
-FROM microservice
+FROM microservice_python3
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
-RUN apt-get update && apt-get install -y rsync openssh-server libffi-dev libssl-dev python3-dev
+RUN apt-get update && apt-get install -y rsync openssh-server libffi-dev libssl-dev
 COPY armada_backend/armada_backend_requirements.txt /tmp/
 RUN pip3 install -r /tmp/armada_backend_requirements.txt
 
