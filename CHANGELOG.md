@@ -5,6 +5,7 @@
 - Python3 version in base image `microservice_python3` has been upgraded from `python3.6` to `python3.7`.
 - Don't build deprecated `microservice_python3.5`.
 - Armada internal API is now running on `python3.7`.
+- By default don't show logs from garbage collector in `microservice_node*`
 
 ## 2.9.1 (2018-11-02)
 
