@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.10.0 (2019-01-31)
+
+We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
 ### Improvements
 - Python3 version in base image `microservice_python3` has been upgraded from `python3.6` to `python3.7`.
 - Don't build deprecated `microservice_python3.5`.
