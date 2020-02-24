@@ -1,13 +1,14 @@
-FROM microservice
+FROM dockyard.armada.sh/microservice_python3
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
-ENV MICROSERVICE_FLASK_APT_GET_UPDATE_DATE 2018-03-26
-RUN apt-get update
+ENV MICROSERVICE_FLASK_APT_GET_UPDATE_DATE 2020-02-21
+RUN apt-get update -y
 
-RUN apt-get install -y python3 python3-dev python3-pip build-essential apache2 libapache2-mod-wsgi-py3
+RUN apt-get install -y build-essential apache2 libapache2-mod-wsgi-py3
 
 RUN pip3 install -U pip
 RUN pip3 install -U requests armada Flask
+RUN pip3 uninstall -y Werkzeug && pip install Werkzeug==0.16.1
 
 # Apache configuration.
 ADD ./apache2_vhost.conf /etc/apache2/sites-available/apache2_vhost.conf
