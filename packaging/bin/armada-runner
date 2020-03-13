@@ -48,17 +48,17 @@ set_external_ip() {
         if [[ -z "$default_interface" ]]; then
             default_interface='lo'
         fi
-    fi  
+    fi
     # check if interface really exists
-    if [[ "$default_interface" != "lo" ]] && ! ( ip r | grep $default_interface -wq ); then 
-        log_message "ERROR: Interface $default_interface is unplugged or misspelled. Check your devices or change default settings in /etc/default/armada (default_interface=YOUR_INTERFACE_NAME) or comment it to enable autodetection."; 
-        exit 1; 
+    if [[ "$default_interface" != "lo" ]] && ! ( ip r | grep $default_interface -wq ); then
+        log_message "ERROR: Interface $default_interface is unplugged or misspelled. Check your devices or change default settings in /etc/default/armada (default_interface=YOUR_INTERFACE_NAME) or comment it to enable autodetection.";
+        exit 1;
     fi
     # reading ip address
-    external_ip=$( ip address show $default_interface 2>&1 | awk '/inet/&&!/inet6/{split($2,a,"/");print a[1]}' )
+    external_ip=$( ip address show $default_interface 2>&1 | awk '/inet/&&!/inet6/{split($2,a,"/");print a[1]}' | head -1 )
     # check ip format
     if [[ -z "$( echo $external_ip | awk '{match($0,/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/);ip=substr($0,RSTART,RLENGTH);print ip}')" ]]; then
-        log_message "ERROR: Wrong ip format -> \"$external_ip\". Maybe ip command problem." 
+        log_message "ERROR: Wrong ip format -> \"$external_ip\". Maybe ip command problem."
         exit 1
     fi
     log_message "Binding this network device: $default_interface/$external_ip"

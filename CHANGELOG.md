@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+* Allow binding armada to interfaces with more than one IP address.
+
 ## 2.10.0 (2019-01-31)
 
 We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
