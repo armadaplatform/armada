@@ -4,6 +4,7 @@
 
 ### Bug fixes
 * Allow binding armada to interfaces with more than one IP address.
+* Fix broken dependencies for `armada-microservice.deb` package. Bump version to `2.10.1`.
 
 ## 2.10.0 (2019-01-31)
 

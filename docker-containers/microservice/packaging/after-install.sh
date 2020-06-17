@@ -3,7 +3,7 @@
 set -ex
 
 sudo -H pip3 install -U pip setuptools
-sudo -H pip2 install -U pip setuptools
+sudo -H pip2 install -U pip setuptools==44.1.1
 sudo -H pip2 install -U web.py
 
 mkdir -p /var/log/supervisor /var/opt/service-registration/
