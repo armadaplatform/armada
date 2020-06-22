@@ -4,7 +4,7 @@ import os
 from argparse import ArgumentParser
 from subprocess import check_call
 
-VERSIONS_TO_BUILD = [ 6, 8, 10, 12]
+VERSIONS_TO_BUILD = [ 6, 8, 10, 12, 13]
 
 
 def parse_args():
