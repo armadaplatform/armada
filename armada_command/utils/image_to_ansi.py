@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # https://gist.github.com/klange/1687427
 
@@ -322,8 +322,8 @@ def print_all():
         sys.stdout.write("\033[0m  ")
         sys.stdout.write('\033[38;5;%sm%s:%s' % (short, short, rgb))
         sys.stdout.write("\033[0m\n")
-    print "Printed all codes."
-    print "You can translate a hex or 0-255 code by providing an argument."
+    print("Printed all codes.")
+    print("You can translate a hex or 0-255 code by providing an argument.")
 
 def rgb2short(rgb):
     """ Find the closest xterm-256 approximation to the given RGB value.
@@ -366,8 +366,8 @@ RGB2SHORT_DICT, SHORT2RGB_DICT = _create_dicts()
 if __name__ == '__main__':
     import Image
     im = Image.open(sys.argv[1])
-    for y in xrange(im.size[1]):
-        for x in xrange(im.size[0]):
+    for y in range(im.size[1]):
+        for x in range(im.size[0]):
             p = im.getpixel((x,y))
             h = "%2x%2x%2x" % (p[0],p[1],p[2])
             short, rgb = rgb2short(h)

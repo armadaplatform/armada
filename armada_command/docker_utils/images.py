@@ -29,8 +29,7 @@ class ArmadaImageFactory(object):
         return RemoteArmadaImage(dockyard_address, image_name, image_tag, dockyard_alias)
 
 
-class ArmadaImage(object):
-    __metaclass__ = ABCMeta
+class ArmadaImage(metaclass=ABCMeta):
 
     def __init__(self, dockyard_address, image_name, image_tag):
         super(ArmadaImage, self).__init__()

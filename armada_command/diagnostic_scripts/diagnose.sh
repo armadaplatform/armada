@@ -18,11 +18,11 @@ if [[ -f /var/opt/armada_environment.sh ]]; then
     do
         parts=(${VAR//\"/ })
         if [[ ${parts[0]} == "ARMADA_RUN_COMMAND=" ]]; then
-                decoded=$(python -mbase64 -d <<< ${parts[1]})
+                decoded=$(python3 -m base64 -d <<< ${parts[1]})
                 echo -e "\n${parts[0]}${gold} ${decoded}${NC}"
         fi
         if [[ ${parts[0]} == "RESTART_CONTAINER_PARAMETERS=" ]]; then
-            decoded=$(python -mbase64 -d <<< ${parts[1]} | python -mjson.tool)
+            decoded=$(python3 -m base64 -d <<< ${parts[1]} | python3 -m json.tool)
             echo -e "\n${parts[0]}${gold} ${decoded} ${NC}"
         fi
     done

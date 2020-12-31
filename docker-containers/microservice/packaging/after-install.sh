@@ -3,15 +3,13 @@
 set -ex
 
 sudo -H pip3 install -U pip setuptools
-sudo -H pip2 install -U pip setuptools==44.1.1
-sudo -H pip2 install -U web.py
+sudo -H pip3 install -U web.py
 
 mkdir -p /var/log/supervisor /var/opt/service-registration/
 ln -sf /opt/microservice/microservice /opt/microservice/src
 
 echo VERSION = \"<%= version %>\" > /opt/microservice/microservice/version.py
 
-sudo -H pip2 install -U /opt/microservice
 sudo -H pip3 install -U /opt/microservice
 
 chmod +x /opt/microservice/scripts/* /opt/microservice/src/run_hooks.py

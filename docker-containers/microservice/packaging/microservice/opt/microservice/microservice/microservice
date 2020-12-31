@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
-import abc
+from abc import ABCMeta, abstractmethod
 from argparse import ArgumentParser
 
 from microservice import bootstrap_microservice, armada_agent, register_in_service_discovery, run_hooks, version
 from microservice.local_magellan import require_service, local_magellan
 
 
-class Command(object):
-    __metaclass__ = abc.ABCMeta
+class Command(metaclass=ABCMeta):
     help = ''
 
     def __init__(self, parsers):
@@ -17,11 +16,11 @@ class Command(object):
         parser.set_defaults(func=self.execute)
 
     @property
-    @abc.abstractmethod
+    @abstractmethod
     def name(self):
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def execute(self, args):
         pass
 

@@ -39,7 +39,7 @@ def _docker_backend_factory():
 
 class StrictVerboseVersion(StrictVersion):
     def __str__(self):
-        vstring = '.'.join(map(str, self.version))
+        vstring = '.'.join([str(v) for v in self.version])
         if self.prerelease:
             vstring = vstring + self.prerelease[0] + str(self.prerelease[1])
         return vstring
@@ -47,7 +47,7 @@ class StrictVerboseVersion(StrictVersion):
 
 class DockerBackendMetaclass(type):
     def __new__(mcs, name, bases, attrs):
-        attrs['versions_range'] = map(mcs.wrap_with_strict_version, attrs['versions_range'])
+        attrs['versions_range'] = [mcs.wrap_with_strict_version(v) for v in attrs['versions_range']]
         return type.__new__(mcs, name, bases, attrs)
 
     @staticmethod
@@ -60,10 +60,9 @@ class DockerBackendMetaclass(type):
         return vstring
 
 
-class BaseDockerBackend(object):
+class BaseDockerBackend(metaclass=DockerBackendMetaclass):
     # <min_ver, max_ver)
     versions_range = (None, None)
-    __metaclass__ = DockerBackendMetaclass
 
     def __init__(self, current_version):
         self.current_version = current_version
@@ -143,7 +142,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     try:
-        args.func(args)
+        if hasattr(args, 'func'):
+            args.func(args)
     except Exception as e:
         print('Error: {}'.format(e))
         sys.exit(1)

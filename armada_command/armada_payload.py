@@ -110,7 +110,7 @@ class RunPayload(object):
         mapping_dict = {}
         for port_mapping in sum(ports or [], []):
             try:
-                port_host, port_container = map(int, (port_mapping.split(':', 1) + [None])[:2])
+                port_host, port_container = [int(x) for x in (port_mapping.split(':', 1) + [None])[:2]]
                 mapping_dict[port_host] = port_container
             except (ValueError, TypeError):
                 raise ArmadaCommandException('Invalid port mapping: {0}'.format(port_mapping))

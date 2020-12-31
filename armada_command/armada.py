@@ -189,7 +189,8 @@ def main():
             traceback.print_exc()
 
     try:
-        args.func(args)
+        if hasattr(args, 'func'):
+            args.func(args)
     except Exception as e:
         print('Command failed: {exception_class} - {exception}'.format(
             exception_class=type(e).__name__,
