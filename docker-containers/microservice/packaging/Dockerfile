@@ -1,11 +1,11 @@
 FROM docker.io/ubuntu:20.04
 
-RUN apt-get update && apt-get upgrade --assume-yes
+RUN apt-get update && apt-get upgrade -y
 
-#--- Set up container's timezone. ---
-RUN DEBIAN_FRONTEND="noninteractive" TZ="Etc/UTC" apt-get install --assume-yes tzdata
+# Set up container's timezone
+RUN DEBIAN_FRONTEND="noninteractive" TZ="Etc/UTC" apt-get install -y tzdata
 
-RUN apt-get install --assume-yes --no-install-recommends \
+RUN apt-get install -y --no-install-recommends \
         g++ \
         gcc \
         git \
@@ -19,8 +19,7 @@ RUN apt-get install --assume-yes --no-install-recommends \
         build-essential \
         libffi-dev
 
-
-# install package builder
+# Install package builder
 RUN gem install fpm
 
 COPY package_build.py /usr/bin/package_build
