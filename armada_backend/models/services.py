@@ -22,7 +22,7 @@ def save_container(ship_name, container_id, status, params=None, start_timestamp
         service_name = get_env(container_id, 'MICROSERVICE_NAME')
         if service_name == 'armada':
             return
-        params = json.loads(base64.b64decode(get_env(container_id, 'RESTART_CONTAINER_PARAMETERS')))
+        params = json.loads(base64.b64decode(get_env(container_id, 'RESTART_CONTAINER_PARAMETERS')).decode())
         if not start_timestamp:
             start_timestamp = str(calendar.timegm(time.gmtime()))
 

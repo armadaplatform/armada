@@ -142,7 +142,7 @@ def get_container_parameters(container_id):
     response.raise_for_status()
     output = response.json()
     if output['status'] == 'ok':
-        container_parameters = json.loads(base64.b64decode(output['value']))
+        container_parameters = json.loads(base64.b64decode(output['value']).decode())
         return container_parameters
     return None
 

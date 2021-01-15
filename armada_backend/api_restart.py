@@ -48,7 +48,7 @@ class Restart(Run, Stop):
             for env_var in docker_inspect['Config']['Env']:
                 env_key, env_value = (env_var.strip('"').split('=', 1) + [''])[:2]
                 if env_key == 'RESTART_CONTAINER_PARAMETERS':
-                    return json.loads(base64.b64decode(env_value))
+                    return json.loads(base64.b64decode(env_value).decode())
         except NotFound:
             for service in get_services_by_ship(ship=None):
                 if service.split('/')[-1] == container_id:

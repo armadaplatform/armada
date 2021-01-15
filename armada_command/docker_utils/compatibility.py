@@ -11,7 +11,7 @@ DOCKER_STATIC_CLIENT_DIR = '/opt/armada-docker-client/'
 
 
 def get_docker_version():
-    output = check_output(['docker', '--version']).decode("utf-8")
+    output = check_output(['docker', '--version']).decode()
     match = re.search(r'^Docker version (?P<version>\d+\.\d+\.\d+)', output)
     try:
         return match.group('version')
