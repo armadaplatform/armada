@@ -6,6 +6,5 @@ falcon
 git+https://github.com/boomletsgo/falcon-json-middleware.git
 paramiko
 raven
-six
 ujson
 uwsgi

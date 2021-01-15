@@ -1,3 +1,2 @@
 colored
 requests
-six

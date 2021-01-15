@@ -1,4 +1,4 @@
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 from armada_command.armada_utils import print_err
 from armada_command.consul import kv

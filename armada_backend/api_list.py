@@ -2,8 +2,6 @@ import fnmatch
 import random
 from distutils.util import strtobool
 
-import six
-
 from armada_backend import api_base
 from armada_backend.models.ships import get_ship_name
 from armada_backend.utils import get_logger
@@ -37,14 +35,14 @@ def get_list(microservice_name=None, microservice_env=None, microservice_app_id=
 
     services_list = _get_services_list(**filters)
     running_services = _get_running_services(**filters)
-    for container_id, service_dict in six.iteritems(running_services):
+    for container_id, service_dict in running_services.items():
         if container_id in services_list:
             services_list[container_id].update(service_dict)
         else:
             services_list[container_id] = service_dict
     services_list = _choose_active_instances(services_list, local)
 
-    return sorted(six.itervalues(services_list), key=_extended_sort_info)
+    return sorted(services_list.values(), key=_extended_sort_info)
 
 
 def _extended_sort_info(service):
@@ -198,7 +196,7 @@ def _parse_single_ship(services_dict, filter_microservice_name, filter_env, filt
 def _choose_active_instances(services_dicts, filter_local):
     result = services_dicts
     running_services_with_single_active_instances = {}
-    for microservice_id, service_dict in six.iteritems(services_dicts):
+    for microservice_id, service_dict in services_dicts.items():
         if service_dict.get('single_active_instance') and service_dict['status'] in ('passing', 'warning'):
             key = 'chosen_active_instance/{},env={},app_id={}'.format(service_dict['name'],
                                                                       service_dict['tags'].get('env') or '',
@@ -207,7 +205,7 @@ def _choose_active_instances(services_dicts, filter_local):
                 running_services_with_single_active_instances[key] = set()
             running_services_with_single_active_instances[key].add(microservice_id)
 
-    for key, running_microservice_ids in six.iteritems(running_services_with_single_active_instances):
+    for key, running_microservice_ids in running_services_with_single_active_instances.items():
         currently_picked_instance = kv.kv_get(key)
         if not filter_local and currently_picked_instance not in running_microservice_ids:
             currently_picked_instance = random.choice(list(running_microservice_ids))

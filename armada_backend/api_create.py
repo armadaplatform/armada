@@ -1,7 +1,5 @@
 import base64
 
-import six
-
 from armada_backend import api_base, docker_client
 from armada_backend.api_run_hermes import process_hermes
 from armada_backend.utils import get_logger
@@ -79,9 +77,10 @@ class Create(api_base.ApiCommand):
         ports = None
         port_bindings = None
         if dict_ports:
-            ports = [int(port) for port in six.itervalues(dict_ports)]
-            port_bindings = dict((int(port_container), int(port_host))
-                                 for port_host, port_container in six.iteritems(dict_ports))
+            ports = [int(port) for port in dict_ports.values()]
+            port_bindings = dict(
+                (int(port_container), int(port_host))
+                    for port_host, port_container in dict_ports.items())
 
         environment = dict_environment or None
 
@@ -90,8 +89,8 @@ class Create(api_base.ApiCommand):
         if dict_volumes:
             volumes = list(dict_volumes.values())
             volume_bindings = dict(
-                (path_host, {'bind': path_container, 'ro': False}) for path_host, path_container in
-                six.iteritems(dict_volumes))
+                (path_host, {'bind': path_container, 'ro': False})
+                    for path_host, path_container in dict_volumes.items())
 
         dockyard_address, image_name, image_tag = split_image_path(image_path)
         docker_api = self._get_docker_api(dockyard_address, dockyard_user, dockyard_password)

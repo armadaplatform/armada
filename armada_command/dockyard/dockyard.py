@@ -1,10 +1,9 @@
 import os
 from datetime import datetime
+from urllib.parse import urlparse
 
 import requests
-import six
 from requests.exceptions import SSLError
-from six.moves.urllib.parse import urlparse
 
 from armada_command import armada_api
 from armada_command.armada_utils import split_image_path
@@ -104,7 +103,7 @@ class DockyardDetectionException(Exception):
 
 def detect_dockyard_api_version(dockyard_address, user, password):
     possible_reason = None
-    for api_version, endpoint in six.iteritems(DOCKYARD_API_ENDPOINTS):
+    for api_version, endpoint in DOCKYARD_API_ENDPOINTS.items():
         try:
             url = dockyard_address.rstrip('/') + endpoint
             auth = None
