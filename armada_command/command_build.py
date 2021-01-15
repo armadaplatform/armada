@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import os
 
 from armada_command.armada_utils import ArmadaCommandException, execute_local_command, is_verbose, \

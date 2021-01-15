@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import sys
 
 from armada_command import armada_api

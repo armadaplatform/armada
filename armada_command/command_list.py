@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import datetime
 
 from armada_command.armada_api import get_json
