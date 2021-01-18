@@ -14,7 +14,7 @@ RUN DEBIAN_FRONTEND="noninteractive" TZ="Etc/UTC" apt-get install -y tzdata
 
 #--- Install common utils ---
 RUN apt-get install -y --no-install-recommends \
-    supervisor git curl mc less software-properties-common wget vim gcc \
+    supervisor git curl mc less software-properties-common wget vim gcc nano \
     unzip apt-utils net-tools cron netcat sudo file iproute2 bash-completion
 
 #--- Install required Python version. ---
