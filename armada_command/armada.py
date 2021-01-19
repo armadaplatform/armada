@@ -31,7 +31,7 @@ from armada_command.armada_utils import set_verbose, is_verbose
 from armada_command.scripts.update import version_check
 
 
-def parse_args():
+def _get_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('-V', '--version', action='version', version=__version__)
     parser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
@@ -136,8 +136,7 @@ def parse_args():
     for subparser in subparsers.choices.values():
         subparser.add_argument('-vv', '--verbose', action='store_true', help='Increase output verbosity.')
 
-    args = parser.parse_args()
-    return args
+    return parser
 
 
 # ===================================================================================================
@@ -172,7 +171,8 @@ def main():
 
     log_command()
 
-    args = parse_args()
+    parser = _get_parser()
+    args = parser.parse_args()
     try:
         if args.verbose:
             set_verbose()
@@ -189,6 +189,8 @@ def main():
     try:
         if hasattr(args, 'func'):
             args.func(args)
+        else:
+            parser.print_usage()
     except Exception as e:
         print('Command failed: {exception_class} - {exception}'.format(
             exception_class=type(e).__name__,
