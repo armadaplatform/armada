@@ -59,7 +59,6 @@ def main():
     _cleanup_dist()
     create_deb_package(version)
     create_rpm_package(version)
-    # TODO:
     # create_amazon_linux_package(version)
     create_pacman_package(version)
 

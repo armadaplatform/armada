@@ -17,6 +17,7 @@ RUN rm -f /etc/supervisor/conf.d/local_magellan.conf
 
 # armada
 COPY . /opt/armada-docker
+RUN chmod a+rx /opt/armada-docker/armada_backend/scripts/setup_ssh.sh
 RUN /opt/armada-docker/armada_backend/scripts/setup_ssh.sh
 RUN ln -s /opt/armada-docker/microservice_templates /opt/templates
 RUN ln -s /opt/armada-docker/packaging/bin/armada /usr/local/bin/armada

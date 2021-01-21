@@ -2,7 +2,18 @@
 
 ## Unreleased
 
+### Features
+
+### Improvements
+- A new `microservice_focal` (ubuntu20.04) base image added. It's version bumped to `2.11.0`.
+- `microservice_python3` image base changed to `microservice_focal`.
+- Armada built on top of updated `microservice_python3` base image. It's version bumped to `2.11.0`.
+- Armada commands migrated to python3. Python2 dependency dropped.
+- `Haproxy` version upgraded from `1.8` to `2.2`.
+- No package for amazon linux 1. Support dropped.
+
 ### Bug fixes
+* Fix broken dependency (Falcon Json Middleware) for backend.
 * Allow binding armada to interfaces with more than one IP address.
 * Fix broken dependencies for `armada-microservice.deb` package. Bump version to `2.10.1`.
 
