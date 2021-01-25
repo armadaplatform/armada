@@ -37,7 +37,7 @@ def command_poker(args):
 
     with open('/opt/armada/armada_command/utils/so_sick/poker', 'rb') as im:
         for line in im:
-            sys.stdout.write(line)
+            sys.stdout.write(line.decode())
 
     if not audio:
         print("So sick!")
