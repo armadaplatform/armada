@@ -1,4 +1,4 @@
-FROM microservice_python37_focal
+FROM microservice_python38_focal
 MAINTAINER Cerebro <cerebro@ganymede.eu>
 
 RUN apt-get update && apt-get upgrade -y
