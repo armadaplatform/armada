@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import calendar
 import glob
 import json
@@ -232,7 +230,7 @@ def _report_health_status_v1(microservice_id, health_check_code):
     url = '{}/v1/local/health/{}'.format(ARMADA_API_URL, microservice_id)
     r = requests.put(url, json={'health_check_code': health_check_code})
     if r.status_code == 404:
-        if r.content == b'not found':
+        if r.content == 'not found':
             raise UnsupportedArmadaApiException()
         service_not_found = False
         try:

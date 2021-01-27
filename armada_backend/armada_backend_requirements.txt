@@ -3,9 +3,8 @@ colored
 contextlib2
 docker==2.4.2
 falcon
-falcon_json_middleware
+git+https://github.com/boomletsgo/falcon-json-middleware.git
 paramiko
 raven
-six
 ujson
 uwsgi

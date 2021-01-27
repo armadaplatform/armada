@@ -1,13 +1,10 @@
-from __future__ import print_function
-
 import logging
 import os
 import socket
 import subprocess
 import sys
 
-from colored import style
-from colored.fore import *
+from colored import style, fore
 
 from armada_command.consul import kv
 from armada_command.consul.consul import consul_query

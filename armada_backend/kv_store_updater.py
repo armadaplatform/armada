@@ -1,8 +1,6 @@
 import random
 import time
 
-import six
-
 from armada_backend import docker_client
 from armada_backend.api_list import get_list
 from armada_backend.models.services import get_local_services_from_kv_store, update_container_status, save_container
@@ -41,7 +39,7 @@ def _update_running_services():
     running_containers_ids = _get_running_container_ids()
     local_services = get_local_services_from_kv_store()
     local_services_container_ids = [it.split('/')[-1] for it in local_services]
-    for service_id in six.iterkeys(services):
+    for service_id in services.keys():
         container_id, is_subservice = _get_container_id_with_subservice(service_id)
         if container_id not in local_services_container_ids:
             save_container(ship_name, container_id, 'started', ship_ip=ship_ip)

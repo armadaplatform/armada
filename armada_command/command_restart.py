@@ -1,10 +1,6 @@
-from __future__ import print_function
-
 import os
 import sys
 import traceback
-
-import six
 
 from armada_command import armada_api
 from armada_command import armada_utils
@@ -64,7 +60,7 @@ def command_restart(args):
                 new_container_id = result['container_id']
                 print('Service has been restarted and is running in container {new_container_id} '
                       'available at addresses:'.format(**locals()))
-                for service_address, docker_port in six.iteritems(result['endpoints']):
+                for service_address, docker_port in result['endpoints'].items():
                     print('  {0} ({1})'.format(service_address, docker_port))
                 if instances_count > 1:
                     print()

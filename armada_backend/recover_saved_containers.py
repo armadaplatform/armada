@@ -6,8 +6,6 @@ from collections import Counter
 from time import sleep
 from uuid import uuid4
 
-import six
-
 from armada_backend.api_ship import wait_for_consul_ready
 from armada_backend.models.services import save_container, get_local_services_from_kv_store, create_consul_services_key, \
     update_container_status
@@ -38,7 +36,7 @@ def _load_saved_containers_parameters(running_containers_parameters_path):
 
 def _convert_to_consul_services_format(services_parameters):
     new_format = {}
-    for key, params in six.iteritems(services_parameters):
+    for key, params in services_parameters.items():
         pattern = re.compile(
             r'ships/(?P<ship>.*)/service/(?P<service_name>.*)/(?P<container_id>.*)')
         match = pattern.match(key)
@@ -81,14 +79,14 @@ def _multiset_difference(a, b):
 
 
 def _load_from_dict(services_parameters, ship_name, ship_ip):
-    key = next(iter(six.iterkeys(services_parameters)))
+    key = next(iter(services_parameters.keys()))
 
     # convert from armada 1.x format
     # todo: remove in future version
     if key.startswith('ships'):
         services_parameters = _convert_to_consul_services_format(services_parameters)
 
-    saved_containers_list = [saved_container['params'] for saved_container in six.itervalues(services_parameters)]
+    saved_containers_list = [saved_container['params'] for saved_container in services_parameters.values()]
     _load_from_list(saved_containers_list, ship_name, ship_ip)
 
 
@@ -165,7 +163,7 @@ def _add_running_services_at_startup():
         all_services = consul_query('agent/services')
         if 'consul' in all_services:
             del all_services['consul']
-        for service_id, service_dict in six.iteritems(all_services):
+        for service_id, service_dict in all_services.items():
             if ':' in service_id:
                 continue
             if service_dict['Service'] == 'armada':

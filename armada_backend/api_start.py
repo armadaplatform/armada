@@ -1,5 +1,3 @@
-import six
-
 from armada_backend import api_base, docker_client
 from armada_backend.models.services import save_container
 from armada_backend.models.ships import get_ship_ip_and_name
@@ -19,7 +17,7 @@ class Start(api_base.ApiCommand):
         container_id = shorten_container_id(long_container_id)
         save_container(ship_name, container_id, status='started', ship_ip=service_ip)
 
-        for container_port, host_address in six.iteritems(docker_inspect['NetworkSettings']['Ports']):
+        for container_port, host_address in docker_inspect['NetworkSettings']['Ports'].items():
             service_endpoints['{0}:{1}'.format(service_ip, host_address[0]['HostPort'])] = container_port
         return service_endpoints
 

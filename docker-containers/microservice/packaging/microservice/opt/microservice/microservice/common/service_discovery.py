@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import requests
 
 from microservice.common.consul import print_err

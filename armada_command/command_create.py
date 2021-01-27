@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import os
 import shutil
 import tempfile
@@ -12,7 +10,7 @@ def add_arguments(parser):
     parser.add_argument('name',
                         help='Name of the created microservice.')
     parser.add_argument('-b', '--base-template', default='python3',
-                        help='Base microservice template. Possible choices: python, python3, node, flask')
+                        help='Base microservice template. Possible choices: python3, node, flask')
 
 
 def _replace_in_file_content(file_path, old, new):

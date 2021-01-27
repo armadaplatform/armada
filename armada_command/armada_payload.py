@@ -2,8 +2,6 @@ import os
 import random
 import sys
 
-import six
-
 from armada_command.armada_utils import ArmadaCommandException, is_port_available
 from armada_command.dockyard import dockyard
 
@@ -64,7 +62,7 @@ class RunPayload(object):
             self._payload['environment'][env_key] = env_value
 
     def update_ports(self, ports):
-        for port_host, port_container in six.iteritems(self._ports_to_mapping_dict(ports)):
+        for port_host, port_container in self._ports_to_mapping_dict(ports).items():
             self._payload['ports'][str(port_host)] = str(port_container)
 
     def update_volumes(self, volumes):
@@ -110,7 +108,7 @@ class RunPayload(object):
         mapping_dict = {}
         for port_mapping in sum(ports or [], []):
             try:
-                port_host, port_container = map(int, (port_mapping.split(':', 1) + [None])[:2])
+                port_host, port_container = [int(x) for x in (port_mapping.split(':', 1) + [None])[:2]]
                 mapping_dict[port_host] = port_container
             except (ValueError, TypeError):
                 raise ArmadaCommandException('Invalid port mapping: {0}'.format(port_mapping))

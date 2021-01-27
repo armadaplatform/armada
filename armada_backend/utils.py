@@ -4,7 +4,6 @@ import os
 
 import falcon
 import requests
-import six
 from raven import Client, setup_logging
 from raven.handlers.logging import SentryHandler
 
@@ -92,7 +91,7 @@ def get_logger():
 
 def deregister_services(container_id):
     services_dict = consul_query('agent/services')
-    for service_id, service_dict in six.iteritems(services_dict):
+    for service_id, service_dict in services_dict.items():
         if service_id.startswith(container_id):
             consul_get('agent/service/deregister/{service_id}'.format(**locals()))
             try:
@@ -143,7 +142,7 @@ def get_container_parameters(container_id):
     response.raise_for_status()
     output = response.json()
     if output['status'] == 'ok':
-        container_parameters = json.loads(base64.b64decode(output['value']))
+        container_parameters = json.loads(base64.b64decode(output['value']).decode())
         return container_parameters
     return None
 

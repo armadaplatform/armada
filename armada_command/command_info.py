@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import sys
 from collections import Counter
 
@@ -33,7 +31,7 @@ def command_info(args):
               'fatal.', file=sys.stderr)
         print('Such configuration should only be used in development environments.', file=sys.stderr)
     else:
-        failure_tolerance = ship_role_counts['commander'] / 2
+        failure_tolerance = ship_role_counts['commander'] // 2
         print('\nWe can survive failure of {0} {1} (including leader).'.format(
             failure_tolerance, 'commander' if failure_tolerance == 1 else 'commanders'),
             file=sys.stderr)

@@ -1,5 +1,4 @@
 import falcon
-import six
 
 from armada_backend import docker_client
 from armada_backend.api_base import ApiCommand
@@ -11,7 +10,7 @@ def get_container_ports_mapping(container_id):
     docker_inspect = docker_api.inspect_container(container_id)
     container_ports = docker_inspect['NetworkSettings']['Ports']
     mapping = {}
-    for local_port, host_ports in six.iteritems(container_ports):
+    for local_port, host_ports in container_ports.items():
         protocol = local_port.split('/')[-1]
         mapping[local_port] = '{}/{}'.format(host_ports[0]['HostPort'], protocol)
     return mapping

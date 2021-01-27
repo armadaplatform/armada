@@ -3,46 +3,46 @@
 from argparse import ArgumentParser
 import subprocess
 
-options = {
-    'depends': [
-        "supervisor",
-        "python",
-        "python-dev",
-        "python-pip",
-        "python3-pip",
-        "curl",
-        "mc",
-        "less",
-        "software-properties-common",
-        "wget",
-        "vim",
-        "gcc",
-        "unzip",
-        "apt-utils",
-        "net-tools",
-        "cron",
-        "netcat",
-        "sudo",
-        "file",
-        "iproute2",
-        "bash-completion"
-    ],
-    'suggests': [
-        "haproxy"
-    ]
-}
-
 
 def main():
-    ap = ArgumentParser()
-    ap.add_argument('--version', required=True)
-    args = ap.parse_args()
+    parser = ArgumentParser()
+    parser.add_argument('--version', required=True)
+    args = parser.parse_args()
     version = args.version
+    _create_package(version)
 
-    _create_package(options, version)
 
+def _create_package(version):
 
-def _create_package(options, version):
+    options = {
+        'depends': [
+            "supervisor",
+            "python3",
+            "python3-dev",
+            "python3-pip",
+            "git",
+            "curl",
+            "mc",
+            "less",
+            "software-properties-common",
+            "wget",
+            "vim",
+            "gcc",
+            "unzip",
+            "apt-utils",
+            "net-tools",
+            "cron",
+            "netcat",
+            "sudo",
+            "file",
+            "iproute2",
+            "bash-completion"
+        ],
+        'suggests': [
+            "haproxy"
+        ]
+    }
+
     fpm_options = [
         "fpm",
         "-t", "deb",

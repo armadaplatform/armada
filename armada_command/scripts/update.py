@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import os
 import sys
 import time
@@ -27,7 +25,7 @@ def _valid_cache():
 def _sync_cache():
     current_dir = os.path.dirname(__file__)
     with open(os.devnull) as dnull:
-        Popen(['python', os.path.join(current_dir, 'sync_version.py')],
+        Popen(['python3', os.path.join(current_dir, 'sync_version.py')],
               env=dict(PYTHONPATH='/opt/armada'), stderr=dnull, stdout=dnull)
 
 

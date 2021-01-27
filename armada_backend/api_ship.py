@@ -5,8 +5,6 @@ import xmlrpc.client
 from socket import gethostname
 from subprocess import check_call
 
-import six
-
 from armada_backend import api_base, consul_config
 from armada_backend.api_list import get_list
 from armada_backend.models.services import get_local_services_from_kv_store
@@ -119,7 +117,7 @@ class Join(api_base.ApiCommand):
             hermes_init_output = supervisor_server.supervisor.startProcessGroup('hermes_init')
             get_logger().info('hermes_init start: %s', hermes_init_output)
             set_ship_name(ship)
-            for key, data in six.iteritems(local_services_data):
+            for key, data in local_services_data.items():
                 kv.kv_set(key, data)
             return self.status_ok(resp)
         return self.status_error(resp, 'Waiting for armada restart timed out.')

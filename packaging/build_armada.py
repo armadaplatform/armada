@@ -59,7 +59,6 @@ def main():
     _cleanup_dist()
     create_deb_package(version)
     create_rpm_package(version)
-    create_amazon_linux_package(version)
     create_pacman_package(version)
 
     logger.info('All packages creates successfully and stored in dist folder.')
@@ -68,8 +67,8 @@ def main():
 def create_deb_package(version):
     deb = {
         'package_type': 'deb',
-        'depends': ['python', 'python-pip', 'conntrack', 'iproute2', 'jq', 'netcat-openbsd'],
-        'suggests': ['python-pyaudio'],
+        'depends': ['python3', 'python3-pip', 'conntrack', 'iproute2', 'jq', 'netcat-openbsd'],
+        'suggests': ['python3-pyaudio'],
     }
     packaging_options = defaults.copy()
     packaging_options.update(deb)
@@ -80,7 +79,7 @@ def create_deb_package(version):
 def create_rpm_package(version):
     rpm = {
         'package_type': 'rpm',
-        'depends': ['python', 'python-pip', 'conntrack-tools', 'jq', 'nmap-ncat'],
+        'depends': ['python3', 'python3-pip', 'conntrack-tools', 'jq', 'nmap-ncat'],
     }
     packaging_options = defaults.copy()
     packaging_options.update(rpm)
@@ -88,24 +87,11 @@ def create_rpm_package(version):
     _create_package(packaging_options, version)
 
 
-def create_amazon_linux_package(version):
-    # amazon linux has custom installed pip, and default python in version 2.6.x
-    rpm = {
-        'package_type': 'rpm',
-        'depends': ['conntrack-tools', 'jq', 'nc'],
-        'name': 'armada-amzn',
-    }
-    packaging_options = defaults.copy()
-    packaging_options.update(rpm)
-    logger.info('Creating amazon linux package')
-    _create_package(packaging_options, version)
-
-
 def create_pacman_package(version):
     deb = {
         'package_type': 'pacman',
-        'depends': ['python2', 'python2-pip', 'conntrack-tools', 'iproute2', 'jq', 'openbsd-netcat'],
-        'suggests': ['python2-pyaudio'],
+        'depends': ['python', 'python-pip', 'conntrack-tools', 'iproute2', 'jq', 'openbsd-netcat'],
+        'suggests': ['python-pyaudio'],
     }
     packaging_options = defaults.copy()
     packaging_options.update(deb)
@@ -174,7 +160,7 @@ def _create_package(options, version):
         "--version", version,
         "--architecture", 'x86_64',
         "-p", "./dist",
-
+        "--pacman-compression", "gz",
     ]
     for dep in options['depends']:
         fpm_options += ['--depends', dep]

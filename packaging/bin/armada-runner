@@ -43,7 +43,7 @@ set_external_ip() {
     # determine network interface for empty config
     if [[ -z "$default_interface" ]]; then
         log_message "WARNING: Armada is starting without default interface setup in /etc/default/armada. Armada will try to detect best network interface automatically. Please configure default interface to disable this feature."
-        default_interface=$( ip r |  awk '/^default/{print $5}' )
+        default_interface=$( ip r |  awk '/^default/{i=$5}END{print i}' )
         # if there is only one lo interface available
         if [[ -z "$default_interface" ]]; then
             default_interface='lo'
@@ -129,7 +129,7 @@ docker_server_version() {
 }
 
 get_static_docker_client_if_missing() {
-    python /opt/armada/docker_compatibility.py cache-client
+    python3 /opt/armada/docker_compatibility.py cache-client
 }
 
 get_docker_start_timestamp() {
@@ -143,7 +143,7 @@ remove_services() {
     if [ "$ship_name" == "armada" ]; then
         ship_name=$ship_ip
     fi
-    services=$(curl -s "${ship_ip}:8500/v1/kv/ships/${ship_name}/service/?keys" | python -c 'import sys, json; print " ".join(json.load(sys.stdin))')
+    services=$(curl -s "${ship_ip}:8500/v1/kv/ships/${ship_name}/service/?keys" | python3 -c 'import sys, json; print(" ".join(json.load(sys.stdin)))')
     for service in $services
     do
         curl -s -X DELETE "${ship_ip}:8500/v1/kv/$service" > /dev/null

@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import argparse
 import os
 import pipes
@@ -33,7 +31,7 @@ def prompt_select_instance(instances):
         print(template.format(i=i + 1, name=instance['ServiceName'], address=instance['Address'],
                               port=instance['ServicePort'], id=instance['ServiceID'], local=local))
     try:
-        selection = int(raw_input("Please select one: "))
+        selection = int(input("Please select one: "))
         if 0 >= selection > len(instances):
             raise ValueError
     except ValueError:
