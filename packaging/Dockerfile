@@ -1,23 +1,23 @@
 FROM docker.io/ubuntu:20.04
 
-RUN apt-get update && apt-get upgrade -y
-
 # Set up container's timezone
-RUN DEBIAN_FRONTEND="noninteractive" TZ="Etc/UTC" apt-get install -y tzdata
+RUN DEBIAN_FRONTEND="noninteractive" apt-get update && apt-get install -y tzdata
 
-RUN apt-get install -y --no-install-recommends \
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
         g++ \
         gcc \
         git \
+        libarchive-tools \
         libc6-dev \
+        libffi-dev \
         make \
         python3 \
         rpm \
-        xz-utils \
-        tar \
-        libarchive-tools \
         ruby-dev \
-        libffi-dev
+        tar \
+        xz-utils
 
 # install package builder
 RUN gem install fpm
