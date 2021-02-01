@@ -9,7 +9,7 @@ ENV MICROSERVICE_VERSION 2.11.0
 
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y --no-install-recommends supervisor python python-dev python-pip python3-pip curl mc less \
+RUN apt-get install -y --no-install-recommends supervisor python3 python3-dev python3-pip curl mc less git \
     software-properties-common wget vim gcc unzip apt-utils net-tools cron netcat sudo file iproute2 bash-completion
 
 RUN add-apt-repository -y ppa:vbernat/haproxy-1.8

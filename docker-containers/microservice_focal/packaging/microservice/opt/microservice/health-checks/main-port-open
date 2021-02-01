@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+check_interface() {
+    if [[ "${port}" == */udp ]]; then
+        # -v is necessary, otherwise nc always returns 0 for UDP ports.
+        nc -z -u -v $1 $(cut -d/ -f1 <<< ${port})
+    else
+        nc -z $1 ${port}
+    fi
+}
+
+port=80
+if [ -n "$1" ]; then
+    port="$1"
+fi
+
+ips=$( ip address | awk '/inet/&&!/inet6/{split($2,a,"/");print a[1]}' )
+
+for ip in ${ips}; do
+    check_interface ${ip}
+
+    if [ $? -eq 0 ]; then
+        exit 0
+    fi
+done
+
+exit 2

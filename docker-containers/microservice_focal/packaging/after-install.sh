@@ -2,8 +2,7 @@
 
 set -ex
 
-sudo -H python3 -m pip install --upgrade 'pip<21.0'
-sudo -H python3 -m pip install --upgrade 'setuptools<51.0.0'
+sudo -H python3 -m pip install --upgrade pip setuptools
 sudo -H python3 -m pip install --upgrade web.py
 
 mkdir -p /var/log/supervisor /var/opt/service-registration/
