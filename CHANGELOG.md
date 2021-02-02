@@ -1,10 +1,8 @@
 # Changelog
 
-## 2.11.0 (2021-01-29)
+## 2.11.0 (2021-02-02)
 
 We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
-
-### Features
 
 ### Improvements
 - A new `microservice_focal` (ubuntu20.04) base image added. It's version bumped to `2.11.0`.
@@ -18,7 +16,6 @@ We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
 ### Bug fixes
 * Fix broken dependency (Falcon Json Middleware) for backend.
 * Allow binding armada to interfaces with more than one IP address.
-* Fix broken dependencies for `armada-microservice.deb` package. Bump version to `2.10.1`.
 
 ## 2.10.0 (2019-01-31)
 
