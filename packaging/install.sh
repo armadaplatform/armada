@@ -48,7 +48,7 @@ if [ ! -d /var/log/armada ]; then
 fi
 
 
-$sh_c "python3 -m pip install -r /opt/armada/armada_command_requirements.txt 2> /dev/null"
+$sh_c "LC_ALL=C python3 -m pip install -r /opt/armada/armada_command_requirements.txt 2> /dev/null"
 
 sudo bash -c ". /etc/bash_completion.d/armada"
 

@@ -4,6 +4,7 @@
 
 ## Bug fixes
 - Fix armada installation for docker >= 18.09.0.
+- Fix pip locale problems during armada installation.
 
 ## 2.11.0 (2021-02-02)
 
