@@ -116,12 +116,21 @@ class DockerBackendV1(BaseDockerBackend):
 
 
 class DockerBackendV2(DockerBackendV1):
-    versions_range = ('17.03.0', None)
+    versions_range = ('17.03.0', '18.09.0')
     docker_binaries_url = 'https://download.docker.com/linux/static/edge/x86_64/'
 
     def get_static_docker_client(self):
         ce_version_string = '{}.{:02}.{}-ce'.format(*self.current_version.version)
         self._get_static_docker_client(ce_version_string)
+
+
+class DockerBackendV3(DockerBackendV1):
+    versions_range = ('18.09.0', None)
+    docker_binaries_url = 'https://download.docker.com/linux/static/edge/x86_64/'
+
+    def get_static_docker_client(self):
+        version_string = '{}.{:02}.{}'.format(*self.current_version.version)
+        self._get_static_docker_client(version_string)
 
 
 docker_backend = _docker_backend_factory()
