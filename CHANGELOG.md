@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.11.1 (2021-02-11)
+
+We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
 
 ## Bug fixes
 - Fix armada installation for docker >= 18.09.0.

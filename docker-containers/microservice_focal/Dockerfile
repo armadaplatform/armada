@@ -5,7 +5,7 @@ ENV LANG='C.UTF-8' LC_ALL='C.UTF-8'
 ENV DISTRIB_CODENAME=focal DISTRIB_RELEASE=20.04
 ENV CONFIG_DIR config
 
-ENV MICROSERVICE_VERSION 2.11.0
+ENV MICROSERVICE_VERSION 2.11.1
 
 # Set up container's timezone
 RUN DEBIAN_FRONTEND="noninteractive" apt-get update && apt-get install -y tzdata
