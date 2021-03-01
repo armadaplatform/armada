@@ -52,4 +52,7 @@ RUN dpkg -l armada-microservice
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*
 
+#--- Add python alias ---
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
 CMD ["microservice", "bootstrap"]
