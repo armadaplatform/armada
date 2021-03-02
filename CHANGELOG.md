@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+## Bug fixes
+* Fixed `armada diagnose` command for `microservice_focal` images on older armada versions
+    by adding alias `python` --> `python3` in those images.
+
 ## 2.11.1 (2021-02-11)
 
 We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.
