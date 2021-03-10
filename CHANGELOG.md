@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.11.3 (2021-03-10)
 
 We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
 
