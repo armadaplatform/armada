@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
+
+## Bug fixes
+- Fixed `armada ssh` command for docker >= 19.03.14.
+
 ## 2.11.2 (2021-03-02)
 
 We do best effort to support docker versions 1.12.0 - 17.12.1 with this release.

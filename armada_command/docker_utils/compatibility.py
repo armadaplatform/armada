@@ -125,12 +125,29 @@ class DockerBackendV2(DockerBackendV1):
 
 
 class DockerBackendV3(DockerBackendV1):
-    versions_range = ('18.09.0', None)
+    versions_range = ('18.09.0', '19.03.14')
     docker_binaries_url = 'https://download.docker.com/linux/static/edge/x86_64/'
 
     def get_static_docker_client(self):
         version_string = '{}.{:02}.{}'.format(*self.current_version.version)
         self._get_static_docker_client(version_string)
+
+class DockerBackendV4(DockerBackendV1):
+    versions_range = ('19.03.14', None)
+    docker_binaries_url = 'https://download.docker.com/linux/static/edge/x86_64/'
+
+    def get_static_docker_client(self):
+        version_string = '{}.{:02}.{}'.format(*self.current_version.version)
+
+        if not os.path.isdir(DOCKER_STATIC_CLIENT_DIR):
+            os.mkdir(DOCKER_STATIC_CLIENT_DIR)
+
+        cached_version_name = 'docker-{}'.format(version_string)
+        cached_version_path = os.path.join(DOCKER_STATIC_CLIENT_DIR, cached_version_name)
+        if os.path.isdir(cached_version_path):
+            os.rmdir(cached_version_path)
+        if not os.path.isfile(cached_version_path):
+            shutil.copy('/usr/bin/docker', cached_version_path)
 
 
 docker_backend = _docker_backend_factory()
