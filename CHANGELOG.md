@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+### Improvements
 - A set of new `microservice_node...` base images added, including:
     -  `microservice_node16` (based on `microservice`).
     -  `microservice_node14_focal` (based on `microservice_focal`).
