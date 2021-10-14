@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- A set of new `microservice_node...` base images added, including:
+    -  `microservice_node16` (based on `microservice`).
+    -  `microservice_node14_focal` (based on `microservice_focal`).
+    -  `microservice_node16_focal` (based on `microservice_focal`).
+
 ## 2.11.3 (2021-03-10)
 
 We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
