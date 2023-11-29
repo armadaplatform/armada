@@ -22,4 +22,4 @@ RUN mkdir -p "$GOPATH/src" "$GOPATH/bin"
 RUN chmod -R 777 "$GOPATH"
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
-RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+RUN go install github.com/tools/godep@latest
