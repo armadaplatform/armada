@@ -38,11 +38,6 @@ RUN apt-get update && \
         wget \
         haproxy
 
-#--- Install haproxy ---
-#RUN add-apt-repository ppa:vbernat/haproxy-2.4 -y
-#RUN apt-get update
-#RUN apt-get install -y --no-install-recommends haproxy
-
 #--- Install armada ---
 COPY ./armada-microservice_${MICROSERVICE_VERSION}_amd64.deb /tmp/armada-microservice_${MICROSERVICE_VERSION}_amd64.deb
 RUN dpkg -i /tmp/armada-microservice_${MICROSERVICE_VERSION}_amd64.deb || true
