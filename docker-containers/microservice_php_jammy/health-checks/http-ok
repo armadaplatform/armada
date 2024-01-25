@@ -1,0 +1,13 @@
+#!/bin/bash
+
+url=http://localhost
+# -c /dev/null is for websites that redirect with new cookies set.
+http_status_code=$(curl -sL -w "%{http_code}" -o /dev/null -c /dev/null ${url})
+
+if [ ${http_status_code} -ne '200' ]; then
+    echo "HTTP health check failed"
+    exit 2
+fi
+
+echo "HTTP health check OK"
+exit 0
