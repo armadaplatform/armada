@@ -6,6 +6,6 @@
     "start": "node _MICROSERVICE_NODE_TEMPLATE_.js"
   },
   "dependencies": {
-    "express": "3.3.x"
+    "express": "4.17.x"
   }
 }
