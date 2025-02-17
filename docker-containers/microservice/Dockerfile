@@ -10,7 +10,7 @@ ENV MICROSERVICE_VERSION 2.11.5
 RUN apt-get update
 RUN apt-get upgrade -y
 RUN apt-get install -y --no-install-recommends supervisor python3 python3-dev python3-pip curl mc less git \
-    software-properties-common wget vim gcc unzip apt-utils net-tools cron netcat sudo file iproute2 bash-completion
+    software-properties-common wget vim gcc unzip apt-utils net-tools cron netcat sudo file iproute2 bash-completion libffi-dev build-essential
 
 RUN add-apt-repository -y ppa:vbernat/haproxy-1.8
 RUN apt-get update
