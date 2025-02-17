@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.11.5 (2025-02-17)
+
+We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
 - Added --ssh option to the build command in Armada, allowing SSH keys to be forwarded into the container during build.
 - Fixed microservice_packaging image
 
