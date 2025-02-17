@@ -35,7 +35,9 @@ RUN apt-get update && \
         supervisor \
         unzip \
         vim \
-        wget
+        wget \
+        libffi-dev \
+        build-essential
 
 #--- Install haproxy ---
 RUN add-apt-repository -y ppa:vbernat/haproxy-2.2

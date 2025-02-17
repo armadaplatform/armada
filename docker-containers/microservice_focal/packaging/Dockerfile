@@ -20,7 +20,7 @@ RUN apt-get update && \
         rubygems
 
 # Install package builder
-RUN gem install fpm
+RUN gem install dotenv -v 2.8.1 && gem install fpm
 
 COPY package_build.py /usr/bin/package_build
 RUN chmod +x /usr/bin/package_build
