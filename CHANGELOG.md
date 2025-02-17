@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.11.4 (2025-02-17)
+
+We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
 
 ### Improvements
 - A set of new `microservice_node...` base images added, including:
