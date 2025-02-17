@@ -1,6 +1,5 @@
 import argparse
 import os
-import pipes
 import shlex
 
 from armada_command import armada_utils
@@ -89,7 +88,7 @@ def command_ssh(args):
     interactive = '-i' if args.interactive else ''
     term = os.environ.get('TERM') or 'dummy'
 
-    command = pipes.quote(command)
+    command = shlex.quote(command)
     docker_command = 'docker exec {interactive} {tty} {container_id} env TERM={term} ' \
                      'sh -c {command}'.format(**locals())
 

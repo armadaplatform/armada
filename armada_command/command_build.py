@@ -17,6 +17,7 @@ def add_arguments(parser):
                         help='Build from image from dockyard with this alias. '
                              "Use 'local' to force using local repository.")
     parser.add_argument('-s', '--squash', action='store_true', help='Squash image. Does not work with --file.')
+    parser.add_argument('--ssh', default='default', help='SSH agent socket or keys to expose to the build')
     parser.add_argument('--file', default='Dockerfile',
                         help='Path to the Dockerfile. Does not work with -s/--squash.')
 
@@ -120,6 +121,8 @@ def _generate_build_command(command_args, dockerfile_path, image):
 
     if command_args.squash:
         build_command.append('--squash')
+    if command_args.ssh:
+        build_command.append('--ssh ' + command_args.ssh)
     for build_arg in command_args.build_arg:
         build_command += ['--build-arg', build_arg]
 
