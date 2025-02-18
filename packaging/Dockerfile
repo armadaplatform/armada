@@ -20,7 +20,7 @@ RUN apt-get update && \
         xz-utils
 
 # install package builder
-RUN gem install fpm
+RUN gem install dotenv -v 2.8.1 && gem install fpm
 
 COPY build_armada.py /usr/bin/build_armada
 RUN chmod +x /usr/bin/build_armada

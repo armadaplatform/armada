@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Fixed builder image
+
 ## 2.11.11 (2025-02-18)
 
 We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
