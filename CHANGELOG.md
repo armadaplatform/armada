@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Fixed colored package version
+
 ## 2.11.7 (2025-02-17)
 
 We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
