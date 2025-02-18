@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.11.37 (2025-02-18)
+
+We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
+
 ## 2.11.31 (2025-02-18)
 
 We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
