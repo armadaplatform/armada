@@ -40,7 +40,7 @@ RUN chmod +x /opt/armada-docker/armada_backend/scripts/setup_ssh.sh \
 
 # Set version
 ARG ARMADA_VERSION=2.11.43
-ENV ARMADA_VERSION 2.13.1
+ENV ARMADA_VERSION 2.13.3
 RUN echo "__version__ = \"armada ${ARMADA_VERSION}\"" > /opt/armada-docker/armada_command/_version.py
 
 # Set Python path
