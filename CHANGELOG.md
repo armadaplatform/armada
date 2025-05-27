@@ -2,7 +2,9 @@
 
 # Changelog
 
-## Unreleased
+## 2.13.1 (2025-05-27)
+
+We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
 
 - Updated Python dependencies to latest versions (colored, contextlib2, docker, falcon, paramiko, requests, urllib3, ujson, uwsgi)
 - Added support for Ubuntu Noble (24.04) microservice base images
