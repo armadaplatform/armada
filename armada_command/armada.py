@@ -3,8 +3,7 @@ import json
 import os
 import sys
 import traceback
-
-from requests.packages import urllib3
+import urllib3
 
 from armada_command import armada_api
 from armada_command import command_build

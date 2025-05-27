@@ -1,10 +1,9 @@
 armada-heal==0.0.4
-colored==1.4.2
-contextlib2==0.6.0.post1
-docker==2.4.2
-falcon==2.0.0
-git+https://github.com/boomletsgo/falcon-json-middleware.git
-paramiko==2.7.2
+colored==2.3.0
+contextlib2==21.6.0
+docker==7.1.0
+falcon==4.0.2
+paramiko==3.5.1
 raven==6.10.0
-ujson
-uwsgi
+ujson==5.10.0
+uwsgi==2.0.29

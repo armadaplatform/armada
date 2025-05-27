@@ -22,8 +22,7 @@ def _get_error_from_docker_pull_event(event):
 
 def docker_pull(docker_api, dockyard_address, image_name, image_tag):
     image_address = dockyard_address + '/' + image_name
-    pull_output = list(docker_api.pull(image_address, tag=image_tag,
-                                       insecure_registry=True, stream=True))
+    pull_output = list(docker_api.pull(image_address, tag=image_tag, stream=True))
     for event_json in pull_output:
         event = json.loads(event_json)
         error = _get_error_from_docker_pull_event(event)

@@ -69,7 +69,7 @@ def _restart_consul():
 class Name(api_base.ApiCommand):
     def on_get(self, req, resp):
         resp.content_type = 'text/plain'
-        resp.body = get_ship_name()
+        resp.text = get_ship_name()
 
     def on_post(self, req, resp):
         ship_name, error = self.get_post_parameter(req, 'name')

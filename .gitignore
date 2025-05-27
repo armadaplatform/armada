@@ -1,5 +1,7 @@
 .idea/
 .vagrant/
+.claude/
+CLAUDE.md
 *.pyc
 *.BAK
 /dist/

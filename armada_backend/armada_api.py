@@ -1,5 +1,5 @@
 import falcon as falcon
-import falcon_json_middleware
+import json
 
 from armada_backend.api_create import Create
 from armada_backend.api_env import GetEnv
@@ -21,10 +21,26 @@ from armada_backend.api_version import GetVersion
 from armada_backend.utils import setup_sentry_for_falcon
 
 
+class JSONMiddleware(object):
+    def process_request(self, req, resp):
+        if req.content_length and req.content_type == 'application/json':
+            try:
+                req.json = json.loads(req.bounded_stream.read().decode('utf-8'))
+            except (ValueError, UnicodeDecodeError):
+                req.json = None
+        else:
+            req.json = None
+
+    def process_response(self, req, resp, resource, req_succeeded):
+        if hasattr(resp, 'json') and resp.json is not None and resp.text is None:
+            resp.content_type = 'application/json'
+            resp.text = json.dumps(resp.json)
+
+
 class Health(object):
     def on_get(self, req, resp):
         resp.content_type = 'text/plain'
-        resp.body = 'ok'
+        resp.text = 'ok'
 
 
 def _get_module_path_to_class(c):
@@ -60,8 +76,7 @@ def main():
         '/v1/local/ports/{microservice_id}', _get_module_path_to_class(PortsV1),
         '/v1/local/health/{microservice_id}', _get_module_path_to_class(HealthV1),
     )
-    middleware = [falcon_json_middleware.Middleware()]
-    app = falcon.API(middleware=middleware)
+    app = falcon.API(middleware=[JSONMiddleware()])
     setup_sentry_for_falcon(app)
 
     # Adapt ~web.py routes to falcon routes:

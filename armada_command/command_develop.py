@@ -44,9 +44,13 @@ def command_develop(args):
 
     current_dir_name = os.path.basename(os.getcwd())
     if current_dir_name != microservice_name:
-        print(style.BOLD + fore.YELLOW
-              + 'WARNING: Current working directory name "{}" does not match '
-                'microservice name "{}".'.format(current_dir_name, microservice_name)
-              + style.RESET)
+        warning_msg = (
+            style("bold") +
+            fore("yellow") +
+            f'WARNING: Current working directory name "{current_dir_name}" does not match '
+            f'microservice name "{microservice_name}".' +
+            style("reset")
+        )
+        print(warning_msg)
 
     save_dev_env_vars(microservice_name, volume)

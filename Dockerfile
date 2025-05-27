@@ -1,29 +1,50 @@
-FROM microservice_python3_focal
-MAINTAINER Cerebro <cerebro@ganymede.eu>
+FROM microservice_python3_noble
 
-RUN apt-get update && apt-get upgrade -y && apt-get install -y rsync openssh-server libffi-dev libssl-dev
+LABEL maintainer="Cerebro <cerebro@ganymede.eu>"
 
-COPY armada_backend/armada_backend_requirements.txt /tmp
+# Install system dependencies in single layer
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends \
+        rsync \
+        openssh-server \
+        libffi-dev \
+        libssl-dev \
+        curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m pip install -r /tmp/armada_backend_requirements.txt
+# Copy and install Python requirements
+COPY armada_backend/armada_backend_requirements.txt /tmp/
+RUN python3 -m pip install --no-cache-dir -r /tmp/armada_backend_requirements.txt \
+    && rm /tmp/armada_backend_requirements.txt
 
-# Consul
-RUN curl -s https://releases.hashicorp.com/consul/0.7.5/consul_0.7.5_linux_amd64.zip | zcat > /usr/local/bin/consul \
+# Install Consul
+ARG CONSUL_VERSION=0.7.5
+RUN curl -fsSL "https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip" \
+    | zcat > /usr/local/bin/consul \
     && chmod +x /usr/local/bin/consul
 
+# Configure supervisor
 COPY ./armada_backend/supervisor/* /etc/supervisor/conf.d/
 RUN rm -f /etc/supervisor/conf.d/local_magellan.conf
 
-# armada
-COPY . /opt/armada-docker
-RUN chmod a+rx /opt/armada-docker/armada_backend/scripts/setup_ssh.sh
-RUN /opt/armada-docker/armada_backend/scripts/setup_ssh.sh
-RUN ln -s /opt/armada-docker/microservice_templates /opt/templates
-RUN ln -s /opt/armada-docker/packaging/bin/armada /usr/local/bin/armada
+# Copy and setup armada
+COPY . /opt/armada-docker/
 
-ENV ARMADA_VERSION 2.11.43
-RUN echo __version__ = \"armada ${ARMADA_VERSION}\" > /opt/armada-docker/armada_command/_version.py
+# Setup SSH and create symlinks
+RUN chmod +x /opt/armada-docker/armada_backend/scripts/setup_ssh.sh \
+    && /opt/armada-docker/armada_backend/scripts/setup_ssh.sh \
+    && ln -sf /opt/armada-docker/microservice_templates /opt/templates \
+    && ln -sf /opt/armada-docker/packaging/bin/armada /usr/local/bin/armada
 
-ENV PYTHONPATH /opt/armada-docker:$PYTHONPATH
+# Set version
+ARG ARMADA_VERSION=2.11.43
+ENV ARMADA_VERSION=${ARMADA_VERSION}
+RUN echo "__version__ = \"armada ${ARMADA_VERSION}\"" > /opt/armada-docker/armada_command/_version.py
 
+# Set Python path
+ENV PYTHONPATH="/opt/armada-docker:${PYTHONPATH}"
+
+# Expose ports
 EXPOSE 22 80 8300 8301 8301/udp 8400 8500

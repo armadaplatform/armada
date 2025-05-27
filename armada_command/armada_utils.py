@@ -19,9 +19,9 @@ def print_err(*objs):
 
 
 def print_warning(*objs):
-    print(fore.YELLOW + 'WARNING: ', end='', file=sys.stderr)
+    print(fore("yellow") + style("bold") + 'WARNING: ', end='', file=sys.stderr)
     print_err(*objs)
-    print(style.RESET, end='', file=sys.stderr)
+    print(style("reset"), end='', file=sys.stderr)
 
 
 def is_local_container(container_id):
