@@ -66,7 +66,6 @@ RUN apt-get update \
 RUN haproxy -v
 
 # Install armada microservice
-ARG MICROSERVICE_VERSION=2.11.43
 COPY ./armada-microservice_${MICROSERVICE_VERSION}_amd64.deb /tmp/
 RUN dpkg -i /tmp/armada-microservice_${MICROSERVICE_VERSION}_amd64.deb || true \
     && apt-get update \
