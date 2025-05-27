@@ -3,7 +3,7 @@ FROM docker.io/ubuntu:24.04
 LABEL maintainer="Cerebro <cerebro@ganymede.eu>"
 
 # Environment variables
-ENV MICROSERVICE_VERSION=2.11.43
+ENV MICROSERVICE_VERSION 2.13.1
 ENV LANG='C.UTF-8' \
     LC_ALL='C.UTF-8' \
     DISTRIB_CODENAME=noble \

@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Updated Docker image for noble image
+
 ## 2.13.1 (2025-05-27)
 
 We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
