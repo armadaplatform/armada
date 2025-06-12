@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+body=$(curl -s localhost/health)
+
+if [ "${body,,}" == "ok" ]; then # ",," is to make ${body} lowercase
+    echo "HTTP health check OK"
+    exit 0
+fi
+echo "HTTP health check failed"
+exit 2
