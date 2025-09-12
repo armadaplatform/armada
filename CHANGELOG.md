@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.13.3 (2025-09-12)
+
+We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
 - Update Sentry integration to use modern sentry-sdk
 - Replace deprecated raven library with sentry-sdk[falcon] for better
 - Falcon 4.x compatibility and automatic error handling integration.
