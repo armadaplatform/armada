@@ -1,6 +1,9 @@
 # Changelog
 
-# Changelog
+## Unreleased
+- Update Sentry integration to use modern sentry-sdk
+- Replace deprecated raven library with sentry-sdk[falcon] for better
+- Falcon 4.x compatibility and automatic error handling integration.
 
 ## 2.13.1 (2025-05-27)
 

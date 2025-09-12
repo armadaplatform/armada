@@ -4,8 +4,9 @@ import os
 
 import falcon
 import requests
-from raven import Client, setup_logging
-from raven.handlers.logging import SentryHandler
+import sentry_sdk
+from sentry_sdk.integrations.falcon import FalconIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 from armada_backend import docker_client
 from armada_command._version import __version__
@@ -25,52 +26,38 @@ def shorten_container_id(long_container_id):
 
 def setup_sentry():
     sentry_url = get_ship_config().get('sentry_url', '')
+    
+    if not sentry_url:
+        return None
 
-    tags = {'ship_IP': get_external_ip()}
+    # Configure logging integration
+    logging_integration = LoggingIntegration(
+        level=logging.WARNING,
+        event_level=logging.WARNING
+    )
+    
+    # Configure Falcon integration
+    falcon_integration = FalconIntegration(
+        transaction_style='uri_template'
+    )
 
-    sentry_client = Client(sentry_url,
-                           include_paths=sentry_include_path,
-                           release=__version__,
-                           auto_log_stacks=True,
-                           ignore_exceptions=sentry_ignore_exceptions,
-                           tags=tags)
+    sentry_sdk.init(
+        dsn=sentry_url,
+        release=__version__,
+        integrations=[logging_integration, falcon_integration],
+        ignore_errors=sentry_ignore_exceptions,
+        in_app_include=sentry_include_path
+    )
+    
+    # Set global tags
+    sentry_sdk.set_tag('ship_IP', get_external_ip())
 
-    handler = SentryHandler(sentry_client, level=logging.WARNING)
-    setup_logging(handler)
-
-    return sentry_client
-
-
-class FalconErrorHandler:
-    def __init__(self, sentry_client):
-        self.sentry_client = sentry_client
-
-    def __call__(self, ex, req, resp, params):
-        if isinstance(ex, falcon.HTTPNotFound):
-            raise ex
-        data = {
-            'request': {
-                'url': req.url,
-                'method': req.method,
-                'query_string': req.query_string,
-                'env': req.env,
-                'data': req.params,
-                'headers': req.headers,
-            }
-        }
-        message = isinstance(ex, falcon.HTTPError) and ex.title or str(ex)
-        exception_id = self.sentry_client.captureException(message=message, data=data)
-        if not isinstance(ex, falcon.HTTPError):
-            raise falcon.HTTPInternalServerError(exception_id, str(ex))
-        raise ex
+    return True
 
 
 def setup_sentry_for_falcon(app):
-    sentry_url = get_ship_config().get('sentry_url')
-    if sentry_url:
-        sentry_client = setup_sentry()
-        error_handler = FalconErrorHandler(sentry_client)
-        app.add_error_handler(Exception, error_handler)
+    """Initialize Sentry for the Falcon app"""
+    setup_sentry()
     return app
 
 

@@ -4,6 +4,6 @@ contextlib2==21.6.0
 docker==7.1.0
 falcon==4.0.2
 paramiko==3.5.1
-raven==6.10.0
+sentry-sdk[falcon]==2.37.1
 ujson==5.10.0
 uwsgi==2.0.29

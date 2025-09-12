@@ -1,6 +1,7 @@
 .idea/
 .vagrant/
 .claude/
+.history/
 CLAUDE.md
 *.pyc
 *.BAK
