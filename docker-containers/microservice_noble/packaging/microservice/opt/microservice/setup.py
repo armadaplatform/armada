@@ -17,7 +17,7 @@ setup(
         'microservice/microservice',
     ],
     install_requires=[
-        'docker==2.4.2',
+        'docker==7.1.0',
         'requests',
         'armada',
         'pyopenssl',
