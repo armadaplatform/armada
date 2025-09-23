@@ -195,7 +195,7 @@ case "$1" in
             run_options+=" -e ARMADA_AUTORELOAD=0"
         fi
 
-        docker run $run_options "armada:${ARMADA_VERSION}" >> "${ARMADA_LOGFILE}" 2>&1
+        docker run $run_options "dockyard.armada.sh/armada:${ARMADA_VERSION}" >> "${ARMADA_LOGFILE}" 2>&1
 
         if [ $? != 0 ]; then
             echo "Error! Couldn't start Armada's container. Check ${ARMADA_LOGFILE} for details."
