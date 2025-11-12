@@ -4,7 +4,7 @@ from docker.types import HostConfig
 from armada_command.scripts.compat import json
 from armada_command.ship_config import get_ship_config
 
-DOCKER_API_VERSION = '1.24'
+DOCKER_API_VERSION = '1.44'
 DOCKER_SOCKET_PATH = '/var/run/docker.sock'
 
 

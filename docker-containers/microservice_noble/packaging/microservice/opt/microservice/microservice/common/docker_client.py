@@ -2,7 +2,7 @@ import socket
 
 import docker
 
-DOCKER_API_VERSION = '1.24'
+DOCKER_API_VERSION = '1.44'
 DOCKER_SOCKET_PATH = '/var/run/docker.sock'
 
 
@@ -24,6 +24,19 @@ def get_ship_ip():
     if _SHIP_IP is None:
         container_id = socket.gethostname()
         docker_inspect = get_docker_inspect(container_id)
-        gateway_ip = docker_inspect['NetworkSettings']['Gateway']
+        network_settings = docker_inspect['NetworkSettings']
+        
+        # Docker API >= 1.44: Gateway is in Networks
+        if 'Networks' in network_settings and network_settings['Networks']:
+            # Get first network's gateway
+            first_network = list(network_settings['Networks'].values())[0]
+            gateway_ip = first_network.get('Gateway')
+        else:
+            # Fallback for older Docker API versions
+            gateway_ip = network_settings.get('Gateway')
+        
+        if not gateway_ip:
+            raise Exception("Could not determine gateway IP from Docker inspect")
+            
         _SHIP_IP = gateway_ip
     return _SHIP_IP
