@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.13.7 (2025-11-12)
+
+We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
 - fix Docker API version for Docker 29.0.0
 
 ## 2.13.5 (2025-09-23)
