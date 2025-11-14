@@ -19,7 +19,7 @@ setup(
     install_requires=[
         'docker==2.4.2',
         'requests',
-        'armada',
+        'armada==1.2',  # Newer versions require Python 3.6+ (f-strings)
         'pyopenssl',
     ],
 )
