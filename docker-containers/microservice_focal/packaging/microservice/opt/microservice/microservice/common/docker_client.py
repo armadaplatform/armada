@@ -1,8 +1,9 @@
+import os
 import socket
 
 import docker
 
-DOCKER_API_VERSION = '1.44'
+DOCKER_API_VERSION = os.environ.get('DOCKER_API_VERSION', '1.35')
 DOCKER_SOCKET_PATH = '/var/run/docker.sock'
 
 
