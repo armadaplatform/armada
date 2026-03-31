@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+We do best effort to support docker versions >= 17.12.1
+- fix Docker API version for older Docker versions
+
 ## 2.13.7 (2025-11-12)
 
 We do best effort to support docker versions 1.12.0 - 20.10.4 with this release.
