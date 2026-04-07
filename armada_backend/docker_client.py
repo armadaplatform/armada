@@ -1,12 +1,21 @@
 import docker
-import os
 from docker.types import HostConfig
 
 from armada_command.scripts.compat import json
 from armada_command.ship_config import get_ship_config
 
-DOCKER_API_VERSION = os.environ.get('DOCKER_API_VERSION', '1.35')
 DOCKER_SOCKET_PATH = '/var/run/docker.sock'
+
+
+def _detect_docker_api_version(fallback='1.35'):
+    try:
+        client = docker.APIClient(base_url='unix://' + DOCKER_SOCKET_PATH)
+        return client.version()['ApiVersion']
+    except Exception:
+        return fallback
+
+
+DOCKER_API_VERSION = _detect_docker_api_version()
 
 
 class DockerException(Exception):

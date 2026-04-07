@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+We do best effort to support docker versions >= 17.12.1
+- fix Docker API version for older Docker versions
+
 ## 2.13.13 (2026-03-31)
 
 We do best effort to support docker versions >= 17.12.1
