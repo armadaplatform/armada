@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+We do best effort to support docker versions >= 17.12.1
+- auto-detect Docker API version from daemon socket, with env var override and fallback to 1.35
+
 ## 2.13.19 (2026-04-07)
 
 We do best effort to support docker versions >= 17.12.1

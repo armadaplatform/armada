@@ -1,3 +1,7 @@
+import http.client
+import os
+import socket
+
 import docker
 from docker.types import HostConfig
 
@@ -8,9 +12,17 @@ DOCKER_SOCKET_PATH = '/var/run/docker.sock'
 
 
 def _detect_docker_api_version(fallback='1.35'):
+    env_version = os.environ.get('DOCKER_API_VERSION')
+    if env_version:
+        return env_version
     try:
-        client = docker.APIClient(base_url='unix://' + DOCKER_SOCKET_PATH)
-        return client.version()['ApiVersion']
+        conn = http.client.HTTPConnection('localhost')
+        conn.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        conn.sock.connect(DOCKER_SOCKET_PATH)
+        conn.request('GET', '/version')
+        response = conn.getresponse()
+        data = json.loads(response.read())
+        return data['ApiVersion']
     except Exception:
         return fallback
 
