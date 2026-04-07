@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.13.31 (2026-04-07)
+
+We do best effort to support docker versions >= 17.12.1
+
 ## 2.13.29 (2026-04-07)
 
 We do best effort to support docker versions >= 17.12.1
