@@ -40,7 +40,9 @@ RUN apt-get update && \
         build-essential
 
 #--- Install haproxy ---
-RUN add-apt-repository -y ppa:vbernat/haproxy-2.2
+RUN for i in 1 2 3; do \
+    add-apt-repository -y ppa:vbernat/haproxy-2.2 && break || sleep 5; \
+done
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends haproxy
 
