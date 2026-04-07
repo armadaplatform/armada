@@ -12,7 +12,9 @@ RUN apt-get upgrade -y
 RUN apt-get install -y --no-install-recommends supervisor python3 python3-dev python3-pip curl mc less git \
     software-properties-common wget vim gcc unzip apt-utils net-tools cron netcat sudo file iproute2 bash-completion libffi-dev build-essential
 
-RUN add-apt-repository -y ppa:vbernat/haproxy-1.8
+RUN for i in 1 2 3; do \
+    add-apt-repository -y ppa:vbernat/haproxy-1.8 && break || sleep 5; \
+done
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends haproxy
 
