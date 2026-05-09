@@ -1,0 +1,15 @@
+_atail_action() {
+
+    local command="atail"
+
+    local current=${COMP_WORDS[COMP_CWORD]}
+    local previous=${COMP_WORDS[COMP_CWORD-1]}
+
+    if [[ "$previous" == "$command" ]]; then
+        COMPREPLY=($(compgen -W "$(find /var/log/supervisor/* -printf "%f\n")"  -- $current))
+    fi
+
+    return 0
+}
+
+complete -F _atail_action atail

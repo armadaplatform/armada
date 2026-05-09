@@ -1,0 +1,15 @@
+_acd_action() {
+
+    local command="acd"
+
+    local current=${COMP_WORDS[COMP_CWORD]}
+    local previous=${COMP_WORDS[COMP_CWORD-1]}
+
+    if [[ "$previous" == "$command" ]]; then
+        COMPREPLY=($(compgen -W "$(find /opt/${IMAGE_NAME}/* -type d -printf "%f\n")"  -- $current))
+    fi
+
+    return 0
+}
+
+complete -F _acd_action acd
